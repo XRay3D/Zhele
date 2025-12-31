@@ -23,16 +23,16 @@ namespace Zhele::Timers
     {
         /**
          * @brief Class implements STM32 base timer`s functional.
-         * 
+         *
          * @tparam _Regs - timers`s registers wrapper.
          * Regs type must has operator(), which returns TIM_TypeDef* (so, it's registers).
          * This parameter should be created with IO_STRUCT_WRAPPER macro.
-         * 
+         *
          * @tparam _ClockEnReg - timers`s clock.
          * ClockEnReg type must have static methods ClockFreq, Enable, Disable.
          * This template parameter is used for enable and disable timer`s clocking.
          * This parameter should be created as ClockControl instance (see @ref clock.h headerfile)
-         * 
+         *
          * @tparam IRQNumber - number of timer`s IRQ
          *
          **/
@@ -55,7 +55,7 @@ namespace Zhele::Timers
                 Trigger = TIM_DIER_TIE,	///< Trigger output
                 Break = TIM_DIER_BIE,	///< Break
             };
-            DECLARE_ENUM_OPERATIONS_IN_CLASS(Interrupt)
+
 
             /// All timer`s DMA requests
             enum class DmaRequest
@@ -67,7 +67,7 @@ namespace Zhele::Timers
                 CC4 = TIM_DIER_CC4DE,	///< Capture compare (4 channel) DMA request enable
                 Trigger = TIM_DIER_UDE,	///< Trigger DMA request enable
             };
-            DECLARE_ENUM_OPERATIONS_IN_CLASS(DmaRequest)
+
 
             /// Timer counter mode
             enum class CounterMode
@@ -94,37 +94,37 @@ namespace Zhele::Timers
 
             /**
              * @brief Returns frequence of timer`s clock (bus)
-             * 
+             *
              * @return Timer`s clock frequence
              */
             static unsigned GetClockFreq();
-            
+
             /**
              * @brief Enables timer`s clocking
-             * 
+             *
              * Enables clocking of timer (timer`s bus).
              * Because it's static class without properties (and without state),
              * all configs writes to registers immediately, this method should be called
              * first, otherwise other methods (such as SetXxx/GetXxx) will work incorrect.
-             * 
+             *
              * @par Returns
              *	Nothing
              */
             static void Enable();
-         
+
             /**
              * @brief Disables timer`s clocking
-             * 
+             *
              * @par Returns
              *	Nothing
              */
-            static void Disable(); 
+            static void Disable();
 
             /**
              * @brief Set timer`s counter mode
-             * 
+             *
              * @param [in] counterMode Timer`s counter mode
-             * 
+             *
              * @par Returns
              *	Nothing
              */
@@ -132,9 +132,9 @@ namespace Zhele::Timers
 
             /**
              * @brief Set timer`s counter value
-             * 
+             *
              * @param [in] counter Timer`s counter value
-             * 
+             *
              * @par Returns
              *	Nothing
              */
@@ -142,7 +142,7 @@ namespace Zhele::Timers
 
             /**
              * @brief Returns timer`s counter value
-             * 
+             *
              * @returns Current counter value
              */
             static Counter GetCounterValue();
@@ -157,9 +157,9 @@ namespace Zhele::Timers
 
             /**
              * @brief Set timer`s prescaler (PSC register) value
-             * 
+             *
              * @param [in] prescaler New prescaler value
-             * 
+             *
              * @par Returns
              *	Nothing
                 */
@@ -167,16 +167,16 @@ namespace Zhele::Timers
 
             /**
              * @brief Returns timer`s prescaler value
-             * 
+             *
              * @returns Current prescaler (PSC register value) value
              */
             static Counter GetPrescaler();
 
             /**
              * @brief Set timer`s period (ARR register) value
-             * 
+             *
              * @param [in] period New period
-             * 
+             *
              * @par Returns
              *	Nothing
              *
@@ -187,11 +187,11 @@ namespace Zhele::Timers
 
             /**
              * @brief Set timer`s period immediately (and reset CNT)
-             * 
+             *
              * @detailss
              * Writes new value to ARR register and set EGR_UG bit.
              * So, CNT will be zeroing, new ARR value will be written to shadow register (if no UDIS bit is set).
-             * 
+             *
              * @par Returns
              *	Nothing
              */
@@ -199,25 +199,25 @@ namespace Zhele::Timers
 
             /**
              * @brief Returns timer`s period (ARR register value)
-             * 
+             *
              * @returns Current period (ARR register value)
-             * 
+             *
              * @note Action of this method depends of ARPE
              * (auto-reload preload enable) bit in CR1 register
              */
             static Counter GetPeriod();
-           
+
             /**
              * @brief Enable one-pulse mode
-             * 
+             *
              * @par Returns
              *  Nothing
              */
             static void EnableOnePulseMode();
-            
+
             /**
              * @brief Disable one-pulse mode
-             * 
+             *
              * @par Returns
              *  Nothing
              */
@@ -225,25 +225,25 @@ namespace Zhele::Timers
 
             /**
              * @brief Stop timer
-             * 
+             *
              * @details
              * Assign CR1 and CR2 to zero
-             * 
+             *
              * @par Returns
              *	Nothing
              */
             static void Stop();
-           
+
             /**
              * @brief Start timer
-             * 
+             *
              * @details
              * Send UG bit to EGR register and
              * CEN and URS bits to CR1 register.
              * So, now you cannot assign initial CNT value,
              * because after start CNT register zeroing will occurs
              * (by EGR_UG bit).
-             * 
+             *
              * @par Returns
              *	Nothing
              */
@@ -251,13 +251,13 @@ namespace Zhele::Timers
 
             /**
              * @brief Enables update interrupt for timer
-             * 
+             *
              * @details
              * Method does not have any parameters (such as interrupt type), because
              * it's base timer and it supports only update (overflow) event
-             * 
+             *
              * @param [in] interruptMask Interrupt mask
-             * 
+             *
              * @par Returns
              *	Nothing
              */
@@ -265,9 +265,9 @@ namespace Zhele::Timers
 
             /**
              * @brief Disables update event interrupt
-             * 
+             *
              * @param [in] interruptMask Interrupt mask
-             * 
+             *
              * @par Returns
              *	Nothing
              */
@@ -275,7 +275,7 @@ namespace Zhele::Timers
 
             /**
              * @brief Returns is interrupt was occured.
-             * 
+             *
              * @retval false No interrupt was occured
              * @retval true Interrupt was occured (update event)
              */
@@ -283,9 +283,9 @@ namespace Zhele::Timers
 
             /**
              * @brief Reset interrupt
-             * 
+             *
              * @detailss Reset UIF in SR register (set SR to zero)
-             * 
+             *
              * @par Returns
              *	Nothing
              */
@@ -293,9 +293,9 @@ namespace Zhele::Timers
 
             /**
              * @brief Set master mode
-             * 
+             *
              * @param mode Master mode selection
-             * 
+             *
              * @par Returns
              *  Nothing
              */
@@ -303,11 +303,11 @@ namespace Zhele::Timers
 
             /**
              * @brief Enable DMA requests
-             * 
+             *
              * @detailss
              * Method set UDE flag in DIER register.
              * So, DMA requests will occur with update event
-             * 
+             *
              * @par Returns
              * Nothing
              */
@@ -315,7 +315,7 @@ namespace Zhele::Timers
 
             /**
              * @brief Disable DMA requests
-             * 
+             *
              * @par Returns
              * Nothing
              */
@@ -324,7 +324,7 @@ namespace Zhele::Timers
 
         /**
          * @brief Class implements STM32 General-Purpose timer`s functional.
-         * 
+         *
          * @tparam _Regs Timer`s register wrapper
          * @tparam _ClockEnReg Timer`s clock
          * @tparam _IRQNumber Timer`s IRQ number
@@ -342,7 +342,7 @@ namespace Zhele::Timers
 
             /**
              * @brief Private class for channels
-             * 
+             *
              * @tparam _ChannelNumber Channel number
              */
             template<unsigned _ChannelNumber>
@@ -350,7 +350,7 @@ namespace Zhele::Timers
             {
             protected:
                 using ModeBitField = TypeUnbox<ModeList::template get<_ChannelNumber>()>;
-            
+
             public:
                 static_assert(_ChannelNumber < 4);
                 using Pins = typename _ChPins<_ChannelNumber>::Pins::Key;
@@ -358,7 +358,7 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Enable interrupt
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
@@ -366,7 +366,7 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Disable interrupt
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
@@ -374,7 +374,7 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Check that interrupt is enabled
-                 * 
+                 *
                  * @retval true Interrupt enabled
                  * @retval false Interrupt disabled
                  */
@@ -382,7 +382,7 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Clear interrupt flag
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
@@ -390,7 +390,7 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Enable DMA request for channel
-                 * 
+                 *
                  * @par Returns
                  *  Nothing
                  */
@@ -398,7 +398,7 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Disable DMA request for channel
-                 * 
+                 *
                  * @par Returns
                  *  Nothing
                  */
@@ -406,15 +406,15 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Enable OC channel
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
                 static void Enable();
-            
+
                 /**
                  * @brief Disable OC channel
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
@@ -487,7 +487,7 @@ namespace Zhele::Timers
                     Disabled = 0x00 << TIM_SMCR_ECE_Pos,
                     Enabled = 0x01 << TIM_SMCR_ECE_Pos,
                 };
-                
+
                 /// External trigger polarity
                 enum class ExternalTriggerPolarity : uint16_t
                 {
@@ -497,9 +497,9 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Enable slave mode
-                 * 
+                 *
                  * @param mode Slave mode
-                 * 
+                 *
                  * @par Returns
                  *  Nohting
                  */
@@ -507,7 +507,7 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Disable slave mode
-                 * 
+                 *
                  * @par Returns
                  *  Nohting
                  */
@@ -515,9 +515,9 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Select input for slave mode
-                 * 
+                 *
                  * @param trigger Input trigger
-                 * 
+                 *
                  * @par Returns
                  *  Nothing
                  */
@@ -525,9 +525,9 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Select prescaler for trigger
-                 * 
+                 *
                  * @param prescaler Prescaler value
-                 * 
+                 *
                  * @par Returns
                  *  Nothing
                  */
@@ -536,7 +536,7 @@ namespace Zhele::Timers
 
             /**
              * @brief Internal class for input capture feature
-             * 
+             *
              * @tparam _ChannelNumber Channel number
              */
             template<unsigned _ChannelNumber>
@@ -554,7 +554,7 @@ namespace Zhele::Timers
                     FallingEdge = TIM_CCER_CC1P, ///< Falling edge
                     BothEdges = TIM_CCER_CC1P | TIM_CCER_CC1NP ///< Rising and falling edges both (WARNING:: NOT FOR ALL TIMERS/CHANNELS)
                 };
-                
+
                 /// Capture mode
                 enum CaptureMode
                 {
@@ -565,9 +565,9 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Set capture polarity
-                 * 
+                 *
                  * @param [in] polarity Capture polarity
-                 * 
+                 *
                  * @par Returns
                  *  Nothing
                  */
@@ -575,9 +575,9 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Set capture mode
-                 * 
+                 *
                  * @param [in] mode Capture mode
-                 * 
+                 *
                  * @par Returns
                  *  Nothing
                  */
@@ -585,24 +585,24 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Get the Value object
-                 * 
-                 * @return Counter 
+                 *
+                 * @return Counter
                  */
                 static typename Base::Counter GetValue();
 
                 /**
                  * @brief Select channel pin
-                 * 
+                 *
                  * @param [in] pinNumber Pin number
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
                 static void SelectPins(int pinNumber);
-            
+
                 /**
                  * @brief Select channel pin by number (template method)
-                 * 
+                 *
                  * @tparam PinNumber Pin number
                  */
                 template<unsigned PinNumber>
@@ -610,9 +610,9 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Select channel pin (template method)
-                 * 
+                 *
                  * @tparam Pin Pin class
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
@@ -622,7 +622,7 @@ namespace Zhele::Timers
 
             /**
              * @brief Internal class for output compare feature
-             * 
+             *
              * @tparam _ChannelNumber Channel number
              */
             template<unsigned _ChannelNumber>
@@ -655,9 +655,9 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Set OC pulse
-                 * 
-                 * @param [in] 
-                 * 
+                 *
+                 * @param [in]
+                 *
                  * @par Returns
                  * 	Nothing
                  */
@@ -665,16 +665,16 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Returns current pulse value
-                 * 
+                 *
                  * @returns Pulse value
                  */
-                static typename Base::Counter GetPulse();                
-            
+                static typename Base::Counter GetPulse();
+
                 /**
                  * @brief Set output polarity
-                 * 
+                 *
                  * @param [in] polarity Output polarity
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
@@ -682,9 +682,9 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Set output mode
-                 * 
+                 *
                  * @param [in] mode Output mode
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
@@ -692,17 +692,17 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Select channel pin
-                 * 
+                 *
                  * @param [in] pinNumber Pin number
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
                 static void SelectPins(int pinNumber);
-            
+
                 /**
                  * @brief Select channel pin by number (template method)
-                 * 
+                 *
                  * @tparam PinNumber Pin number
                  */
                 template<unsigned PinNumber>
@@ -710,9 +710,9 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Select channel pin (template method)
-                 * 
+                 *
                  * @tparam Pin Pin class
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
@@ -722,7 +722,7 @@ namespace Zhele::Timers
 
             /**
              * @brief Internal class for PWM feature
-             * 
+             *
              * @tparam _ChannelNumber Channel number
              */
             template<unsigned _ChannelNumber>
@@ -740,9 +740,9 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Set output fast mode (enable or disable)
-                 * 
+                 *
                  * @param[in] mode Fast mode
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
@@ -750,9 +750,9 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Select channel pin
-                 * 
+                 *
                  * @param [in] pinNumber Pin number
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
@@ -760,9 +760,9 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Select channel pin (template method by number)
-                 * 
+                 *
                  * @param [in] pinNumber Pin number
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
@@ -771,9 +771,9 @@ namespace Zhele::Timers
 
                 /**
                  * @brief Select channel pin (template method)
-                 * 
+                 *
                  * @tparam Pin Pin class
-                 * 
+                 *
                  * @par Returns
                  * 	Nothing
                  */
@@ -781,15 +781,15 @@ namespace Zhele::Timers
                 static void SelectPins();
             };
         };
-        
+
         /**
          * @brief Class implements STM32 advanced timer`s functional.
-         * 
+         *
          * @tparam _Regs Timer`s register wrapper
          * @tparam _ClockEnReg Timer`s clock
          * @tparam _IRQNumber Timer`s IRQ number
          * @tparam _ChPins Channel`s pins
-         * 
+         *
          * @todo Implements this class!
          */
         template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
@@ -800,9 +800,9 @@ namespace Zhele::Timers
         public:
             /**
              * @brief Set repetition counter (RCR reister)
-             * 
+             *
              * @param repetitionCounter counter
-             * 
+             *
              * @par Returns
              *  Nothing
              */
@@ -810,7 +810,7 @@ namespace Zhele::Timers
 
             /**
              * @brief Get repetition counter (RCR reister)
-             * 
+             *
              * @returns Current RCR register value
              */
             static uint8_t GetRepetitionCounter();

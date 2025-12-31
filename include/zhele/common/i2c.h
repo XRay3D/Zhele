@@ -130,7 +130,7 @@ namespace Zhele
         DualFlag = I2C_SR2_DUALF << 16
     #endif
     };
-    DECLARE_ENUM_OPERATIONS(Events);
+    ;
     
     struct ReadResult
     {

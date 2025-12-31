@@ -1,128 +1,92 @@
 /**
  * @file
- * @brief Macros for enum
- * 
+ * @brief Template functions for enum bitwise operations
+ *
  * @details
- * DECLARE_ENUM_OPERATIONS is used to declare enum bitwise operations
- * to use enum type as a type safe flags
- * 
- * @author Konstantin Chizhov
- * @date 2018
+ * DECLARE_VIEWS_IOTA is used to declare incrementable_traits
+ * to use enum type in to std::views::iota(Enum::Null, Enum::Size)
+ *
+ * @author Konstantin Chizhov / X-Ray
+ * @date 2025
  * @license FreeBSD
  */
 
-#ifndef ZHELE_ENUM_H
-#define ZHELE_ENUM_H
+#pragma once
 
-#include <cstdint>
+#include <utility>
 
-#define DECLARE_ENUM_OPERATIONS(ENUM_NAME)                               \
-inline ENUM_NAME                                                         \
-operator|(ENUM_NAME left, ENUM_NAME right)                               \
-{ return ENUM_NAME(static_cast<uint32_t>(left) | static_cast<uint32_t>(right)); }  \
-                                                                         \
-inline ENUM_NAME                                                         \
-operator&(ENUM_NAME left, ENUM_NAME right)                               \
-{ return ENUM_NAME(static_cast<uint32_t>(left) & static_cast<uint32_t>(right)); }  \
-                                                                         \
-inline ENUM_NAME                                                         \
-operator^(ENUM_NAME left, ENUM_NAME right)                               \
-{ return ENUM_NAME(static_cast<uint32_t>(left) ^ static_cast<uint32_t>(right)); }  \
-                                                                         \
-inline ENUM_NAME                                                         \
-operator~(ENUM_NAME left)                                                \
-{ return ENUM_NAME(~static_cast<uint32_t>(left)); }                           \
-                                                                         \
-inline const ENUM_NAME&                                                  \
-operator|=(ENUM_NAME& left, ENUM_NAME right)                             \
-{ return left = left | right; }                                          \
-                                                                         \
-inline const ENUM_NAME&                                                  \
-operator&=(ENUM_NAME& left, ENUM_NAME right)                             \
-{ return left = left & right; }                                          \
-                                                                         \
-inline const ENUM_NAME&                                                  \
-operator^=(ENUM_NAME& left, ENUM_NAME right)                             \
-{ return left = left ^ right; }                                          \
+template <typename E> concept Enum = std::is_enum_v<E>;
 
-#define DECLARE_ENUM_OPERATIONS_IN_CLASS(ENUM_NAME)                               \
-friend inline ENUM_NAME                                                         \
-operator|(ENUM_NAME left, ENUM_NAME right)                               \
-{ return ENUM_NAME(static_cast<uint32_t>(left) | static_cast<uint32_t>(right)); }  \
-                                                                         \
-friend inline ENUM_NAME                                                         \
-operator&(ENUM_NAME left, ENUM_NAME right)                               \
-{ return ENUM_NAME(static_cast<uint32_t>(left) & static_cast<uint32_t>(right)); }  \
-                                                                         \
-friend inline ENUM_NAME                                                         \
-operator^(ENUM_NAME left, ENUM_NAME right)                               \
-{ return ENUM_NAME(static_cast<uint32_t>(left) ^ static_cast<uint32_t>(right)); }  \
-                                                                         \
-friend inline ENUM_NAME                                                         \
-operator~(ENUM_NAME left)                                                \
-{ return ENUM_NAME(~static_cast<uint32_t>(left)); }                           \
-                                                                         \
-friend inline const ENUM_NAME&                                                  \
-operator|=(ENUM_NAME& left, ENUM_NAME right)                             \
-{ return left = left | right; }                                          \
-                                                                         \
-friend inline const ENUM_NAME&                                                  \
-operator&=(ENUM_NAME& left, ENUM_NAME right)                             \
-{ return left = left & right; }                                          \
-                                                                         \
-friend inline const ENUM_NAME&                                                  \
-operator^=(ENUM_NAME& left, ENUM_NAME right)                             \
-{ return left = left ^ right; }                                          \
+#if __cpp_lib_to_underlying >= 202102L
+using std::to_underlying;
+#else
+template <Enum E>
+[[nodiscard]] constexpr auto to_underlying(E e) noexcept { return static_cast<std::underlying_type_t<E>>(e); }
+#endif
 
-#define DECLARE_ENUM_OPERATIONS_TEMPLATE(ENUM_NAME, TEMPLATE)            \
-TEMPLATE                                                                 \
-inline ENUM_NAME                                                         \
-operator|(ENUM_NAME left, ENUM_NAME right)                               \
-{ return ENUM_NAME(static_cast<uint32_t>(left) | static_cast<uint32_t>(right)); }  \
-                                                                         \
-TEMPLATE                                                                 \
-inline ENUM_NAME                                                         \
-operator&(ENUM_NAME left, ENUM_NAME right)                               \
-{ return ENUM_NAME(static_cast<uint32_t>(left) & static_cast<uint32_t>(right)); }  \
-                                                                         \
-TEMPLATE                                                                 \
-inline ENUM_NAME                                                         \
-operator^(ENUM_NAME left, ENUM_NAME right)                               \
-{ return ENUM_NAME(static_cast<uint32_t>(left) ^ static_cast<uint32_t>(right)); }  \
-                                                                         \
-TEMPLATE                                                                 \
-inline ENUM_NAME                                                         \
-operator~(ENUM_NAME left)                                                \
-{ return ENUM_NAME(~static_cast<uint32_t>(left)); }                           \
-                                                                         \
-TEMPLATE                                                                 \
-inline const ENUM_NAME&                                                  \
-operator|=(ENUM_NAME& left, ENUM_NAME right)                             \
-{ return left = left | right; }                                          \
-                                                                         \
-TEMPLATE                                                                 \
-inline const ENUM_NAME&                                                  \
-operator&=(ENUM_NAME& left, ENUM_NAME right)                             \
-{ return left = left & right; }                                          \
-                                                                         \
-TEMPLATE                                                                 \
-inline const ENUM_NAME&                                                  \
-operator^=(ENUM_NAME& left, ENUM_NAME right)                             \
-{ return left = left ^ right; }
+template <Enum E>
+[[nodiscard]] constexpr auto operator+(E left) noexcept { return to_underlying(left); }
 
-namespace Zhele
-{
-	template<class Enum>
-	bool HasAllFlags(Enum value, Enum flags)
-	{
-		return (static_cast<uint32_t>(value) & static_cast<uint32_t>(flags)) == static_cast<uint32_t>(flags);
-	}
-	
-	template<class Enum>
-	bool HasAnyFlag(Enum value, Enum flags)
-	{
-		return (static_cast<uint32_t>(value) & static_cast<uint32_t>(flags)) != 0;
-	}
-}
+template <Enum E>
+[[nodiscard]] constexpr E& operator++(E& e) noexcept { return e = static_cast<E>(+e + 1); }
+template <Enum E>
+[[nodiscard]] constexpr E operator++(E& e, int) noexcept { return std::exchange(e, static_cast<E>(+e + 1)); }
+template <Enum E>
+[[nodiscard]] constexpr E& operator--(E& e) noexcept { return e = static_cast<E>(+e - 1); }
+template <Enum E>
+[[nodiscard]] constexpr E operator--(E& e, int) noexcept { return std::exchange(e, static_cast<E>(+e - 1)); }
 
-#endif //! ZHELE_ENUM_H
+#define DECLARE_VIEWS_IOTA(ENUM)                                        \
+template <> struct std::incrementable_traits<ENUM> {                \
+      using difference_type = make_signed_t<underlying_type_t<ENUM>>; \
+};
+
+template <Enum E>
+[[nodiscard]] constexpr E operator&(E left, E right) noexcept { return static_cast<E>(+left & +right); }
+template <Enum E>
+[[nodiscard]] constexpr E operator^(E left, E right) noexcept { return static_cast<E>(+left ^ +right); }
+template <Enum E>
+[[nodiscard]] constexpr E operator|(E left, E right) noexcept { return static_cast<E>(+left | +right); }
+template <Enum E>
+[[nodiscard]] constexpr E operator~(E left) noexcept { return static_cast<E>(~+left); }
+template <Enum E>
+[[nodiscard]] constexpr const E& operator&=(E& left, E right) noexcept { return left = left & right; }
+template <Enum E>
+[[nodiscard]] constexpr const E& operator^=(E& left, E right) noexcept { return left = left ^ right; }
+template <Enum E>
+[[nodiscard]] constexpr const E& operator|=(E& left, E right) noexcept { return left = left | right; }
+
+namespace Zhele {
+template <Enum Enum>
+constexpr bool HasAllFlags(Enum value, Enum flags) noexcept { return (+value & +flags) == +flags; }
+
+template <Enum Enum>
+constexpr bool HasAnyFlag(Enum value, Enum flags) noexcept { return (+value & +flags) != 0; }
+} // namespace Zhele
+
+#if TEST
+namespace Test {
+
+enum class E : signed char {
+  A,
+  B,
+  C,
+  D
+};
+
+static_assert((E::B & E::C) == E::A);
+static_assert((E::B ^ E::C) == E::D);
+static_assert((E::B | E::C) == E::D);
+static_assert(~E::A == static_cast<E>(-1));
+static_assert(Zhele::HasAllFlags(E::D, E::B | E::C));
+static_assert(Zhele::HasAnyFlag(E::D, E::C));
+
+static_assert([](E e) consteval { return e++; }(E::B) == E::B);
+static_assert([](E e) consteval { return e--; }(E::B) == E::B);
+static_assert([](E e) consteval { return ++e; }(E::B) == E::C);
+static_assert([](E e) consteval { return --e; }(E::B) == E::A);
+static_assert([](E e) consteval { auto _ = e++; return e; }(E::B) == E::C);
+static_assert([](E e) consteval { auto _ = e--; return e; }(E::B) == E::A);
+
+} // namespace Test
+#endif
