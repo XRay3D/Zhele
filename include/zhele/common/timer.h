@@ -9,7 +9,7 @@
 #ifndef ZHELE_TIMER_COMMON_H
 #define ZHELE_TIMER_COMMON_H
 
-#include "macro_utils/enum.h"
+#include "template_utils/enum.h"
 #include "template_utils/type_list.h"
 #include "ioreg.h"
 

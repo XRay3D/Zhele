@@ -15,14 +15,21 @@
 
 #include <utility>
 
+namespace Zhele {
+
 template <typename E> concept Enum = std::is_enum_v<E>;
-template <typename E> concept EnumOrIntegral = std::is_enum_v<E> || std::is_integral_v<E>;
+
+template <typename E> concept Integral = std::is_integral_v<E>;
+
+inline namespace EnumOps {
 
 #if __cpp_lib_to_underlying >= 202102L
 using std::to_underlying;
 #else
 template <Enum E>
-[[nodiscard]] constexpr auto to_underlying(E e) noexcept { return static_cast<std::underlying_type_t<E>>(e); }
+[[nodiscard]] constexpr auto to_underlying(E e) noexcept {
+    return static_cast<std::underlying_type_t<E>>(e);
+}
 #endif
 
 template <Enum E>
@@ -30,10 +37,13 @@ template <Enum E>
 
 template <Enum E>
 [[nodiscard]] constexpr E& operator++(E& e) noexcept { return e = static_cast<E>(+e + 1); }
+
 template <Enum E>
 [[nodiscard]] constexpr E operator++(E& e, int) noexcept { return std::exchange(e, static_cast<E>(+e + 1)); }
+
 template <Enum E>
 [[nodiscard]] constexpr E& operator--(E& e) noexcept { return e = static_cast<E>(+e - 1); }
+
 template <Enum E>
 [[nodiscard]] constexpr E operator--(E& e, int) noexcept { return std::exchange(e, static_cast<E>(+e - 1)); }
 
@@ -42,34 +52,73 @@ template <Enum E>
         using difference_type = make_signed_t<underlying_type_t<ENUM>>; \
     };
 
-template <EnumOrIntegral L, EnumOrIntegral R, typename Ret = std::conditional_t<Enum<L>, L, R>>
-    requires Enum<L> || Enum<R>
-[[nodiscard]] constexpr Ret operator&(L left, R right) noexcept { return static_cast<Ret>(+left & +right); }
-template <EnumOrIntegral L, EnumOrIntegral R, typename Ret = std::conditional_t<Enum<L>, L, R>>
-    requires Enum<L> || Enum<R>
-[[nodiscard]] constexpr Ret operator^(L left, R right) noexcept { return static_cast<Ret>(+left ^ +right); }
-template <EnumOrIntegral L, EnumOrIntegral R, typename Ret = std::conditional_t<Enum<L>, L, R>>
-    requires Enum<L> || Enum<R>
-[[nodiscard]] constexpr Ret operator|(L left, R right) noexcept { return static_cast<Ret>(+left | +right); }
+// Enum OP Enum
+template <Enum L, Enum R>
+[[nodiscard]] constexpr L operator&(L left, R right) noexcept { return static_cast<L>(+left & +right); }
+
+template <Enum L, Enum R>
+[[nodiscard]] constexpr L operator^(L left, R right) noexcept { return static_cast<L>(+left ^ +right); }
+
+template <Enum L, Enum R>
+[[nodiscard]] constexpr L operator|(L left, R right) noexcept { return static_cast<L>(+left | +right); }
+
 template <Enum E>
 [[nodiscard]] constexpr E operator~(E left) noexcept { return static_cast<E>(~+left); }
-template <Enum L, EnumOrIntegral R, typename Ret = std::conditional_t<Enum<L>, L, R>>
+
+// Enum OP Integral
+template <Enum L, Integral R>
+[[nodiscard]] constexpr L operator&(L left, R right) noexcept { return static_cast<L>(+left & right); }
+
+template <Enum L, Integral R>
+[[nodiscard]] constexpr L operator^(L left, R right) noexcept { return static_cast<L>(+left ^ right); }
+
+template <Enum L, Integral R>
+[[nodiscard]] constexpr L operator|(L left, R right) noexcept { return static_cast<L>(+left | right); }
+
+// Integral OP Enum
+template <Integral L, Enum R>
+[[nodiscard]] constexpr R operator&(L left, R right) noexcept { return static_cast<R>(left & +right); }
+
+template <Integral L, Enum R>
+[[nodiscard]] constexpr R operator^(L left, R right) noexcept { return static_cast<R>(left ^ +right); }
+
+template <Integral L, Enum R>
+[[nodiscard]] constexpr R operator|(L left, R right) noexcept { return static_cast<R>(left | +right); }
+
+// Enum OP= Enum
+template <Enum L, Enum R>
 [[nodiscard]] constexpr const L& operator&=(L& left, R right) noexcept { return left = left & right; }
-template <Enum L, EnumOrIntegral R, typename Ret = std::conditional_t<Enum<L>, L, R>>
+
+template <Enum L, Enum R>
 [[nodiscard]] constexpr const L& operator^=(L& left, R right) noexcept { return left = left ^ right; }
-template <Enum L, EnumOrIntegral R, typename Ret = std::conditional_t<Enum<L>, L, R>>
+
+template <Enum L, Enum R>
 [[nodiscard]] constexpr const L& operator|=(L& left, R right) noexcept { return left = left | right; }
 
-namespace Zhele {
-template <Enum Enum>
-constexpr bool HasAllFlags(Enum value, Enum flags) noexcept { return (+value & +flags) == +flags; }
+// Enum OP= Integral
+template <Enum L, Integral R>
+[[nodiscard]] constexpr const L& operator&=(L& left, R right) noexcept { return left = left & right; }
 
-template <Enum Enum>
-constexpr bool HasAnyFlag(Enum value, Enum flags) noexcept { return (+value & +flags) != 0; }
+template <Enum L, Integral R>
+[[nodiscard]] constexpr const L& operator^=(L& left, R right) noexcept { return left = left ^ right; }
+
+template <Enum L, Integral R>
+[[nodiscard]] constexpr const L& operator|=(L& left, R right) noexcept { return left = left | right; }
+
+} // namespace EnumOps
+
+template <Enum E>
+constexpr bool HasAllFlags(E value, E flags) noexcept { return (+value & +flags) == +flags; }
+
+template <Enum E>
+constexpr bool HasAnyFlag(E value, E flags) noexcept { return (+value & +flags) != 0; }
+
 } // namespace Zhele
 
 #if TEST
 namespace Test {
+
+using namespace Zhele::EnumOps;
 
 enum class E : signed char {
     A,
@@ -106,4 +155,5 @@ static_assert([](E e) consteval { auto _ = e++; return e; }(E::B) == E::C);
 static_assert([](E e) consteval { auto _ = e--; return e; }(E::B) == E::A);
 
 } // namespace Test
+
 #endif

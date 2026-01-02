@@ -11,7 +11,7 @@
 #define ZHELE_UART_COMMON_H
 
 #include "template_utils/data_transfer.h"
-#include "macro_utils/enum.h"
+#include "template_utils/enum.h"
 #include "ioreg.h"
 
 #include <zhele/clock.h>

@@ -11,7 +11,7 @@
 
 #include "ioreg.h"
 #include "template_utils/data_transfer.h"
-#include "macro_utils/enum.h"
+#include "template_utils/enum.h"
 
 #include <zhele/clock.h>
 #include <zhele/iopins.h>
