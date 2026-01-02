@@ -20,5 +20,5 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../../include)
 # F4 build
 add_executable(dac_triangle_gen_f4 main.cpp)
 target_link_libraries(dac_triangle_gen_f4 CMSIS::STM32::F407VG STM32::NoSys STM32::Nano)
-target_compile_options(dac_triangle_gen_f4 PRIVATE -fno-exceptions -fno-rtti -ffunction-sections -fdata-sections)
+target_compile_options(dac_triangle_gen_f4 PRIVATE -fno-exceptions $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti> -ffunction-sections -fdata-sections)
 stm32_print_size_of_target(dac_triangle_gen_f4)
