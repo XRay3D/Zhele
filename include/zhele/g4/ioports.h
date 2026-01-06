@@ -10,7 +10,7 @@
 #ifndef ZHELE_IOPORTS_H
 #define ZHELE_IOPORTS_H
 
-#include <stm32g0xx.h>
+#include <stm32g4xx.h>
 
 #include "clock.h"
 #include "../common/ioports.h"

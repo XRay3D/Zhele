@@ -10,7 +10,7 @@
 #ifndef ZHELE_SPI_H
 #define ZHELE_SPI_H
 
-#include <stm32g0xx.h>
+#include <stm32g4xx.h>
 
 #include "../common/spi.h"
 #include "../common/template_utils/pair.h"

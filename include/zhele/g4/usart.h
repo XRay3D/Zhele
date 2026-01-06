@@ -9,7 +9,7 @@
 #ifndef ZHELE_USART_H
 #define ZHELE_USART_H
 
-#include <stm32g0xx.h>
+#include <stm32g4xx.h>
 
 // For compatibility with "default" CMSIS (F0/F1/F4) map G0 constants for Fx constants
 #define USART_ISR_TXE USART_ISR_TXE_TXFNF

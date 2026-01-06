@@ -10,7 +10,7 @@
 #ifndef ZHELE_DMAMUX_H
 #define ZHELE_DMAMUX_H
 
-#include <stm32g0xx.h>
+#include <stm32g4xx.h>
 #include "../common/dmamux.h"
 
 namespace Zhele

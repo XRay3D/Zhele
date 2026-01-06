@@ -1,426 +1,578 @@
 /**
  * @file
- * Implemets clocks for stm32g0 series
- * 
- * @author Alexey Zhelonkin
- * @date 2024
+ * Implemets clocks for stm32f4 series
+ *
+ * @author Alexey Zhelonkin (based on Konstantin Chizhov)
+ * @date 2020
  * @license FreeBSD
  */
 
 #ifndef ZHELE_CLOCK_H
 #define ZHELE_CLOCK_H
 
-#include <stm32g0xx.h>
-
-// For compatibility with "default" CMSIS (F0/F1/F4)
-#define RCC_CFGR_SW_HSI                    0x00000000U                         /*!< HSI selected as system clock */
-#define RCC_CFGR_SW_HSE                    0x00000001U                         /*!< HSE selected as system clock */
-#define RCC_CFGR_SW_PLL                    0x00000002U                         /*!< PLL selected as system clock */
-#define RCC_CFGR_SWS_HSI                   0x00000000U                         /*!< HSI oscillator used as system clock        */
-#define RCC_CFGR_SWS_HSE                   0x00000008U                         /*!< HSE oscillator used as system clock        */
-#define RCC_CFGR_SWS_PLL                   0x00000010U                         /*!< PLL used as system clock                   */
-
 #include "../common/clock.h"
+#include <stm32g4xx.h>
 
-namespace Zhele::Clock
-{
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->PLLCFGR, PllM, RCC_PLLCFGR_PLLM);
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->PLLCFGR, PllN, RCC_PLLCFGR_PLLN);
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->PLLCFGR, PllP, RCC_PLLCFGR_PLLP);
+namespace Zhele::Clock {
+DECLARE_IO_BITFIELD_WRAPPER(RCC->PLLCFGR, PllM, RCC_PLLCFGR_PLLM);
+DECLARE_IO_BITFIELD_WRAPPER(RCC->PLLCFGR, PllN, RCC_PLLCFGR_PLLN);
+DECLARE_IO_BITFIELD_WRAPPER(RCC->PLLCFGR, PllP, RCC_PLLCFGR_PLLP);
+DECLARE_IO_BITFIELD_WRAPPER(RCC->PLLCFGR, PllQ, RCC_PLLCFGR_PLLQ);
 
-#if defined (RCC_PLLCFGR_PLLQ_Pos)
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->PLLCFGR, PllQ, RCC_PLLCFGR_PLLQ);
+#if defined(RCC_PLLCFGR_PLLR_Pos)
+DECLARE_IO_BITFIELD_WRAPPER(RCC->PLLCFGR, PllR, RCC_PLLCFGR_PLLR);
 #endif
 
-#if defined (RCC_PLLCFGR_PLLR_Pos)
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->PLLCFGR, PllR, RCC_PLLCFGR_PLLR);
+inline unsigned PllClock::GetDivider() {
+    return PllM::Get();
+}
+
+template <unsigned divider>
+inline void PllClock::SetDivider() {
+    static_assert(2 <= divider && divider <= PllM::MaxValue, "Invalide divider value");
+    PllM::Set(divider);
+}
+
+inline unsigned PllClock::GetMultipler() {
+    return PllN::Get();
+}
+
+template <unsigned multiplier>
+inline void PllClock::SetMultiplier() {
+    static_assert(2 <= multiplier && multiplier <= 432, "Invalide multiplier value");
+    PllN::Set(multiplier);
+}
+
+template <PllClock::ClockSource clockSource>
+inline void PllClock::SelectClockSource() {
+    RCC->PLLCFGR = clockSource == External
+        ? RCC->PLLCFGR | RCC_PLLCFGR_PLLSRC_HSE
+        : RCC->PLLCFGR & ~RCC_PLLCFGR_PLLSRC;
+}
+
+inline PllClock::ClockSource PllClock::GetClockSource() {
+    return RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC_HSE
+        ? ClockSource::External
+        : ClockSource::Internal;
+}
+
+inline unsigned PllClock::GetSystemOutputDivider() {
+    return (PllP::Get() >> 2) + 2;
+}
+
+template <unsigned divider>
+inline void PllClock::SetSystemOutputDivider() {
+    static_assert(divider == 2 || divider == 4 || divider == 6 || divider == 8, "Divider can be one of 2, 4, 6, 8");
+    static constexpr uint8_t pllpValue = (divider - 2) << 2;
+    PllP::Set(pllpValue);
+}
+
+inline unsigned PllClock::GetUsbOutputDivider() {
+    return PllQ::Get();
+}
+
+template <unsigned divider>
+inline void PllClock::SetUsbOutputDivider() {
+    static_assert(2 <= divider && divider <= PllQ::MaxValue, "Invalide divider value");
+    PllQ::Set(divider);
+}
+
+#if defined(RCC_PLLCFGR_PLLR_Pos)
+inline unsigned PllClock::GetI2SOutputDivider() {
+    return PllR::Get();
+}
+template <unsigned divider>
+inline void PllClock::SetI2SOutputDivider() {
+    static_assert(2 <= divider && divider <= PllR::MaxValue, "Invalide divider value");
+    PllR::Set(divider);
+}
 #endif
 
-    inline unsigned PllClock::GetDivider()
-    {
-        return PllM::Get() + 1;
-    }
+DECLARE_IO_BITFIELD_WRAPPER(RCC->CFGR, AhbPrescalerBitField, RCC_CFGR_HPRE);
 
-    template<unsigned divider>
-    inline void PllClock::SetDivider()
-    {
-        static_assert(1 <= divider && divider <= (PllM::MaxValue + 1), "Invalid divider value!");
-        PllM::Set(divider - 1);
-    }
+class AhbClock : public BusClock<SysClock, AhbPrescalerBitField> {
+    using Base = BusClock<SysClock, AhbPrescalerBitField>;
 
-    inline unsigned PllClock::GetMultipler()
-    {
-        return PllN::Get();
-    }
-
-    template<unsigned multiplier>
-    inline void PllClock::SetMultiplier()
-    {
-        static_assert(8 <= multiplier && multiplier <= 86, "Invalid divider value!");
-        PllN::Set(multiplier);
-    }  
-
-    template<PllClock::ClockSource clockSource>
-    inline void PllClock::SelectClockSource()
-    {
-        RCC->PLLCFGR = (RCC->PLLCFGR & ~(RCC_PLLCFGR_PLLSRC_Msk))
-            | (clockSource == External
-                ? RCC_PLLCFGR_PLLSRC_HSE
-                : RCC_PLLCFGR_PLLSRC_HSI);
-    }
-
-    inline PllClock::ClockSource PllClock::GetClockSource()
-    {
-        return (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC_Msk) == RCC_PLLCFGR_PLLSRC_HSE
-            ? ClockSource::External
-            : ClockSource::Internal;
-    }
-
-    inline unsigned PllClock::GetSystemOutputDivider()
-    {
-        return (PllR::Get()) + 1;
-    }
-
-    template<unsigned divider>
-    inline void PllClock::SetSystemOutputDivider()
-    {
-        static_assert(2 <= divider && divider <= (PllR::MaxValue + 1), "Invalid divider value!");
-        RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN;
-        PllR::Set(divider - 1);
-    }
-
-#if defined (RCC_PLLCFGR_PLLQ_Pos)
-    inline unsigned PllClock::GetUsbOutputDivider()
-    {
-        return PllQ::Get();
-    }
-
-    template<unsigned divider>
-    inline void PllClock::SetUsbOutputDivider()
-    {
-        static_assert(2 <= multiplier && multiplier <= (PllQ::MaxValue + 1), "Invalid divider value!");
-        PllQ::Set(divider);
-    }
-#endif
-
-#if defined (RCC_PLLCFGR_PLLR_Pos)
-    inline unsigned PllClock::GetI2SOutputDivider()
-    {
-        return PllP::Get() + 1;
-    }
-
-    template<unsigned divider>
-    inline void PllClock::SetI2SOutputDivider()
-    {
-        static_assert(2 <= divider && divider <= (PllP::MaxValue + 1), "Invalid divider value!");
-        RCC->PLLCFGR |= RCC_PLLCFGR_PLLPEN;
-        PllP::Set(divider - 1);
-    }
-#endif
-
-    const static unsigned AhbPrescalerBitFieldOffset = RCC_CFGR_HPRE_Pos;
-    const static unsigned AhbPrescalerBitFieldLength = GetBitFieldLength<(RCC_CFGR_HPRE_Msk >> RCC_CFGR_HPRE_Pos)>;
-    IO_BITFIELD_WRAPPER(RCC->CFGR, AhbPrescalerBitField, uint32_t, AhbPrescalerBitFieldOffset, AhbPrescalerBitFieldLength);
-
-    class AhbClock : public BusClock<SysClock, AhbPrescalerBitField>
-    {
-        using Base = BusClock<SysClock, AhbPrescalerBitField>;
-    public:
-        // AHB prescaler values
-        enum Prescaler
-        {
-            Div1 = 0b0000 >> AhbPrescalerBitFieldOffset, ///< No divide (prescaler = 1)
-            Div2 = 0b1000 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 2
-            Div4 = 0b1001 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 4
-            Div8 = 0b1010 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 8
-            Div16 = 0b1011 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 16
-            Div64 = 0b1100 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 64
-            Div128 = 0b1101 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 128
-            Div256 = 0b1110 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 256
-            Div512 = 0b1111 >> AhbPrescalerBitFieldOffset ///< Prescaler = 512
-        };
-
-        static ClockFrequenceT ClockFreq()
-        {
-            static constexpr uint8_t clockPrescShift[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
-
-            ClockFrequenceT clock = SysClock::ClockFreq();
-            uint8_t shiftBits = clockPrescShift[AhbPrescalerBitField::Get()];
-            clock >>= shiftBits;
-            return clock;
-        }
-
-        static void SetPrescaler(Prescaler prescaler)
-        {
-            Base::SetPrescaler(prescaler);
-        }
+public:
+    // AHB prescaler values
+    enum Prescaler {
+        Div1 = RCC_CFGR_HPRE_DIV1 >> AhbPrescalerBitFieldOffset,     ///< No divide (prescaler = 1)
+        Div2 = RCC_CFGR_HPRE_DIV2 >> AhbPrescalerBitFieldOffset,     ///< Prescaler = 2
+        Div4 = RCC_CFGR_HPRE_DIV4 >> AhbPrescalerBitFieldOffset,     ///< Prescaler = 4
+        Div8 = RCC_CFGR_HPRE_DIV8 >> AhbPrescalerBitFieldOffset,     ///< Prescaler = 8
+        Div16 = RCC_CFGR_HPRE_DIV16 >> AhbPrescalerBitFieldOffset,   ///< Prescaler = 16
+        Div64 = RCC_CFGR_HPRE_DIV64 >> AhbPrescalerBitFieldOffset,   ///< Prescaler = 64
+        Div128 = RCC_CFGR_HPRE_DIV128 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 128
+        Div256 = RCC_CFGR_HPRE_DIV256 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 256
+        Div512 = RCC_CFGR_HPRE_DIV512 >> AhbPrescalerBitFieldOffset  ///< Prescaler = 512
     };
 
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->CFGR, ApbPrescalerBitField, RCC_CFGR_PPRE);
+    static ClockFrequenceT ClockFreq() {
+        static constexpr uint8_t clockPrescShift[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
+        ClockFrequenceT clock = SysClock::ClockFreq();
+        uint8_t shiftBits = clockPrescShift[AhbPrescalerBitField::Get()];
+        clock >>= shiftBits;
+        return clock;
+    }
+
+    template <Prescaler prescaler>
+    static void SetPrescaler() {
+        Base::SetPrescaler(prescaler);
+    }
+};
+
+class Ahb1Clock : public BusClock<SysClock, AhbPrescalerBitField> {
+    using Base = BusClock<SysClock, AhbPrescalerBitField>;
+
+public:
+    // AHB prescaler values
+    enum Prescaler {
+        Div1 = RCC_CFGR_HPRE_DIV1 >> AhbPrescalerBitFieldOffset,     ///< No divide (prescaler = 1)
+        Div2 = RCC_CFGR_HPRE_DIV2 >> AhbPrescalerBitFieldOffset,     ///< Prescaler = 2
+        Div4 = RCC_CFGR_HPRE_DIV4 >> AhbPrescalerBitFieldOffset,     ///< Prescaler = 4
+        Div8 = RCC_CFGR_HPRE_DIV8 >> AhbPrescalerBitFieldOffset,     ///< Prescaler = 8
+        Div16 = RCC_CFGR_HPRE_DIV16 >> AhbPrescalerBitFieldOffset,   ///< Prescaler = 16
+        Div64 = RCC_CFGR_HPRE_DIV64 >> AhbPrescalerBitFieldOffset,   ///< Prescaler = 64
+        Div128 = RCC_CFGR_HPRE_DIV128 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 128
+        Div256 = RCC_CFGR_HPRE_DIV256 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 256
+        Div512 = RCC_CFGR_HPRE_DIV512 >> AhbPrescalerBitFieldOffset  ///< Prescaler = 512
+    };
+
+    static ClockFrequenceT ClockFreq() {
+        static constexpr uint8_t clockPrescShift[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+
+        ClockFrequenceT clock = SysClock::ClockFreq();
+        uint8_t shiftBits = clockPrescShift[AhbPrescalerBitField::Get()];
+        clock >>= shiftBits;
+        return clock;
+    }
+
+    template <Prescaler prescaler>
+    static void SetPrescaler() {
+        Base::SetPrescaler(prescaler);
+    }
+};
+
+class Ahb2Clock : public BusClock<SysClock, AhbPrescalerBitField> {
+    using Base = BusClock<SysClock, AhbPrescalerBitField>;
+
+public:
+    // AHB prescaler values
+    enum Prescaler {
+        Div1 = RCC_CFGR_HPRE_DIV1 >> AhbPrescalerBitFieldOffset,     ///< No divide (prescaler = 1)
+        Div2 = RCC_CFGR_HPRE_DIV2 >> AhbPrescalerBitFieldOffset,     ///< Prescaler = 2
+        Div4 = RCC_CFGR_HPRE_DIV4 >> AhbPrescalerBitFieldOffset,     ///< Prescaler = 4
+        Div8 = RCC_CFGR_HPRE_DIV8 >> AhbPrescalerBitFieldOffset,     ///< Prescaler = 8
+        Div16 = RCC_CFGR_HPRE_DIV16 >> AhbPrescalerBitFieldOffset,   ///< Prescaler = 16
+        Div64 = RCC_CFGR_HPRE_DIV64 >> AhbPrescalerBitFieldOffset,   ///< Prescaler = 64
+        Div128 = RCC_CFGR_HPRE_DIV128 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 128
+        Div256 = RCC_CFGR_HPRE_DIV256 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 256
+        Div512 = RCC_CFGR_HPRE_DIV512 >> AhbPrescalerBitFieldOffset  ///< Prescaler = 512
+    };
+
+    static ClockFrequenceT ClockFreq() {
+        static constexpr uint8_t clockPrescShift[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+
+        ClockFrequenceT clock = SysClock::ClockFreq();
+        uint8_t shiftBits = clockPrescShift[AhbPrescalerBitField::Get()];
+        clock >>= shiftBits;
+        return clock;
+    }
+
+    template <Prescaler prescaler>
+    static void SetPrescaler() {
+        Base::SetPrescaler(prescaler);
+    }
+};
+
+class Ahb3Clock : public BusClock<SysClock, AhbPrescalerBitField> {
+  using Base = BusClock<SysClock, AhbPrescalerBitField>;
+
+public:
+  // AHB prescaler values
+  enum Prescaler {
+    Div1 = RCC_CFGR_HPRE_DIV1 >> AhbPrescalerBitFieldOffset,     ///< No divide (prescaler = 1)
+    Div2 = RCC_CFGR_HPRE_DIV2 >> AhbPrescalerBitFieldOffset,     ///< Prescaler = 2
+    Div4 = RCC_CFGR_HPRE_DIV4 >> AhbPrescalerBitFieldOffset,     ///< Prescaler = 4
+    Div8 = RCC_CFGR_HPRE_DIV8 >> AhbPrescalerBitFieldOffset,     ///< Prescaler = 8
+    Div16 = RCC_CFGR_HPRE_DIV16 >> AhbPrescalerBitFieldOffset,   ///< Prescaler = 16
+    Div64 = RCC_CFGR_HPRE_DIV64 >> AhbPrescalerBitFieldOffset,   ///< Prescaler = 64
+    Div128 = RCC_CFGR_HPRE_DIV128 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 128
+    Div256 = RCC_CFGR_HPRE_DIV256 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 256
+    Div512 = RCC_CFGR_HPRE_DIV512 >> AhbPrescalerBitFieldOffset  ///< Prescaler = 512
+  };
+
+  static ClockFrequenceT ClockFreq() {
+    static constexpr uint8_t clockPrescShift[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+
+    ClockFrequenceT clock = SysClock::ClockFreq();
+    uint8_t shiftBits = clockPrescShift[AhbPrescalerBitField::Get()];
+    clock >>= shiftBits;
+    return clock;
+  }
+
+  template <Prescaler prescaler>
+  static void SetPrescaler() {
+    Base::SetPrescaler(prescaler);
+  }
+};
+DECLARE_IO_BITFIELD_WRAPPER(RCC->CFGR, Apb1PrescalerBitField, RCC_CFGR_PPRE1);
+
+/**
+ * @brief Implements APB clock
+ */
+class Apb1Clock : BusClock<AhbClock, Apb1PrescalerBitField> {
+    using Base = BusClock<AhbClock, Apb1PrescalerBitField>;
+
+public:
     /**
-     * @brief Implements APB clock
+     * @brief APB1 clock prescalers
      */
-    class ApbClock : BusClock<AhbClock, ApbPrescalerBitField>
-    {
-        using Base = BusClock<AhbClock, ApbPrescalerBitField>;
-    public:
-        /**
-         * @brief APB1 clock prescalers
-         */
-        enum Prescaler
-        {
-            Div1 = 0b000, ///< No divide (prescaler = 1)
-            Div2 = 0b100, ///< Prescaler = 2
-            Div4 = 0b101, ///< Prescaler = 4
-            Div8 = 0b110, ///< Prescaler = 8
-            Div16 = 0b111, ///< Prescaler = 16
-        };
-
-        static ClockFrequenceT ClockFreq()
-        {
-            static constexpr uint8_t clockPrescShift[] = {0, 0, 0, 0, 1, 2, 3, 4};
-
-            ClockFrequenceT clock = AhbClock::ClockFreq();
-            uint8_t shiftBits = clockPrescShift[ApbPrescalerBitField::Get()];
-            clock >>= shiftBits;
-            return clock;
-        }
-
-        template<Prescaler prescaler>
-        static void SetPrescaler()
-        {
-            Base::SetPrescaler(prescaler);
-        }
+    enum Prescaler {
+        Div1 = RCC_CFGR_PPRE1_DIV1 >> Apb1PrescalerBitFieldOffset,   ///< No divide (prescaler = 1)
+        Div2 = RCC_CFGR_PPRE1_DIV2 >> Apb1PrescalerBitFieldOffset,   ///< Prescaler = 2
+        Div4 = RCC_CFGR_PPRE1_DIV4 >> Apb1PrescalerBitFieldOffset,   ///< Prescaler = 4
+        Div8 = RCC_CFGR_PPRE1_DIV8 >> Apb1PrescalerBitFieldOffset,   ///< Prescaler = 8
+        Div16 = RCC_CFGR_PPRE1_DIV16 >> Apb1PrescalerBitFieldOffset, ///< Prescaler = 16
     };
-    using Apb1Clock = ApbClock;
-    using Apb2Clock = ApbClock;
-    
-    IO_REG_WRAPPER(RCC->AHBENR, AhbClockEnableReg, uint32_t);
-    IO_REG_WRAPPER(RCC->APBENR1, PeriphClockEnable1, uint32_t);
-    IO_REG_WRAPPER(RCC->APBENR2, PeriphClockEnable2, uint32_t);
-    IO_REG_WRAPPER(RCC->IOPENR, IOPeriphClockEnable, uint32_t);
 
-    IO_REG_WRAPPER(RCC->AHBRSTR, AhbResetReg, uint32_t);
-    IO_REG_WRAPPER(RCC->APBRSTR1, ApbResetReg1, uint32_t);
-    IO_REG_WRAPPER(RCC->APBRSTR2, ApbResetReg2, uint32_t);
+    static ClockFrequenceT ClockFreq() {
+        static constexpr uint8_t clockPrescShift[] = {0, 0, 0, 0, 1, 2, 3, 4};
 
-    using PortaClock = ClockControl<IOPeriphClockEnable, RCC_IOPENR_GPIOAEN, ApbClock>;
-    using PortbClock = ClockControl<IOPeriphClockEnable, RCC_IOPENR_GPIOBEN, ApbClock>;
-    using PortcClock = ClockControl<IOPeriphClockEnable, RCC_IOPENR_GPIOCEN, ApbClock>;
-    using PortdClock = ClockControl<IOPeriphClockEnable, RCC_IOPENR_GPIODEN, ApbClock>;
-    using PortfClock = ClockControl<IOPeriphClockEnable, RCC_IOPENR_GPIOFEN, ApbClock>;
+        ClockFrequenceT clock = AhbClock::ClockFreq();
+        uint8_t shiftBits = clockPrescShift[Apb1PrescalerBitField::Get()];
+        clock >>= shiftBits;
+        return clock;
+    }
 
-    using DmaClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_DMA1EN, AhbClock>;
-    using Dma1Clock = DmaClock;
-    using FlashClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_FLASHEN, AhbClock>;
-    using CrcClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_CRCEN, AhbClock>;
+    template <Prescaler prescaler>
+    static void SetPrescaler() {
+        Base::SetPrescaler(prescaler);
+    }
+};
 
-    using Tim3Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_TIM3EN, ApbClock>;
-    using RtcClock = ClockControl<PeriphClockEnable1, RCC_APBENR1_RTCAPBEN, ApbClock>;
-    using WatchDogClock = ClockControl<PeriphClockEnable1, RCC_APBENR1_WWDGEN, ApbClock>;
-    using Spi2Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_SPI2EN, ApbClock>;
-    using Usart2Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_USART2EN, ApbClock>;
-    using I2c1Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_I2C1EN, ApbClock>;
-    using I2c2Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_I2C2EN, ApbClock>;
-    using DbgClock = ClockControl<PeriphClockEnable1, RCC_APBENR1_DBGEN, ApbClock>;
-    using PowerClock = ClockControl<PeriphClockEnable1, RCC_APBENR1_PWREN, ApbClock>;
-    using SysCfgClock = ClockControl<PeriphClockEnable2, RCC_APBENR2_SYSCFGEN, ApbClock>;
-    using Tim1Clock = ClockControl<PeriphClockEnable2, RCC_APBENR2_TIM1EN, ApbClock>;
-    using Spi1Clock = ClockControl<PeriphClockEnable2, RCC_APBENR2_SPI1EN, ApbClock>;
-    using Usart1Clock = ClockControl<PeriphClockEnable2, RCC_APBENR2_USART1EN, ApbClock>;
-    using Tim14Clock = ClockControl<PeriphClockEnable2, RCC_APBENR2_TIM14EN, ApbClock>;
-    using Tim16Clock = ClockControl<PeriphClockEnable2, RCC_APBENR2_TIM16EN, ApbClock>;
-    using Tim17Clock = ClockControl<PeriphClockEnable2, RCC_APBENR2_TIM17EN, ApbClock>;
-    using AdcClock = ClockControl<PeriphClockEnable2, RCC_APBENR2_ADCEN, ApbClock>;
+DECLARE_IO_BITFIELD_WRAPPER(RCC->CFGR, Apb2PrescalerBitField, RCC_CFGR_PPRE2);
 
-#if defined (RCC_APBENR1_TIM2EN)
-    using Tim2Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_TIM2EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_LPUART1EN)
-    using LpUart1Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_LPUART1EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_LPTIM2EN)
-    using LpTim2Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_LPTIM2EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_LPTIM1EN)
-    using LpTim1Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_LPTIM1EN, ApbClock>;
-#endif
-#if defined (RCC_AHBENR_AESEN)
-    using AesClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_AESEN, AhbClock>;
-#endif
-#if defined (RCC_AHBENR_RNGEN)
-    using RngClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_RNGEN, AhbClock>;
-#endif
-#if defined (RCC_APBENR1_TIM6EN)
-    using Tim6Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_TIM6EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_TIM7EN)
-    using Tim7Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_TIM7EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR2_TIM15EN)
-    using Tim15Clock = ClockControl<PeriphClockEnable2, RCC_APBENR2_TIM15EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_DAC1EN)
-    using Dac1Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_DAC1EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_USART3EN)
-    using Usart3Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_USART3EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_USART4EN)
-    using Usart4Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_USART4EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_CECEN)
-    using CecClock = ClockControl<PeriphClockEnable1, RCC_APBENR1_CECEN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_UCPD1EN)
-    using Ucpd1Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_UCPD1EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_UCPD2EN)
-    using Ucpd2Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_UCPD2EN, ApbClock>;
-#endif
-#if defined (RCC_IOPENR_GPIOEEN)
-    using PorteClock = ClockControl<IOPeriphClockEnable, RCC_IOPENR_GPIOEEN, ApbClock>;
-#endif
-#if defined (RCC_AHBENR_DMA2EN)
-    using Dma2Clock = ClockControl<AhbClockEnableReg, RCC_AHBENR_DMA2EN, AhbClock>;
-#endif
-#if defined (RCC_APBENR1_TIM4EN)
-    using Tim4Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_TIM4EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_USART5EN)
-    using Usart5Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_USART5EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_USART6EN)
-    using Usart6Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_USART6EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_USBEN)
-    using UsbClock = ClockControl<PeriphClockEnable1, RCC_APBENR1_USBEN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_SPI3EN)
-    using Spi3Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_SPI3EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_I2C3EN)
-    using I2c3Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_I2C3EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_LPUART2EN)
-    using LpUart2Clock = ClockControl<PeriphClockEnable1, RCC_APBENR1_LPUART2EN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_FDCANEN)
-    using FdCanClock = ClockControl<PeriphClockEnable1, RCC_APBENR1_FDCANEN, ApbClock>;
-#endif
-#if defined (RCC_APBENR1_CRSEN)
-    using CrsClock = ClockControl<PeriphClockEnable1, RCC_APBENR1_CRSEN, ApbClock>;
-#endif
+/**
+ * @brief Implements APB clock
+ */
+class Apb2Clock : BusClock<AhbClock, Apb2PrescalerBitField> {
+    using Base = BusClock<AhbClock, Apb2PrescalerBitField>;
 
-/* Sleep/Stop mode not implemented
-    using GPIOASMClock = ClockControl<PeriphClockEnable, RCC_IOPSMENR_GPIOASMEN, ApbClock>;
-    using GPIOBSMClock = ClockControl<PeriphClockEnable, RCC_IOPSMENR_GPIOBSMEN, ApbClock>;
-    using GPIOCSMClock = ClockControl<PeriphClockEnable, RCC_IOPSMENR_GPIOCSMEN, ApbClock>;
-    using GPIODSMClock = ClockControl<PeriphClockEnable, RCC_IOPSMENR_GPIODSMEN, ApbClock>;
-    using GPIOFSMClock = ClockControl<PeriphClockEnable, RCC_IOPSMENR_GPIOFSMEN, ApbClock>;
-    using DMA1SMClock = ClockControl<PeriphClockEnable, RCC_AHBSMENR_DMA1SMEN, ApbClock>;
-    using FLASHSMClock = ClockControl<PeriphClockEnable, RCC_AHBSMENR_FLASHSMEN, ApbClock>;
-    using SRAMSMClock = ClockControl<PeriphClockEnable, RCC_AHBSMENR_SRAMSMEN, ApbClock>;
-    using CRCSMClock = ClockControl<PeriphClockEnable, RCC_AHBSMENR_CRCSMEN, ApbClock>;
-    using TIM3SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_TIM3SMEN, ApbClock>;
-    using RTCAPBSMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_RTCAPBSMEN, ApbClock>;
-    using WWDGSMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_WWDGSMEN, ApbClock>;
-    using SPI2SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_SPI2SMEN, ApbClock>;
-    using USART2SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_USART2SMEN, ApbClock>;
-    using I2C1SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_I2C1SMEN, ApbClock>;
-    using I2C2SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_I2C2SMEN, ApbClock>;
-    using DBGSMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_DBGSMEN, ApbClock>;
-    using PWRSMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_PWRSMEN, ApbClock>;
-    using SYSCFGSMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR2_SYSCFGSMEN, ApbClock>;
-    using TIM1SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR2_TIM1SMEN, ApbClock>;
-    using SPI1SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR2_SPI1SMEN, ApbClock>;
-    using USART1SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR2_USART1SMEN, ApbClock>;
-    using TIM14SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR2_TIM14SMEN, ApbClock>;
-    using TIM16SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR2_TIM16SMEN, ApbClock>;
-    using TIM17SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR2_TIM17SMEN, ApbClock>;
-    using ADCSMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR2_ADCSMEN, ApbClock>;
+public:
+    /**
+     * @brief APB1 clock prescalers
+     */
+    enum Prescaler {
+        Div1 = RCC_CFGR_PPRE2_DIV1 >> Apb2PrescalerBitFieldOffset,   ///< No divide (prescaler = 1)
+        Div2 = RCC_CFGR_PPRE2_DIV2 >> Apb2PrescalerBitFieldOffset,   ///< Prescaler = 2
+        Div4 = RCC_CFGR_PPRE2_DIV4 >> Apb2PrescalerBitFieldOffset,   ///< Prescaler = 4
+        Div8 = RCC_CFGR_PPRE2_DIV8 >> Apb2PrescalerBitFieldOffset,   ///< Prescaler = 8
+        Div16 = RCC_CFGR_PPRE2_DIV16 >> Apb2PrescalerBitFieldOffset, ///< Prescaler = 16
+    };
 
-#if defined (RCC_AHBSMENR_AESSMEN)
-    using AESSMClock = ClockControl<AhbClockEnableReg, RCC_AHBSMENR_AESSMEN, AhbClock>;
-#endif
-#if defined (RCC_AHBSMENR_RNGSMEN)
-    using RNGSMClock = ClockControl<AhbClockEnableReg, RCC_AHBSMENR_RNGSMEN, AhbClock>;
-#endif
+    static ClockFrequenceT ClockFreq() {
+        static constexpr uint8_t clockPrescShift[] = {0, 0, 0, 0, 1, 2, 3, 4};
 
-#if defined (RCC_APBSMENR1_TIM2SMEN)
-    using TIM2SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_TIM2SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_LPUART1SMEN)
-    using LPUART1SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_LPUART1SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_LPTIM2SMEN)
-    using LPTIM2SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_LPTIM2SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_LPTIM1SMEN)
-    using LPTIM1SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_LPTIM1SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_TIM6SMEN)
-    using Tim6SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_TIM6SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_TIM7SMEN)
-    using Tim7SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_TIM7SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR2_TIM15SMEN)
-    using TIM15SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR2_TIM15SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_DAC1SMEN)
-    using DAC1SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_DAC1SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_USART3SMEN)
-    using USART3SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_USART3SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_USART4SMEN)
-    using USART4SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_USART4SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_CECSMEN)
-    using CECSMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_CECSMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_UCPD1SMEN)
-    using UCPD1SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_UCPD1SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_UCPD2SMEN)
-    using UCPD2SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_UCPD2SMEN, ApbClock>;
-#endif
-#if defined (RCC_IOPSMENR_GPIOESMEN)
-    using GPIOESMClock = ClockControl<PeriphClockEnable, RCC_IOPSMENR_GPIOESMEN, ApbClock>;
-#endif
-#if defined (RCC_AHBSMENR_DMA2SMEN)
-    using DMA2SMClock = ClockControl<PeriphClockEnable, RCC_AHBSMENR_DMA2SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_TIM4SMEN)
-    using TIM4SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_TIM4SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_USART5SMEN)
-    using USART5SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_USART5SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_USART6SMEN)
-    using USART6SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_USART6SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_USBSMEN)
-    using USBSMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_USBSMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_SPI3SMEN)
-    using SPI3SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_SPI3SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_I2C3SMEN)
-    using I2C3SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_I2C3SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_LPUART2SMEN)
-    using LpUart2SMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_LPUART2SMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_FDCANSMEN)
-    using FDCANSMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_FDCANSMEN, ApbClock>;
-#endif
-#if defined (RCC_APBSMENR1_CRSSMEN)
-    using CRSSMClock = ClockControl<PeriphClockEnable, RCC_APBSMENR1_CRSSMEN, ApbClock>;
-#endif
+        ClockFrequenceT clock = AhbClock::ClockFreq();
+        uint8_t shiftBits = clockPrescShift[Apb2PrescalerBitField::Get()];
+        clock >>= shiftBits;
+        return clock;
+    }
+
+    template <Prescaler prescaler>
+    static void SetPrescaler() {
+        Base::SetPrescaler(prescaler);
+    }
+};
+/*
+template <auto REG, auto NAME, typename DATA_TYPE>
+class IoRegWrapper {
+public:
+    using DataT = DATA_TYPE;
+    static DataT Get() { return REG->*NAME; }
+    static void Set(DataT value) { REG->*NAME = value; }
+    static void Or(DataT value) { REG->*NAME |= value; }
+    static void And(DataT value) { REG->*NAME &= value; }
+    static void Xor(DataT value) { REG->*NAME ^= value; }
+    static void AndOr(DataT andMask, DataT orMask) { REG->*NAME = (REG->*NAME & andMask) | orMask; }
+    template <unsigned Bit>
+    static bool IsBitSet() { return REG->*NAME & (1 << Bit); }
+    template <unsigned Bit>
+    static bool IsBitClear() { return !(REG->*NAME & (1 << Bit)); }
+};
+
+inline RCC_TypeDef& RCC_ = *reinterpret_cast<RCC_TypeDef*>(RCC_BASE);
+
+using Ahb1ClockEnableReg = IoRegWrapper<&RCC_, &RCC_TypeDef::AHB1ENR, uint32_t>;
+using Ahb2ClockEnableReg = IoRegWrapper<&RCC_, &RCC_TypeDef::AHB2ENR, uint32_t>;
+using Ahb3ClockEnableReg = IoRegWrapper<&RCC_, &RCC_TypeDef::AHB3ENR, uint32_t>;
+
+using PeriphClockEnable1 = IoRegWrapper<&RCC_, &RCC_TypeDef::APB1ENR, uint32_t>;
+using PeriphClockEnable2 = IoRegWrapper<&RCC_, &RCC_TypeDef::APB2ENR, uint32_t>;
+
+using Apb1ResetReg = IoRegWrapper<&RCC_, &RCC_TypeDef::APB1RSTR, uint32_t>;
+using Apb2ResetReg = IoRegWrapper<&RCC_, &RCC_TypeDef::APB2RSTR, uint32_t>;
 */
-} // namespace Zhele::Clock
+IO_REG_WRAPPER(RCC->AHB1ENR, Ahb1ClockEnableReg, uint32_t);
+IO_REG_WRAPPER(RCC->AHB2ENR, Ahb2ClockEnableReg, uint32_t);
+IO_REG_WRAPPER(RCC->AHB3ENR, Ahb3ClockEnableReg, uint32_t);
 
+IO_REG_WRAPPER(RCC->APB1ENR1, PeriphClockEnable11, uint32_t);
+IO_REG_WRAPPER(RCC->APB1ENR2, PeriphClockEnable12, uint32_t);
+IO_REG_WRAPPER(RCC->APB2ENR, PeriphClockEnable2, uint32_t);
+
+IO_REG_WRAPPER(RCC->APB1RSTR1, Apb1ResetReg1, uint32_t);
+IO_REG_WRAPPER(RCC->APB1RSTR2, Apb1ResetReg2, uint32_t);
+IO_REG_WRAPPER(RCC->APB2RSTR, Apb2ResetReg, uint32_t);
+
+/*
+RCC_AHB1SMENR_CORDICSMEN
+RCC_AHB1SMENR_CRCSMEN
+RCC_AHB1SMENR_DMA1SMEN
+RCC_AHB1SMENR_DMA2SMEN
+RCC_AHB1SMENR_DMAMUX1SMEN
+RCC_AHB1SMENR_FLASHSMEN
+RCC_AHB1SMENR_FMACSMEN
+RCC_AHB1SMENR_SRAM1SMEN
+RCC_AHB2SMENR_ADC12SMEN
+RCC_AHB2SMENR_ADC345SMEN
+RCC_AHB2SMENR_CCMSRAMSMEN
+RCC_AHB2SMENR_DAC1SMEN
+RCC_AHB2SMENR_DAC2SMEN
+RCC_AHB2SMENR_DAC3SMEN
+RCC_AHB2SMENR_DAC4SMEN
+RCC_AHB2SMENR_GPIOASMEN
+RCC_AHB2SMENR_GPIOBSMEN
+RCC_AHB2SMENR_GPIOCSMEN
+RCC_AHB2SMENR_GPIODSMEN
+RCC_AHB2SMENR_GPIOESMEN
+RCC_AHB2SMENR_GPIOFSMEN
+RCC_AHB2SMENR_GPIOGSMEN
+RCC_AHB2SMENR_RNGSMEN
+RCC_AHB2SMENR_SRAM2SMEN
+RCC_AHB3SMENR_FMCSMEN
+RCC_AHB3SMENR_QSPISMEN
+RCC_APB1SMENR1_CRSSMEN
+RCC_APB1SMENR1_FDCANSMEN
+RCC_APB1SMENR1_I2C1SMEN
+RCC_APB1SMENR1_I2C2SMEN
+RCC_APB1SMENR1_I2C3SMEN
+RCC_APB1SMENR1_LPTIM1SMEN
+RCC_APB1SMENR1_PWRSMEN
+RCC_APB1SMENR1_RTCAPBSMEN
+RCC_APB1SMENR1_SPI2SMEN
+RCC_APB1SMENR1_SPI3SMEN
+RCC_APB1SMENR1_TIM2SMEN
+RCC_APB1SMENR1_TIM3SMEN
+RCC_APB1SMENR1_TIM4SMEN
+RCC_APB1SMENR1_TIM5SMEN
+RCC_APB1SMENR1_TIM6SMEN
+RCC_APB1SMENR1_TIM7SMEN
+RCC_APB1SMENR1_UART4SMEN
+RCC_APB1SMENR1_UART5SMEN
+RCC_APB1SMENR1_USART2SMEN
+RCC_APB1SMENR1_USART3SMEN
+RCC_APB1SMENR1_USBSMEN
+RCC_APB1SMENR1_WWDGSMEN
+RCC_APB1SMENR2_I2C4SMEN
+RCC_APB1SMENR2_LPUART1SMEN
+RCC_APB1SMENR2_UCPD1SMEN
+RCC_APB2SMENR_HRTIM1SMEN
+RCC_APB2SMENR_SAI1SMEN
+RCC_APB2SMENR_SPI1SMEN
+RCC_APB2SMENR_SPI4SMEN
+RCC_APB2SMENR_SYSCFGSMEN
+RCC_APB2SMENR_TIM15SMEN
+RCC_APB2SMENR_TIM16SMEN
+RCC_APB2SMENR_TIM17SMEN
+RCC_APB2SMENR_TIM1SMEN
+RCC_APB2SMENR_TIM20SMEN
+RCC_APB2SMENR_TIM8SMEN
+RCC_APB2SMENR_USART1SMEN
+*/
+
+#if defined(RCC_AHB1ENR_CORDICEN)
+using CordicClock = ClockControl<Ahb1ClockEnableReg, RCC_AHB1ENR_CORDICEN, Ahb1Clock>;
+#endif
+#if defined(RCC_AHB1ENR_CRCEN)
+using CrcClock = ClockControl<Ahb1ClockEnableReg, RCC_AHB1ENR_CRCEN, Ahb1Clock>;
+#endif
+#if defined(RCC_AHB1ENR_DMA1EN)
+using Dma1Clock = ClockControl<Ahb1ClockEnableReg, RCC_AHB1ENR_DMA1EN, Ahb1Clock>;
+#endif
+#if defined(RCC_AHB1ENR_DMA2EN)
+using Dma2Clock = ClockControl<Ahb1ClockEnableReg, RCC_AHB1ENR_DMA2EN, Ahb1Clock>;
+#endif
+#if defined(RCC_AHB1ENR_DMAMUX1EN)
+using Dmamux1Clock = ClockControl<Ahb1ClockEnableReg, RCC_AHB1ENR_DMAMUX1EN, Ahb1Clock>;
+#endif
+#if defined(RCC_AHB1ENR_FLASHEN)
+using FlashClock = ClockControl<Ahb1ClockEnableReg, RCC_AHB1ENR_FLASHEN, Ahb1Clock>;
+#endif
+#if defined(RCC_AHB1ENR_FMACEN)
+using FmacClock = ClockControl<Ahb1ClockEnableReg, RCC_AHB1ENR_FMACEN, Ahb1Clock>;
+#endif
+#if defined(RCC_AHB2ENR_ADC12EN)
+using Adc12Clock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_ADC12EN, Ahb2Clock>;
+#endif
+#if defined(RCC_AHB2ENR_ADC345EN)
+using Adc345Clock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_ADC345EN, Ahb2Clock>;
+#endif
+#if defined(RCC_AHB2ENR_DAC1EN)
+using Dac1Clock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_DAC1EN, Ahb2Clock>;
+#endif
+#if defined(RCC_AHB2ENR_DAC2EN)
+using Dac2Clock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_DAC2EN, Ahb2Clock>;
+#endif
+#if defined(RCC_AHB2ENR_DAC3EN)
+using Dac3Clock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_DAC3EN, Ahb2Clock>;
+#endif
+#if defined(RCC_AHB2ENR_DAC4EN)
+using Dac4Clock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_DAC4EN, Ahb2Clock>;
+#endif
+#if defined(RCC_AHB2ENR_GPIOAEN)
+using PortaClock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_GPIOAEN, Ahb2Clock>;
+#endif
+#if defined(RCC_AHB2ENR_GPIOBEN)
+using PortbClock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_GPIOBEN, Ahb2Clock>;
+#endif
+#if defined(RCC_AHB2ENR_GPIOCEN)
+using PortcClock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_GPIOCEN, Ahb2Clock>;
+#endif
+#if defined(RCC_AHB2ENR_GPIODEN)
+using PortdClock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_GPIODEN, Ahb2Clock>;
+#endif
+#if defined(RCC_AHB2ENR_GPIOEEN)
+using PorteClock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_GPIOEEN, Ahb2Clock>;
+#endif
+#if defined(RCC_AHB2ENR_GPIOFEN)
+using PortfClock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_GPIOFEN, Ahb2Clock>;
+#endif
+#if defined(RCC_AHB2ENR_GPIOGEN)
+using PortgClock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_GPIOGEN, Ahb2Clock>;
+#endif
+#if defined(RCC_AHB2ENR_RNGEN)
+using RngClock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_RNGEN, Ahb2Clock>;
+#endif
+#if defined(RCC_AHB3ENR_FMCEN)
+using FmcClock = ClockControl<Ahb3ClockEnableReg, RCC_AHB3ENR_FMCEN, Ahb3Clock>;
+#endif
+#if defined(RCC_AHB3ENR_QSPIEN)
+using QspiClock = ClockControl<Ahb3ClockEnableReg, RCC_AHB3ENR_QSPIEN, Ahb3Clock>;
+#endif
+#if defined(RCC_APB1ENR1_CRSEN)
+using CrsClock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_CRSEN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_FDCANEN)
+using FdcanClock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_FDCANEN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_I2C1EN)
+using I2c1Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_I2C1EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_I2C2EN)
+using I2c2Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_I2C2EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_I2C3EN)
+using I2c3Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_I2C3EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_LPTIM1EN)
+using Lptim1Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_LPTIM1EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_PWREN)
+using PwrClock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_PWREN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_RTCAPBEN)
+using RtcapbClock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_RTCAPBEN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_SPI2EN)
+using Spi2Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_SPI2EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_SPI3EN)
+using Spi3Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_SPI3EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_TIM2EN)
+using Tim2Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_TIM2EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_TIM3EN)
+using Tim3Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_TIM3EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_TIM4EN)
+using Tim4Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_TIM4EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_TIM5EN)
+using Tim5Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_TIM5EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_TIM6EN)
+using Tim6Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_TIM6EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_TIM7EN)
+using Tim7Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_TIM7EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_UART4EN)
+using Uart4Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_UART4EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_UART5EN)
+using Uart5Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_UART5EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_USART2EN)
+using Usart2Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_USART2EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_USART3EN)
+using Usart3Clock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_USART3EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_USBEN)
+using UsbClock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_USBEN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR1_WWDGEN)
+using WwdgClock = ClockControl<PeriphClockEnable11, RCC_APB1ENR1_WWDGEN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR2_I2C4EN)
+using I2c4Clock = ClockControl<PeriphClockEnable12, RCC_APB1ENR2_I2C4EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR2_LPUART1EN)
+using Lpuart1Clock = ClockControl<PeriphClockEnable12, RCC_APB1ENR2_LPUART1EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB1ENR2_UCPD1EN)
+using Ucpd1Clock = ClockControl<PeriphClockEnable12, RCC_APB1ENR2_UCPD1EN, Apb1Clock>;
+#endif
+#if defined(RCC_APB2ENR_HRTIM1EN)
+using Hrtim1Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_HRTIM1EN, Apb2Clock>;
+#endif
+#if defined(RCC_APB2ENR_SAI1EN)
+using Sai1Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_SAI1EN, Apb2Clock>;
+#endif
+#if defined(RCC_APB2ENR_SPI1EN)
+using Spi1Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_SPI1EN, Apb2Clock>;
+#endif
+#if defined(RCC_APB2ENR_SPI4EN)
+using Spi4Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_SPI4EN, Apb2Clock>;
+#endif
+#if defined(RCC_APB2ENR_SYSCFGEN)
+using SyscfgClock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_SYSCFGEN, Apb2Clock>;
+#endif
+#if defined(RCC_APB2ENR_TIM15EN)
+using Tim15Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_TIM15EN, Apb2Clock>;
+#endif
+#if defined(RCC_APB2ENR_TIM16EN)
+using Tim16Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_TIM16EN, Apb2Clock>;
+#endif
+#if defined(RCC_APB2ENR_TIM17EN)
+using Tim17Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_TIM17EN, Apb2Clock>;
+#endif
+#if defined(RCC_APB2ENR_TIM1EN)
+using Tim1Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_TIM1EN, Apb2Clock>;
+#endif
+#if defined(RCC_APB2ENR_TIM20EN)
+using Tim20Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_TIM20EN, Apb2Clock>;
+#endif
+#if defined(RCC_APB2ENR_TIM8EN)
+using Tim8Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_TIM8EN, Apb2Clock>;
+#endif
+#if defined(RCC_APB2ENR_USART1EN)
+using Usart1Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_USART1EN, Apb2Clock>;
+#endif
+
+} // namespace Zhele::Clock
 #endif //! ZHELE_CLOCK_H

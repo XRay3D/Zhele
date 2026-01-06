@@ -10,7 +10,7 @@
 #ifndef ZHELE_DAC_H
 #define ZHELE_DAC_H
 
-#include <stm32g0xx.h>
+#include <stm32g4xx.h>
 #include "../common/dac.h"
 
 #endif //! ZHELE_DAC_H

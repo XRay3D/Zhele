@@ -9,7 +9,7 @@
 #ifndef ZHELE_TIMER_H
 #define ZHELE_TIMER_H
 
-#include <stm32g0xx.h>
+#include <stm32g4xx.h>
 
 #include "iopins.h"
 
@@ -115,30 +115,36 @@ namespace Zhele::Timers
 
         template<unsigned ChannelNumber> struct Tim14ChPins;
         template<> struct Tim14ChPins<0>{ using Pins = Pair<IO::PinList<Pa4, Pa7, Pb1, Pc12, Pf0>, NonTypeTemplateArray<4, 4, 0, 2, 2>>; };
-        
+
+
+        template<unsigned ChannelNumber> struct Tim15ChPins;
+        template<> struct Tim15ChPins<0>{ using Pins = Pair<IO::PinList<Pa4, Pa7, Pb1, Pc12, Pf0>, NonTypeTemplateArray<4, 4, 0, 2, 2>>; };
+
+
         IO_STRUCT_WRAPPER(TIM1, Tim1Regs, TIM_TypeDef);
-    #if defined (TIM2)
         IO_STRUCT_WRAPPER(TIM2, Tim2Regs, TIM_TypeDef);
-    #endif
         IO_STRUCT_WRAPPER(TIM3, Tim3Regs, TIM_TypeDef);
-    #if defined (TIM4)
         IO_STRUCT_WRAPPER(TIM4, Tim4Regs, TIM_TypeDef);
-    #endif
-        IO_STRUCT_WRAPPER(TIM14, Tim14Regs, TIM_TypeDef);
+        IO_STRUCT_WRAPPER(TIM5, Tim5Regs, TIM_TypeDef);
+
+        IO_STRUCT_WRAPPER(TIM6, Tim6Regs, TIM_TypeDef);
+        IO_STRUCT_WRAPPER(TIM7, Tim7Regs, TIM_TypeDef);
+
+        IO_STRUCT_WRAPPER(TIM8, Tim8Regs, TIM_TypeDef);
+
+        IO_STRUCT_WRAPPER(TIM15, Tim15Regs, TIM_TypeDef);
         IO_STRUCT_WRAPPER(TIM16, Tim16Regs, TIM_TypeDef);
         IO_STRUCT_WRAPPER(TIM17, Tim17Regs, TIM_TypeDef);
+
+        IO_STRUCT_WRAPPER(TIM20, Tim20Regs, TIM_TypeDef);
     }
 
-#if defined (TIM2)
-    using Timer2 = Private::GPTimer<Private::Tim2Regs, Clock::Tim2Clock, TIM2_IRQn, Private::Tim2ChPins>;
-#endif
-    using Timer3 = Private::GPTimer<Private::Tim3Regs, Clock::Tim3Clock, TIM3_IRQn, Private::Tim3ChPins>;
-#if defined (TIM4)
-    using Timer4 = Private::GPTimer<Private::Tim4Regs, Clock::Tim4Clock, TIM4_IRQn, Private::Tim4ChPins>;
-#endif
-    using Timer14 = Private::GPTimer<Private::Tim14Regs, Clock::Tim14Clock, TIM14_IRQn, Private::Tim14ChPins>;
-    using Timer16 = Private::BaseTimer<Private::Tim16Regs, Clock::Tim16Clock, TIM16_IRQn>;
-    using Timer17 = Private::BaseTimer<Private::Tim17Regs, Clock::Tim17Clock, TIM17_IRQn>;
+    using Timer15 = Private::GPTimer<Private::Tim15Regs, Clock::Tim15Clock, TIM1_BRK_TIM15_IRQn, Private::Tim15ChPins>;
+    using Timer16 = Private::GPTimer<Private::Tim16Regs, Clock::Tim16Clock, TIM1_UP_TIM16_IRQn, Private::Tim16ChPins>;
+    using Timer17 = Private::GPTimer<Private::Tim17Regs, Clock::Tim17Clock, TIM1_TRG_COM_TIM17_IRQn, Private::Tim17ChPins>;
+
+    using Timer6 = Private::BaseTimer<Private::Tim6Regs, Clock::Tim6Clock, TIM6_DAC_IRQn>;
+    using Timer7 = Private::BaseTimer<Private::Tim7Regs, Clock::Tim7Clock, TIM7_DAC_IRQn>;
 }
 
 #endif //! ZHELE_TIMER_H

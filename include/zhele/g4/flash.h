@@ -10,7 +10,9 @@
 #ifndef ZHELE_FLASH_H
 #define ZHELE_FLASH_H
 
-#include <stm32g0xx.h>
+#include <stm32g4xx.h>
+
+#define FLASH_SIZE 0 // TODO FLASH_SIZE FOR STM32G4XX
 
 #include "../common/flash.h"
 

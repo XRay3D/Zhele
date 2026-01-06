@@ -9,7 +9,7 @@
 
 #ifndef ZHELE_IOPINS_H
 #define ZHELE_IOPINS_H
-#include <stm32g0xx.h>
+#include <stm32g4xx.h>
 
 #include "ioports.h"
 
