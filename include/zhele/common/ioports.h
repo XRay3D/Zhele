@@ -687,15 +687,15 @@ namespace Zhele
             ID>; \
 
         #if defined(GPIOA)
-            MAKE_PORT(GPIOA, Zhele::Clock::PortaClock, Porta, 'A')
+            MAKE_PORT(GPIOA, Clock::PortaClock, Porta, 'A')
         #endif
 
         #if defined(GPIOB)
-            MAKE_PORT(GPIOB, Zhele::Clock::PortbClock, Portb, 'B')
+            MAKE_PORT(GPIOB, Clock::PortbClock, Portb, 'B')
         #endif
 
         #if defined(GPIOC)
-            MAKE_PORT(GPIOC, Zhele::Clock::PortcClock, Portc, 'C')
+            MAKE_PORT(GPIOC, Clock::PortcClock, Portc, 'C')
         #endif
 
         #if defined(GPIOD)

@@ -9,18 +9,16 @@
 
 #if defined(STM32F0)
     #include <stm32f0xx.h>
-#endif
-#if defined(STM32F1)
+#elif defined(STM32F1)
     #include <stm32f1xx.h>
-#endif
-#if defined(STM32F4)
+#elif defined(STM32F4)
     #include <stm32f4xx.h>
-#endif
-#if defined(STM32L4)
+#elif defined(STM32L4)
     #include <stm32l4xx.h>
-#endif
-#if defined(STM32G0)
+#elif defined(STM32G0)
     #include <stm32g0xx.h>
+#elif defined(STM32G4)
+    #include <stm32g4xx.h>
 #endif
 
 
