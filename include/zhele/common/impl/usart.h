@@ -12,51 +12,6 @@
 
 namespace Zhele
 {
-    constexpr UsartBase::UsartMode::_CR1 operator | (UsartBase::UsartMode::_CR1 first, UsartBase::UsartMode::_CR1 second)
-    {
-        return static_cast<UsartBase::UsartMode::_CR1>(static_cast<uint32_t>(first) | static_cast<uint32_t>(second));
-    }
-
-    constexpr UsartBase::UsartMode::_CR2 operator | (UsartBase::UsartMode::_CR2 first, UsartBase::UsartMode::_CR2 second)
-    {
-        return static_cast<UsartBase::UsartMode::_CR2>(static_cast<uint32_t>(first) | static_cast<uint32_t>(second));
-    }
-
-    constexpr UsartBase::UsartMode::_CR3 operator | (UsartBase::UsartMode::_CR3 first, UsartBase::UsartMode::_CR3 second)
-    {
-        return static_cast<UsartBase::UsartMode::_CR3>(static_cast<uint32_t>(first) | static_cast<uint32_t>(second));
-    }
-
-    constexpr UsartBase::UsartMode operator | (UsartBase::UsartMode::_CR1 cr1, UsartBase::UsartMode::_CR2 cr2)
-    {
-        return UsartBase::UsartMode{cr1, cr2, UsartBase::UsartMode::_CR3()};
-    }
-
-    constexpr UsartBase::UsartMode operator | (UsartBase::UsartMode::_CR2 cr2, UsartBase::UsartMode::_CR1 cr1)
-    {
-        return cr1 | cr2;
-    }
-
-    constexpr UsartBase::UsartMode operator | (UsartBase::UsartMode::_CR2 cr2, UsartBase::UsartMode::_CR3 cr3)
-    {
-        return UsartBase::UsartMode{UsartBase::UsartMode::_CR1(), cr2, cr3};
-    }
-    
-    constexpr UsartBase::UsartMode operator | (UsartBase::UsartMode::_CR3 cr3, UsartBase::UsartMode::_CR2 cr2)
-    {
-        return cr2 | cr3;
-    }
-
-    constexpr UsartBase::UsartMode operator | (UsartBase::UsartMode::_CR1 cr1, UsartBase::UsartMode::_CR3 cr3)
-    {
-        return UsartBase::UsartMode{cr1, UsartBase::UsartMode::_CR2(), cr3};
-    }
-    
-    constexpr UsartBase::UsartMode operator | (UsartBase::UsartMode::_CR3 cr3, UsartBase::UsartMode::_CR1 cr1)
-    {
-        return cr1 | cr3;
-    }
-
     namespace Private
     {
         #define USART_TEMPLATE_ARGS template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>

@@ -10,7 +10,7 @@
 #ifndef ZHELE_I2C_COMMON_H
 #define ZHELE_I2C_COMMON_H
 
-#include "macro_utils/enum.h"
+#include "template_utils/enum.h"
 #include "template_utils/type_list.h"
 
 #include <zhele/clock.h>
@@ -130,7 +130,7 @@ namespace Zhele
         DualFlag = I2C_SR2_DUALF << 16
     #endif
     };
-    DECLARE_ENUM_OPERATIONS(Events);
+    ;
     
     struct ReadResult
     {

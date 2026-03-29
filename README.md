@@ -72,7 +72,7 @@ add_executable(zhele_template ${PROJECT_SOURCES})
 # Link CMSIS and Zhele. Add other dependences here
 target_link_libraries(zhele_template zhele::zhele CMSIS::STM32::F103C8 STM32::NoSys STM32::Nano)
 # Recommended options for stm32 dev
-target_compile_options(zhele_template PRIVATE -fno-exceptions -fno-rtti -ffunction-sections -fdata-sections)
+target_compile_options(zhele_template PRIVATE -fno-exceptions $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti> -ffunction-sections -fdata-sections)
 # Preprocessor options
 target_compile_definitions(zhele_template PRIVATE FCPU=80000000)
 
