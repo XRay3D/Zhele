@@ -9,13 +9,14 @@
 #ifndef ZHELE_TIMER_H
 #define ZHELE_TIMER_H
 
-#include "../common/template_utils/static_array.h"
 #include "../common/timer.h"
 
 #include "iopins.h"
 #include "remap.h"
 
-#include <utility>
+#include <array>
+#include <cstddef>
+#include <cstdint>
 
 namespace Zhele::Timers
 {
@@ -43,7 +44,7 @@ namespace Zhele::Timers
         void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::OutputCompare<_ChannelNumber>::SelectPins(int pinNumber)
         {
             using Pins = GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::OutputCompare<_ChannelNumber>::Pins;
-            using PinsAltFuncNumbers = GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::OutputCompare<_ChannelNumber>::PinsAltFuncNumber;
+            using PinsConfig = GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::OutputCompare<_ChannelNumber>::PinsConfig;
             using Type = typename Pins::DataType;
 
             Type mask = 1 << pinNumber;
@@ -51,7 +52,7 @@ namespace Zhele::Timers
             Pins::Enable();
             Pins::SetConfiguration(Pins::AltFunc, mask);
             Pins::SetDriverType(Pins::DriverType::PushPull, mask);
-            GetTimerRemap<_Regs>::Set(GetNumberRuntime<PinsAltFuncNumbers>::Get(pinNumber));
+            GetTimerRemap<_Regs>::Set(PinsConfig::alt_functions[static_cast<size_t>(pinNumber)]);
         }
 
         template <typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
@@ -60,13 +61,13 @@ namespace Zhele::Timers
         void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::OutputCompare<_ChannelNumber>::SelectPins()
         {
             using Pins = GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::OutputCompare<_ChannelNumber>::Pins;
-            using PinsAltFuncNumbers = GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::OutputCompare<_ChannelNumber>::PinsAltFuncNumber;
+            using PinsConfig = GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::OutputCompare<_ChannelNumber>::PinsConfig;
             using Pin = Pins::template Pin<PinNumber>;
             
             Pin::Port::Enable();
             Pin::template SetConfiguration<Pins::AltFunc>();
             Pin::template SetDriverType<Pins::DriverType::PushPull>();
-            GetTimerRemap<_Regs>::Set(GetNonTypeValueByIndex<Pins::template IndexOf<Pin>, PinsAltFuncNumbers>::value);
+            GetTimerRemap<_Regs>::Set(PinsConfig::alt_functions[PinNumber]);
         }
 
         template <typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
@@ -85,14 +86,14 @@ namespace Zhele::Timers
         void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::InputCapture<_ChannelNumber>::SelectPins(int pinNumber)
         {
             using Pins = GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::InputCapture<_ChannelNumber>::Pins;
-            using PinsAltFuncNumbers = GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::InputCapture<_ChannelNumber>::PinsAltFuncNumber;
+            using PinsConfig = GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::InputCapture<_ChannelNumber>::PinsConfig;
             using Type = typename Pins::DataType;
 
             Type mask = 1 << pinNumber;
 
             Pins::Enable();
             Pins::SetConfiguration(Pins::Configuration::AltFunc, mask);
-            GetTimerRemap<_Regs>::Set(GetNumberRuntime<PinsAltFuncNumbers>::Get(pinNumber));
+            GetTimerRemap<_Regs>::Set(PinsConfig::alt_functions[static_cast<size_t>(pinNumber)]);
         }
 
         template <typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
@@ -101,12 +102,12 @@ namespace Zhele::Timers
         void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::InputCapture<_ChannelNumber>::SelectPins()
         {
             using Pins = GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::InputCapture<_ChannelNumber>::Pins;
-            using PinsAltFuncNumbers = GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::InputCapture<_ChannelNumber>::PinsAltFuncNumber;
+            using PinsConfig = GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::InputCapture<_ChannelNumber>::PinsConfig;
             using Pin = typename Pins::template Pin<PinNumber>;
             
             Pin::Port::Enable();
             Pin::template SetConfiguration<Pin::Configuration::AltFunc>();
-            GetTimerRemap<_Regs>::Set(GetNonTypeValueByIndex<Pins::template IndexOf<Pin>, PinsAltFuncNumbers>::value);
+            GetTimerRemap<_Regs>::Set(PinsConfig::alt_functions[PinNumber]);
         }
 
         template <typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
@@ -123,29 +124,29 @@ namespace Zhele::Timers
         using namespace Zhele::IO;
 
         template<unsigned ChannelNumber> struct Tim1ChPins;
-        template<> struct Tim1ChPins<0>{ using Pins = std::pair<IO::PinList<Pa8, Pe9>, NonTypeTemplateArray<0, 3>>; };
-        template<> struct Tim1ChPins<1>{ using Pins = std::pair<IO::PinList<Pa9, Pe11>, NonTypeTemplateArray<0, 3>>; };
-        template<> struct Tim1ChPins<2>{ using Pins = std::pair<IO::PinList<Pa10, Pe13>, NonTypeTemplateArray<0, 3>>; };
-        template<> struct Tim1ChPins<3>{ using Pins = std::pair<IO::PinList<Pa11, Pe14>, NonTypeTemplateArray<0, 3>>; };		
+        template<> struct Tim1ChPins<0>{ struct Pins { using io_pins = IO::PinList<Pa8, Pe9>; static constexpr std::array<uint8_t, 2> alt_functions{0, 3}; }; };
+        template<> struct Tim1ChPins<1>{ struct Pins { using io_pins = IO::PinList<Pa9, Pe11>; static constexpr std::array<uint8_t, 2> alt_functions{0, 3}; }; };
+        template<> struct Tim1ChPins<2>{ struct Pins { using io_pins = IO::PinList<Pa10, Pe13>; static constexpr std::array<uint8_t, 2> alt_functions{0, 3}; }; };
+        template<> struct Tim1ChPins<3>{ struct Pins { using io_pins = IO::PinList<Pa11, Pe14>; static constexpr std::array<uint8_t, 2> alt_functions{0, 3}; }; };
 
         template<unsigned ChannelNumber> struct Tim2ChPins;
-        template<> struct Tim2ChPins<0>{ using Pins = std::pair<IO::PinList<Pa0, Pa15, Pa0, Pa15>, NonTypeTemplateArray<0, 1, 2, 3>>; };
-        template<> struct Tim2ChPins<1>{ using Pins = std::pair<IO::PinList<Pa1, Pb3, Pa1, Pb3>, NonTypeTemplateArray<0, 1, 2, 3>>; };
-        template<> struct Tim2ChPins<2>{ using Pins = std::pair<IO::PinList<Pa2, Pb10>, NonTypeTemplateArray<0, 2>>; };
-        template<> struct Tim2ChPins<3>{ using Pins = std::pair<IO::PinList<Pa3, Pb11>, NonTypeTemplateArray<0, 2>>; };		
+        template<> struct Tim2ChPins<0>{ struct Pins { using io_pins = IO::PinList<Pa0, Pa15, Pa0, Pa15>; static constexpr std::array<uint8_t, 4> alt_functions{0, 1, 2, 3}; }; };
+        template<> struct Tim2ChPins<1>{ struct Pins { using io_pins = IO::PinList<Pa1, Pb3, Pa1, Pb3>; static constexpr std::array<uint8_t, 4> alt_functions{0, 1, 2, 3}; }; };
+        template<> struct Tim2ChPins<2>{ struct Pins { using io_pins = IO::PinList<Pa2, Pb10>; static constexpr std::array<uint8_t, 2> alt_functions{0, 2}; }; };
+        template<> struct Tim2ChPins<3>{ struct Pins { using io_pins = IO::PinList<Pa3, Pb11>; static constexpr std::array<uint8_t, 2> alt_functions{0, 2}; }; };
 
         template<unsigned ChannelNumber> struct Tim3ChPins;
-        template<> struct Tim3ChPins<0>{ using Pins = std::pair<IO::PinList<Pa6, Pb4, Pc6>, NonTypeTemplateArray<0, 2, 3>>; };
-        template<> struct Tim3ChPins<1>{ using Pins = std::pair<IO::PinList<Pa7, Pb5, Pc7>, NonTypeTemplateArray<0, 2, 3>>; };
-        template<> struct Tim3ChPins<2>{ using Pins = std::pair<IO::PinList<Pb0, Pc8>, NonTypeTemplateArray<0, 3>>; };
-        template<> struct Tim3ChPins<3>{ using Pins = std::pair<IO::PinList<Pb1, Pc9>, NonTypeTemplateArray<0, 3>>; };
+        template<> struct Tim3ChPins<0>{ struct Pins { using io_pins = IO::PinList<Pa6, Pb4, Pc6>; static constexpr std::array<uint8_t, 3> alt_functions{0, 2, 3}; }; };
+        template<> struct Tim3ChPins<1>{ struct Pins { using io_pins = IO::PinList<Pa7, Pb5, Pc7>; static constexpr std::array<uint8_t, 3> alt_functions{0, 2, 3}; }; };
+        template<> struct Tim3ChPins<2>{ struct Pins { using io_pins = IO::PinList<Pb0, Pc8>; static constexpr std::array<uint8_t, 2> alt_functions{0, 3}; }; };
+        template<> struct Tim3ChPins<3>{ struct Pins { using io_pins = IO::PinList<Pb1, Pc9>; static constexpr std::array<uint8_t, 2> alt_functions{0, 3}; }; };
 
 #if defined (TIM4)
         template<unsigned ChannelNumber> struct Tim4ChPins;
-        template<> struct Tim4ChPins<0>{ using Pins = std::pair<IO::PinList<Pb6, Pd12>, NonTypeTemplateArray<0, 1>>; };
-        template<> struct Tim4ChPins<1>{ using Pins = std::pair<IO::PinList<Pb7, Pd13>, NonTypeTemplateArray<0, 1>>; };
-        template<> struct Tim4ChPins<2>{ using Pins = std::pair<IO::PinList<Pb8, Pd14>, NonTypeTemplateArray<0, 1>>; };
-        template<> struct Tim4ChPins<3>{ using Pins = std::pair<IO::PinList<Pb9, Pd15>, NonTypeTemplateArray<0, 1>>; };
+        template<> struct Tim4ChPins<0>{ struct Pins { using io_pins = IO::PinList<Pb6, Pd12>; static constexpr std::array<uint8_t, 2> alt_functions{0, 1}; }; };
+        template<> struct Tim4ChPins<1>{ struct Pins { using io_pins = IO::PinList<Pb7, Pd13>; static constexpr std::array<uint8_t, 2> alt_functions{0, 1}; }; };
+        template<> struct Tim4ChPins<2>{ struct Pins { using io_pins = IO::PinList<Pb8, Pd14>; static constexpr std::array<uint8_t, 2> alt_functions{0, 1}; }; };
+        template<> struct Tim4ChPins<3>{ struct Pins { using io_pins = IO::PinList<Pb9, Pd15>; static constexpr std::array<uint8_t, 2> alt_functions{0, 1}; }; };
 #endif
         IO_STRUCT_WRAPPER(TIM1, Tim1Regs, TIM_TypeDef);
         IO_STRUCT_WRAPPER(TIM2, Tim2Regs, TIM_TypeDef);

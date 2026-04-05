@@ -11,7 +11,6 @@
 #define ZHELE_I2C_H
 
 #include "../common/i2c.h"
-#include "../common/template_utils/static_array.h"
 
 #include "afio_bind.h"
 #include "dma.h"

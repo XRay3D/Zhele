@@ -11,11 +11,13 @@
 #define ZHELE_SPI_H
 
 #include "../common/spi.h"
-#include "../common/template_utils/static_array.h"
 
 #include "dma.h"
 
-#include <utility>
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <type_traits>
 
 #define COMMA ,
 
@@ -26,15 +28,10 @@ namespace Zhele
         template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
         void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::SelectPins(int8_t mosiPinNumber, int8_t misoPinNumber, int8_t clockPinNumber, int8_t ssPinNumber)
         {
-            using MosiAltFuncNumbers = typename _MosiPins::second_type;
-            using MisoAltFuncNumbers = typename _MisoPins::second_type;
-            using ClockAltFuncNumbers = typename _ClockPins::second_type;
-            using SsAltFuncNumbers = typename _SsPins::second_type;
-
-            using MosiPins = typename _MosiPins::first_type;
-            using MisoPins = typename _MisoPins::first_type;
-            using ClockPins = typename _ClockPins::first_type;
-            using SsPins = typename _SsPins::first_type;
+            using MosiPins = typename _MosiPins::io_pins;
+            using MisoPins = typename _MisoPins::io_pins;
+            using ClockPins = typename _ClockPins::io_pins;
+            using SsPins = typename _SsPins::io_pins;
 
             using Type = typename MosiPins::DataType;
 
@@ -44,7 +41,7 @@ namespace Zhele
                 Type maskMosi(1 << mosiPinNumber);
                 MosiPins::SetConfiguration(MosiPins::AltFunc, maskMosi);
                 MosiPins::SetDriverType(MosiPins::DriverType::PushPull, maskMosi);
-                MosiPins::AltFuncNumber(GetNumberRuntime<MosiAltFuncNumbers>::Get(mosiPinNumber), maskMosi);
+                MosiPins::AltFuncNumber(_MosiPins::alt_functions[static_cast<size_t>(mosiPinNumber)], maskMosi);
             }
 
             if(misoPinNumber != -1)
@@ -52,14 +49,14 @@ namespace Zhele
                 MisoPins::Enable();
                 Type maskMiso(1 << misoPinNumber);
                 MisoPins::SetConfiguration(MisoPins::In, maskMiso);
-                MisoPins::AltFuncNumber(GetNumberRuntime<MisoAltFuncNumbers>::Get(maskMiso), maskMiso);
+                MisoPins::AltFuncNumber(_MisoPins::alt_functions[static_cast<size_t>(misoPinNumber)], maskMiso);
             }
 
             ClockPins::Enable();
             Type maskClock(1 << clockPinNumber);
             ClockPins::SetConfiguration(ClockPins::AltFunc, maskClock);
             ClockPins::SetDriverType(ClockPins::DriverType::PushPull, maskClock);
-            ClockPins::AltFuncNumber(GetNumberRuntime<ClockAltFuncNumbers>::Get(maskClock), maskClock);
+            ClockPins::AltFuncNumber(_ClockPins::alt_functions[static_cast<size_t>(clockPinNumber)], maskClock);
             
             if(ssPinNumber != -1)
             {
@@ -67,7 +64,7 @@ namespace Zhele
                 Type maskSs(1 << ssPinNumber);
                 SsPins::SetConfiguration(SsPins::AltFunc, maskSs);
                 SsPins::SetDriverType(SsPins::DriverType::PushPull, maskSs);
-                SsPins::AltFuncNumber(GetNumberRuntime<SsAltFuncNumbers>::Get(maskSs), maskSs);
+                SsPins::AltFuncNumber(_SsPins::alt_functions[static_cast<size_t>(ssPinNumber)], maskSs);
             }
         }
 
@@ -75,15 +72,10 @@ namespace Zhele
         template<int8_t mosiPinNumber, int8_t misoPinNumber, int8_t clockPinNumber, int8_t ssPinNumber>
         void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::SelectPins()
         {
-            using MosiAltFuncNumbers = typename _MosiPins::second_type;
-            using MisoAltFuncNumbers = typename _MisoPins::second_type;
-            using ClockAltFuncNumbers = typename _ClockPins::second_type;
-            using SsAltFuncNumbers = typename _SsPins::second_type;
-
-            using MosiPin = std::conditional_t<mosiPinNumber != -1, typename _MosiPins::first_type::template Pin<mosiPinNumber>, typename IO::NullPin>;
-            using MisoPin = std::conditional_t<misoPinNumber != -1, typename _MisoPins::first_type::template Pin<misoPinNumber>, typename IO::NullPin>;
-            using ClockPin = typename _ClockPins::first_type::template Pin<clockPinNumber>;
-            using SsPin = std::conditional_t<ssPinNumber != -1, typename _SsPins::first_type::template Pin<ssPinNumber>, typename IO::NullPin>;
+            using MosiPin = std::conditional_t<mosiPinNumber != -1, typename _MosiPins::io_pins::template Pin<mosiPinNumber>, typename IO::NullPin>;
+            using MisoPin = std::conditional_t<misoPinNumber != -1, typename _MisoPins::io_pins::template Pin<misoPinNumber>, typename IO::NullPin>;
+            using ClockPin = typename _ClockPins::io_pins::template Pin<clockPinNumber>;
+            using SsPin = std::conditional_t<ssPinNumber != -1, typename _SsPins::io_pins::template Pin<ssPinNumber>, typename IO::NullPin>;
 
             constexpr auto usedPorts = type_list<typename MosiPin::Port, typename MisoPin::Port, typename ClockPin::Port, typename SsPin::Port>::remove_duplicates();
             usedPorts.foreach([](auto port) { port.Enable(); });
@@ -92,24 +84,24 @@ namespace Zhele
             {
                 MosiPin::template SetConfiguration<MosiPin::Port::AltFunc>();
                 MosiPin::template SetDriverType<MosiPin::DriverType::PushPull>();
-                MosiPin::template AltFuncNumber<GetNonTypeValueByIndex<mosiPinNumber, MosiAltFuncNumbers>::value>();
+                MosiPin::template AltFuncNumber<_MosiPins::alt_functions[mosiPinNumber]>();
             }
 
             if constexpr(misoPinNumber != -1)
             {
                 MisoPin::template SetConfiguration<MisoPin::Port::AltFunc>();
-                MisoPin::template AltFuncNumber<GetNonTypeValueByIndex<misoPinNumber, MisoAltFuncNumbers>::value>();
+                MisoPin::template AltFuncNumber<_MisoPins::alt_functions[misoPinNumber]>();
             }
 
             ClockPin::template SetConfiguration<ClockPin::Port::AltFunc>();
             ClockPin::template SetDriverType<ClockPin::DriverType::PushPull>();
-            ClockPin::template AltFuncNumber<GetNonTypeValueByIndex<clockPinNumber, ClockAltFuncNumbers>::value>();
+            ClockPin::template AltFuncNumber<_ClockPins::alt_functions[clockPinNumber]>();
 
             if constexpr(ssPinNumber != -1)
             {
                 SsPin::template SetConfiguration<SsPin::Port::AltFunc>();
                 SsPin::template SetDriverType<SsPin::DriverType::PushPull>;
-                SsPin::template AltFuncNumber<GetNonTypeValueByIndex<ssPinNumber, SsAltFuncNumbers>::value>();
+                SsPin::template AltFuncNumber<_SsPins::alt_functions[ssPinNumber]>();
             }
         }
 
@@ -118,15 +110,15 @@ namespace Zhele
         void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::SelectPins()
         {
             constexpr auto mosiPinIndex = !std::is_same_v<MosiPin, IO::NullPin>
-                                ? _MosiPins::first_type::template IndexOf<MosiPin>
+                                ? _MosiPins::io_pins::template IndexOf<MosiPin>
                                 : -1;
             constexpr auto misoPinIndex = !std::is_same_v<MisoPin, IO::NullPin>
-                                ? _MisoPins::first_type:: template IndexOf<MisoPin>
+                                ? _MisoPins::io_pins:: template IndexOf<MisoPin>
                                 : -1;
-            constexpr auto clockPinIndex = _ClockPins::first_type:: template IndexOf<ClockPin>;
+            constexpr auto clockPinIndex = _ClockPins::io_pins:: template IndexOf<ClockPin>;
 
-            constexpr auto ssPinIndex = !std::is_same_v<MisoPin, IO::NullPin>
-                                ? _SsPins::first_type:: template IndexOf<SsPin>
+            constexpr auto ssPinIndex = !std::is_same_v<SsPin, IO::NullPin>
+                                ? _SsPins::io_pins:: template IndexOf<SsPin>
                                 : -1;
 
             static_assert(mosiPinIndex >= -1);
@@ -142,15 +134,47 @@ namespace Zhele
 		IO_STRUCT_WRAPPER(SPI2, Spi2Regs, SPI_TypeDef);
     #endif
 
-        using Spi1SsPins = std::pair<IO::PinList<IO::Pa4, IO::Pa15, IO::Pe12>, NonTypeTemplateArray<0, 0, 1>>;
-		using Spi1ClockPins = std::pair<IO::PinList<IO::Pa5, IO::Pb3, IO::Pe13>, NonTypeTemplateArray<0, 0, 1>>;
-		using Spi1MisoPins = std::pair<IO::PinList<IO::Pa6, IO::Pb4, IO::Pe14>, NonTypeTemplateArray<0, 0, 1>>;
-		using Spi1MosiPins = std::pair<IO::PinList<IO::Pa7, IO::Pb5, IO::Pe15>, NonTypeTemplateArray<0, 0, 1>>;
+        struct Spi1SsPins
+        {
+            using io_pins = IO::PinList<IO::Pa4, IO::Pa15, IO::Pe12>;
+            static constexpr std::array<uint8_t, 3> alt_functions{0, 0, 1};
+        };
+        struct Spi1ClockPins
+        {
+            using io_pins = IO::PinList<IO::Pa5, IO::Pb3, IO::Pe13>;
+            static constexpr std::array<uint8_t, 3> alt_functions{0, 0, 1};
+        };
+        struct Spi1MisoPins
+        {
+            using io_pins = IO::PinList<IO::Pa6, IO::Pb4, IO::Pe14>;
+            static constexpr std::array<uint8_t, 3> alt_functions{0, 0, 1};
+        };
+        struct Spi1MosiPins
+        {
+            using io_pins = IO::PinList<IO::Pa7, IO::Pb5, IO::Pe15>;
+            static constexpr std::array<uint8_t, 3> alt_functions{0, 0, 1};
+        };
 		
-		using Spi2SsPins = std::pair<IO::PinList<IO::Pb12, IO::Pb9, IO::Pd0>, NonTypeTemplateArray<0, 5, 1>>;
-		using Spi2ClockPins = std::pair<IO::PinList<IO::Pb13, IO::Pb10, IO::Pd1>, NonTypeTemplateArray<0, 5, 1>>;
-		using Spi2MisoPins = std::pair<IO::PinList<IO::Pb14, IO::Pc2, IO::Pd3>, NonTypeTemplateArray<0, 1, 1>>;
-		using Spi2MosiPins = std::pair<IO::PinList<IO::Pb15, IO::Pc3, IO::Pd4>, NonTypeTemplateArray<0, 1, 1>>;
+        struct Spi2SsPins
+        {
+            using io_pins = IO::PinList<IO::Pb12, IO::Pb9, IO::Pd0>;
+            static constexpr std::array<uint8_t, 3> alt_functions{0, 5, 1};
+        };
+        struct Spi2ClockPins
+        {
+            using io_pins = IO::PinList<IO::Pb13, IO::Pb10, IO::Pd1>;
+            static constexpr std::array<uint8_t, 3> alt_functions{0, 5, 1};
+        };
+        struct Spi2MisoPins
+        {
+            using io_pins = IO::PinList<IO::Pb14, IO::Pc2, IO::Pd3>;
+            static constexpr std::array<uint8_t, 3> alt_functions{0, 1, 1};
+        };
+        struct Spi2MosiPins
+        {
+            using io_pins = IO::PinList<IO::Pb15, IO::Pc3, IO::Pd4>;
+            static constexpr std::array<uint8_t, 3> alt_functions{0, 1, 1};
+        };
     }
     using Spi1 = Private::Spi<
         Private::Spi1Regs, 

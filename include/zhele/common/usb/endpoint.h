@@ -18,11 +18,11 @@
 #define ZHELE_USB_ENDPOINT_H
 
 #include "../template_utils/type_list.h"
-#include "../template_utils/static_array.h"
 
 #include "common.h"
 
 #include <array>
+#include <cstddef>
 
 namespace Zhele::Usb
 {
@@ -172,9 +172,16 @@ namespace Zhele::Usb
     }; 
 #if defined (USB)
     /**
-     * @brief Endpoint type values for EPnR registers.
+     * @brief Endpoint type values for EPnR registers (indexed by EndpointType).
      */
-    using EndpointsTypesForEPR = Zhele::template_utils::NonTypeTemplateArray<USB_EP_CONTROL, USB_EP_ISOCHRONOUS, USB_EP_BULK, USB_EP_INTERRUPT, USB_EP_CONTROL | USB_EP_KIND, 0, USB_EP_BULK | USB_EP_KIND>;
+    inline constexpr std::array<uint16_t, 7> endpoints_types_for_epr{
+        USB_EP_CONTROL,
+        USB_EP_ISOCHRONOUS,
+        USB_EP_BULK,
+        USB_EP_INTERRUPT,
+        static_cast<uint16_t>(USB_EP_CONTROL | USB_EP_KIND),
+        0,
+        static_cast<uint16_t>(USB_EP_BULK | USB_EP_KIND)};
 
     /**
      * @brief Implements endpoint
@@ -203,7 +210,7 @@ namespace Zhele::Usb
         static void Reset()
         {
             Reg::Set((Number & 0x0f)
-                | static_cast<uint16_t>(Zhele::template_utils::GetNonTypeValueByIndex<static_cast<int>(Type), EndpointsTypesForEPR>::value));
+                | endpoints_types_for_epr[static_cast<std::size_t>(Type)]);
 
             if constexpr (Direction != EndpointDirection::In)
             {

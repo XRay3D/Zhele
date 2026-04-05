@@ -14,7 +14,6 @@
 #include "endpoint.h"
 
 #include "../template_utils/type_list.h"
-#include "../template_utils/static_array.h"
 
 #include <array>
 

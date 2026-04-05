@@ -17,7 +17,6 @@
 #include "clock.h"
 #include "dma.h"
 #include "iopins.h"
-#include "../common/template_utils/static_array.h"
 
 namespace Zhele
 {

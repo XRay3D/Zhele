@@ -10,7 +10,6 @@
 #ifndef ZHELE_USB_ENDPOINTS_MANAGER_H
 #define ZHELE_USB_ENDPOINTS_MANAGER_H
 
-#include "../template_utils/static_array.h"
 #include "../template_utils/type_list.h"
 
 #include "endpoint.h"

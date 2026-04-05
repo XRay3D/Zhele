@@ -12,8 +12,10 @@
 #ifndef ZHELE_AFIO_BIND_H
 #define ZHELE_AFIO_BIND_H
 
-#include "../common/template_utils/static_array.h"
 #include "../common/template_utils/type_list.h"
+
+#include <array>
+#include <cstdint>
 
 namespace Zhele::Private
 {
@@ -32,17 +34,18 @@ namespace Zhele::Private
         I2C1Regs, I2C2Regs, I2C3Regs, // I2C
         UsbRegs // USB_FS
     >;
-    using AltFunctionNumbers = Zhele::template_utils::NonTypeTemplateArray<
+
+    inline constexpr std::array<uint8_t, 13> alt_functions{
         7, 7, 7, 8, 8, 8, // Usart
         5, 5, 6, // SPI
         4, 4, 4, // I2C
         10
-    >;
+    };
 
     template <typename _Regs>
     struct AltFuncHelper
     {
-        const static uint8_t value = static_cast<uint8_t>(GetNonTypeValueByIndex<Regs::search<_Regs>(), AltFunctionNumbers>::value);
+        static constexpr uint8_t value = alt_functions[Regs::template search<_Regs>()];
     };
 
     template<typename Regs>

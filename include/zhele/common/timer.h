@@ -11,7 +11,6 @@
 
 #include "template_utils/enum.h"
 #include "template_utils/type_list.h"
-#include "template_utils/static_array.h"
 #include "ioreg.h"
 
 #include <zhele/clock.h>
@@ -354,8 +353,8 @@ namespace Zhele::Timers
 
             public:
                 static_assert(_ChannelNumber < 4);
-                using Pins = typename _ChPins<_ChannelNumber>::Pins::first_type;
-                using PinsAltFuncNumber = typename _ChPins<_ChannelNumber>::Pins::second_type;
+                using PinsConfig = typename _ChPins<_ChannelNumber>::Pins;
+                using Pins = typename PinsConfig::io_pins;
 
                 /**
                  * @brief Enable interrupt
@@ -546,7 +545,7 @@ namespace Zhele::Timers
                 using Channel = ChannelBase<_ChannelNumber>;
             public:
                 using Pins = Channel::Pins;
-                using PinsAltFuncNumber = Channel::PinsAltFuncNumber;
+                using PinsConfig = Channel::PinsConfig;
 
                 /// Capture polarity
                 enum CapturePolarity
@@ -632,7 +631,7 @@ namespace Zhele::Timers
                 using Channel = ChannelBase<_ChannelNumber>;
             public:
                 using Pins = Channel::Pins;
-                using PinsAltFuncNumber = Channel::PinsAltFuncNumber;
+                using PinsConfig = Channel::PinsConfig;
 
                 /// Output polarity
                 enum OutputPolarity
