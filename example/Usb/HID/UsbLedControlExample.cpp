@@ -1,8 +1,8 @@
 // Works on Stm32f0
 
-#include <clock.h>
-#include <iopins.h>
-#include <usb.h>
+#include <zhele/clock.h>
+#include <zhele/iopins.h>
+#include <zhele/usb.h>
 
 using namespace Zhele;
 using namespace Zhele::Clock;
@@ -58,11 +58,11 @@ int main()
 
 void ConfigureClock()
 {
-    PllClock::SelectClockSource(PllClock::ClockSource::Internal);
-    PllClock::SetMultiplier(12);
-    PllClock::SetDivider(2);
-    ApbClock::SetPrescaler(ApbClock::Div1);
-    SysClock::SelectClockSource(SysClock::Pll);
+    PllClock::SelectClockSource<PllClock::ClockSource::Internal>();
+    PllClock::SetMultiplier<12>();
+    PllClock::SetDivider<2>();
+    ApbClock::SetPrescaler<ApbClock::Div1>();
+    SysClock::SelectClockSource<SysClock::Pll>();
 
     Zhele::Clock::Hsi48Clock::Enable();
     Zhele::Clock::SysCfgCompClock::Enable();

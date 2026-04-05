@@ -1,10 +1,10 @@
 // Works on Stm32f0
 
-#include <clock.h>
-#include <iopins.h>
-#include <usb.h>
+#include <zhele/clock.h>
+#include <zhele/iopins.h>
+#include <zhele/usb.h>
 
-#include <common/template_utils/fixed_string.h>
+#include <zhele/common/template_utils/fixed_string.h>
 
 constexpr Zhele::template_utils::fixed_string_16 Manufacturer(u"ZheleProduction");
 constexpr Zhele::template_utils::fixed_string_16 Product(u"SomeDevice");
@@ -64,11 +64,11 @@ int main()
 
 void ConfigureClock()
 {
-    PllClock::SelectClockSource(PllClock::ClockSource::External);
-    PllClock::SetMultiplier(9);
-    Apb1Clock::SetPrescaler(Apb1Clock::Div2);
-    SysClock::SelectClockSource(SysClock::Pll);
-    MyDevice::SelectClockSource(Zhele::Usb::ClockSource::PllDividedOneAndHalf);
+    PllClock::SelectClockSource<PllClock::ClockSource::External>();
+    PllClock::SetMultiplier<9>();
+    Apb1Clock::SetPrescaler<Apb1Clock::Div2>();
+    SysClock::SelectClockSource<SysClock::Pll>();
+    MyDevice::SelectClockSource<Zhele::Usb::ClockSource::PllDividedOneAndHalf>();
 }
 
 void ConfigureLeds()

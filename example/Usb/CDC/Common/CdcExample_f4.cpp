@@ -1,7 +1,7 @@
-#include <clock.h>
-#include <iopins.h>
-#include <pinlist.h>
-#include <usb.h>
+#include <zhele/clock.h>
+#include <zhele/iopins.h>
+#include <zhele/pinlist.h>
+#include <zhele/usb.h>
 
 using namespace Zhele;
 using namespace Zhele::Clock;
@@ -45,13 +45,13 @@ int main()
 
 void ConfigureClock()
 {
-    PllClock::SelectClockSource(PllClock::ClockSource::External);
-    PllClock::SetDivider(25);
-    PllClock::SetMultiplier(336);
-    PllClock::SetSystemOutputDivider(PllClock::SystemOutputDivider::Div4);
-    PllClock::SetUsbOutputDivider(7);
-    Apb1Clock::SetPrescaler(Apb1Clock::Div2);
-    SysClock::SelectClockSource(SysClock::Pll);
+    PllClock::SelectClockSource<PllClock::ClockSource::External>();
+    PllClock::SetDivider<25>();
+    PllClock::SetMultiplier<336>();
+    PllClock::SetSystemOutputDivider<4>();
+    PllClock::SetUsbOutputDivider<7>();
+    Apb1Clock::SetPrescaler<Apb1Clock::Div2>();
+    SysClock::SelectClockSource<SysClock::Pll>();
 }
 
 void ConfigureUsbPins()

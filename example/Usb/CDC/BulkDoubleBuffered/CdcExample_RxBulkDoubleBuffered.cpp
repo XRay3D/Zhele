@@ -1,8 +1,8 @@
-#include <clock.h>
-#include <exti.h>
-#include <iopins.h>
-#include <pinlist.h>
-#include <usb.h>
+#include <zhele/clock.h>
+#include <zhele/exti.h>
+#include <zhele/iopins.h>
+#include <zhele/pinlist.h>
+#include <zhele/usb.h>
 
 using namespace Zhele;
 using namespace Zhele::Clock;
@@ -46,11 +46,11 @@ int main()
 
 void ConfigureClock()
 {
-    PllClock::SelectClockSource(PllClock::ClockSource::Internal);
-    PllClock::SetMultiplier(12);
-    PllClock::SetDivider(2);
-    ApbClock::SetPrescaler(ApbClock::Div1);
-    SysClock::SelectClockSource(SysClock::Pll);
+    PllClock::SelectClockSource<PllClock::ClockSource::Internal>();
+    PllClock::SetMultiplier<12>();
+    PllClock::SetDivider<2>();
+    ApbClock::SetPrescaler<ApbClock::Div1>();
+    SysClock::SelectClockSource<SysClock::Pll>();
 
     Zhele::Clock::Hsi48Clock::Enable();
     Zhele::Clock::SysCfgCompClock::Enable();
@@ -65,8 +65,9 @@ void ConfigureLeds()
 }
 
 template<>
-void CdcDataEndpoint::HandleRx(const void* data, uint16_t size)
+void CdcDataEndpoint::HandleRx(void* data, uint16_t size)
 {
+    (void)size;
     uint8_t* buffer = reinterpret_cast<uint8_t*>(data);
 
     if(buffer[0] == '0')

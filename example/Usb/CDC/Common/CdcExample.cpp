@@ -1,8 +1,8 @@
-#include <clock.h>
-#include <exti.h>
-#include <iopins.h>
-#include <pinlist.h>
-#include <usb.h>
+#include <zhele/clock.h>
+#include <zhele/exti.h>
+#include <zhele/iopins.h>
+#include <zhele/pinlist.h>
+#include <zhele/usb.h>
 
 using namespace Zhele;
 using namespace Zhele::Clock;
@@ -46,11 +46,11 @@ int main()
 
 void ConfigureClock()
 {
-    PllClock::SelectClockSource(PllClock::ClockSource::Internal);
-    PllClock::SetMultiplier(12);
-    PllClock::SetDivider(2);
-    ApbClock::SetPrescaler(ApbClock::Div1);
-    SysClock::SelectClockSource(SysClock::Pll);
+    PllClock::SelectClockSource<PllClock::ClockSource::Internal>();
+    PllClock::SetMultiplier<12>();
+    PllClock::SetDivider<2>();
+    ApbClock::SetPrescaler<ApbClock::Div1>();
+    SysClock::SelectClockSource<SysClock::Pll>();
 
     Zhele::Clock::Hsi48Clock::Enable();
     Zhele::Clock::SysCfgCompClock::Enable();

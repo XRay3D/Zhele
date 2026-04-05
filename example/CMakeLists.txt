@@ -21,5 +21,5 @@ add_subdirectory(I2c)
 add_subdirectory(Spi)
 add_subdirectory(Timer)
 add_subdirectory(Usart)
-# add_subdirectory(Usb) TODO:: Combine examples for F0/F1/F4
+add_subdirectory(Usb)
 add_subdirectory(WatchDog)
