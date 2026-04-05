@@ -9,7 +9,7 @@
 #ifndef ZHELE_PINLIST_IMPL_COMMON_H
 #define ZHELE_PINLIST_IMPL_COMMON_H
 
-using namespace Zhele::TemplateUtils;
+using namespace Zhele::template_utils;
 namespace Zhele::IO
 {
     template<typename... _Pins>
@@ -227,7 +227,7 @@ namespace Zhele::IO
     template<typename... _Pins>
     constexpr auto PinList<_Pins...>::GetPinlistValueForPort(auto port, typename PinList<_Pins...>::DataType value)
     {
-        auto result = typename TypeUnbox<port>::DataType();
+        auto result = typename type_unbox<port>::DataType();
 
         GetPinsForPort(port).foreach([value, &result](auto pin) {
             if (value & (1 << _pins.search(pin)))
@@ -239,7 +239,7 @@ namespace Zhele::IO
     template<typename... _Pins>
     consteval auto PinList<_Pins...>::GetPinlistMaskForPort(auto port)
     {
-        auto mask = typename TypeUnbox<port>::DataType();
+        auto mask = typename type_unbox<port>::DataType();
 
         GetPinsForPort(port).foreach([&mask](auto pin) {
             mask |= (1 << pin.Number);
@@ -250,10 +250,10 @@ namespace Zhele::IO
 
     template<typename... _Pins>
     template<typename Port>
-    consteval auto PinList<_Pins...>::GetPinsForPort(TypeBox<Port> port)
+    consteval auto PinList<_Pins...>::GetPinsForPort(type_box<Port> port)
     {
         return _pins.filter([](auto pin) {
-            return std::is_same_v<typename TypeUnbox<pin>::Port, Port>;
+            return std::is_same_v<typename type_unbox<pin>::Port, Port>;
         });
     }
 
@@ -261,7 +261,7 @@ namespace Zhele::IO
     typename PinList<_Pins...>::DataType PinList<_Pins...>::ExtractPinlistOutValueFromPort(auto port)
     {
         auto result = DataType();
-        auto portReadValue = TypeUnbox<port>::Read();
+        auto portReadValue = type_unbox<port>::Read();
         
         GetPinsForPort(port).foreach([&result, portReadValue](auto pin){
             result |= ((portReadValue & (1 << pin.Number)) != 0)
@@ -276,7 +276,7 @@ namespace Zhele::IO
     typename PinList<_Pins...>::DataType PinList<_Pins...>::ExtractPinlistValueFromPort(auto port)
     {
         auto result = DataType();
-        auto portReadValue = TypeUnbox<port>::PinRead();
+        auto portReadValue = type_unbox<port>::PinRead();
         
         GetPinsForPort(port).foreach([&result, portReadValue](auto pin){
             result |= ((portReadValue & (1 << pin.Number)) != 0)

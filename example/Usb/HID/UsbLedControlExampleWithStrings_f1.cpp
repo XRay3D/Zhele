@@ -6,9 +6,9 @@
 
 #include <common/template_utils/fixed_string.h>
 
-constexpr Zhele::TemplateUtils::fixed_string_16 Manufacturer(u"ZheleProduction");
-constexpr Zhele::TemplateUtils::fixed_string_16 Product(u"SomeDevice");
-constexpr Zhele::TemplateUtils::fixed_string_16 Serial(u"LolKek");
+constexpr Zhele::template_utils::fixed_string_16 Manufacturer(u"ZheleProduction");
+constexpr Zhele::template_utils::fixed_string_16 Product(u"SomeDevice");
+constexpr Zhele::template_utils::fixed_string_16 Serial(u"LolKek");
 
 using namespace Zhele;
 using namespace Zhele::Clock;

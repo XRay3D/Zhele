@@ -26,13 +26,13 @@ namespace Zhele::Private
     // USB
     class UsbRegs;
 
-    using Regs = Zhele::TemplateUtils::TypeList<
+    using Regs = Zhele::template_utils::type_list<
         Usart1Regs, Usart2Regs, Usart3Regs, Uart4Regs, Uart5Regs, Usart6Regs, // Usart
         Spi1Regs, Spi2Regs, Spi3Regs, // SPI
         I2C1Regs, I2C2Regs, I2C3Regs, // I2C
         UsbRegs // USB_FS
     >;
-    using AltFunctionNumbers = Zhele::TemplateUtils::NonTypeTemplateArray<
+    using AltFunctionNumbers = Zhele::template_utils::NonTypeTemplateArray<
         7, 7, 7, 8, 8, 8, // Usart
         5, 5, 6, // SPI
         4, 4, 4, // I2C

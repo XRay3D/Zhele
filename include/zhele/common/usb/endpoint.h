@@ -174,7 +174,7 @@ namespace Zhele::Usb
     /**
      * @brief Endpoint type values for EPnR registers.
      */
-    using EndpointsTypesForEPR = Zhele::TemplateUtils::NonTypeTemplateArray<USB_EP_CONTROL, USB_EP_ISOCHRONOUS, USB_EP_BULK, USB_EP_INTERRUPT, USB_EP_CONTROL | USB_EP_KIND, 0, USB_EP_BULK | USB_EP_KIND>;
+    using EndpointsTypesForEPR = Zhele::template_utils::NonTypeTemplateArray<USB_EP_CONTROL, USB_EP_ISOCHRONOUS, USB_EP_BULK, USB_EP_INTERRUPT, USB_EP_CONTROL | USB_EP_KIND, 0, USB_EP_BULK | USB_EP_KIND>;
 
     /**
      * @brief Implements endpoint
@@ -203,7 +203,7 @@ namespace Zhele::Usb
         static void Reset()
         {
             Reg::Set((Number & 0x0f)
-                | static_cast<uint16_t>(Zhele::TemplateUtils::GetNonTypeValueByIndex<static_cast<int>(Type), EndpointsTypesForEPR>::value));
+                | static_cast<uint16_t>(Zhele::template_utils::GetNonTypeValueByIndex<static_cast<int>(Type), EndpointsTypesForEPR>::value));
 
             if constexpr (Direction != EndpointDirection::In)
             {

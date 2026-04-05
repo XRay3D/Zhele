@@ -16,7 +16,7 @@
 
 #include <type_traits>
 #include <numeric>
-using namespace Zhele::TemplateUtils;
+using namespace Zhele::template_utils;
 
 namespace Zhele::IO
 {
@@ -30,15 +30,15 @@ namespace Zhele::IO
     template<typename... _Pins>
     class PinList : public IO::NativePortBase
     {
-        static constexpr auto _pins = Zhele::TemplateUtils::TypeList<_Pins...>{};
-        static constexpr auto _ports = Zhele::TemplateUtils::TypeList<typename _Pins::Port ...>::remove_duplicates();
+        static constexpr auto _pins = Zhele::template_utils::type_list<_Pins...>{};
+        static constexpr auto _ports = Zhele::template_utils::type_list<typename _Pins::Port ...>::remove_duplicates();
 
         // static checks
         static_assert(!_pins.is_empty(), "Pinlist cannot be empty");
         static_assert(_ports.is_unique(), "Fail to remove port duplicates!");
 
     public:
-        using DataType = Zhele::TemplateUtils::TypeUnbox<GetSuitableUnsignedType<_pins.size()>()>;
+        using DataType = Zhele::template_utils::type_unbox<GetSuitableUnsignedType<_pins.size()>()>;
         /**
          * @brief Send value to port
          * 
@@ -307,7 +307,7 @@ namespace Zhele::IO
          * @tparam Index Index
          */
         template<int Index>
-        using Pin = Zhele::TemplateUtils::TypeUnbox<_pins.template get<Index>()>;
+        using Pin = Zhele::template_utils::type_unbox<_pins.template get<Index>()>;
 
     private:
         static constexpr auto GetPinlistValueForPort(auto port, DataType value);
@@ -315,7 +315,7 @@ namespace Zhele::IO
         static consteval auto GetPinlistMaskForPort(auto port);
 
         template<typename Port>
-        static consteval auto GetPinsForPort(TypeBox<Port> port);
+        static consteval auto GetPinsForPort(type_box<Port> port);
 
         static DataType ExtractPinlistOutValueFromPort(auto port);
         static DataType ExtractPinlistValueFromPort(auto port);

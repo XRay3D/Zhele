@@ -10,9 +10,9 @@ using namespace Zhele::Clock;
 using namespace Zhele::IO;
 using namespace Zhele::Usb;
 
-constexpr Zhele::TemplateUtils::fixed_string_16 Manufacturer(u"ZheleProduction");
-constexpr Zhele::TemplateUtils::fixed_string_16 Product(u"MSDExample");
-constexpr Zhele::TemplateUtils::fixed_string_16 Serial(u"88005553535");
+constexpr Zhele::template_utils::fixed_string_16 Manufacturer(u"ZheleProduction");
+constexpr Zhele::template_utils::fixed_string_16 Product(u"MSDExample");
+constexpr Zhele::template_utils::fixed_string_16 Serial(u"88005553535");
 
 using MscOutEpBase = OutEndpointBase<1, EndpointType::Bulk, 64, 0>;
 using MscInEpBase = InEndpointWithoutZlpBase<2, EndpointType::Bulk, 64, 0>;

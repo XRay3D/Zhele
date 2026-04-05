@@ -15,7 +15,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace Zhele::TemplateUtils
+namespace Zhele::template_utils
 {
     template<auto... Numbers>
     class NonTypeTemplateArray{};

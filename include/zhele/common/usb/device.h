@@ -129,12 +129,12 @@ namespace Zhele::Usb
 #elif defined (USB_OTG_FS)
         using This = DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>;
 #endif
-        static constexpr auto _configurations = TypeList<_Configurations...>{};
-        static constexpr auto _interfaces = (TypeList<>{} + ... + _Configurations::Interfaces); 
-        static constexpr auto _endpoints = (TypeList<>{} + ... + _Configurations::Endpoints);
+        static constexpr auto _configurations = type_list<_Configurations...>{};
+        static constexpr auto _interfaces = (type_list<>{} + ... + _Configurations::Interfaces); 
+        static constexpr auto _endpoints = (type_list<>{} + ... + _Configurations::Endpoints);
         static constexpr auto _epBufferManager = EndpointsManager{_endpoints.template push_back<_Ep0>()};
         static constexpr auto _epHandlers = EndpointHandlers{_endpoints.template push_back<This>()}; // Replace Ep0 with this for correct handler register.
-        static constexpr auto _ifHandlers = InterfaceHandlers{(TypeList<>{} + ... + _Configurations::Interfaces)};
+        static constexpr auto _ifHandlers = InterfaceHandlers{(type_list<>{} + ... + _Configurations::Interfaces)};
 #if defined (USB_OTG_FS)
         static constexpr auto _outEndpoints = _endpoints.filter([](auto endpoint){
             return endpoint.Direction == EndpointDirection::Out || endpoint.Direction == EndpointDirection::Bidirectional;
@@ -230,11 +230,11 @@ namespace Zhele::Usb
             uint32_t result = 0;
 
             endpoints.foreach([&result](auto endpoint) {
-                result |=  TypeUnbox<endpoint>::Direction == EndpointDirection::In
-                    ? (1 << TypeUnbox<endpoint>::Number)
-                    : (TypeUnbox<endpoint>::Direction == EndpointDirection::Out
-                        ? ((1 << TypeUnbox<endpoint>::Number) << 16)
-                        : ((1 << TypeUnbox<endpoint>::Number) | ((1 << TypeUnbox<endpoint>::Number) << 16))
+                result |=  type_unbox<endpoint>::Direction == EndpointDirection::In
+                    ? (1 << type_unbox<endpoint>::Number)
+                    : (type_unbox<endpoint>::Direction == EndpointDirection::Out
+                        ? ((1 << type_unbox<endpoint>::Number) << 16)
+                        : ((1 << type_unbox<endpoint>::Number) | ((1 << type_unbox<endpoint>::Number) << 16))
                     );
             });
 

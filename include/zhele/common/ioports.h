@@ -651,7 +651,7 @@ namespace Zhele
         class PortList;
 
         template<typename... _Ports>
-        class PortList<TemplateUtils::TypeList<_Ports...> >
+        class PortList<template_utils::type_list<_Ports...> >
         {
         public:
             /**

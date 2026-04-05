@@ -89,8 +89,8 @@ namespace Zhele::Usb
             return size;
         }
     public:
-        static constexpr auto Interfaces = Zhele::TemplateUtils::TypeList<_Interfaces...>{};
-        static constexpr auto Endpoints = (Zhele::TemplateUtils::TypeList<>{} + ... + _Interfaces::Endpoints);
+        static constexpr auto Interfaces = Zhele::template_utils::type_list<_Interfaces...>{};
+        static constexpr auto Endpoints = (Zhele::template_utils::type_list<>{} + ... + _Interfaces::Endpoints);
 
         /**
          * @brief Resets configuration
@@ -126,7 +126,7 @@ namespace Zhele::Usb
             auto dst = std::copy(head.begin(), head.end(), result.begin());
 
             Interfaces.foreach([&dst](auto interface) {
-                auto nextInterfaceDescriptor = Zhele::TemplateUtils::TypeUnbox<interface>::GetDescriptor();
+                auto nextInterfaceDescriptor = Zhele::template_utils::type_unbox<interface>::GetDescriptor();
                 dst = std::copy(nextInterfaceDescriptor.begin(), nextInterfaceDescriptor.end(), dst);
             });
 

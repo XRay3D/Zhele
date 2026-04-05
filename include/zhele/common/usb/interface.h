@@ -87,7 +87,7 @@ namespace Zhele::Usb
     public:
         static const uint16_t Number = _Number;
 
-        static constexpr auto Endpoints = Zhele::TemplateUtils::TypeList<_Endpoints...>{};
+        static constexpr auto Endpoints = Zhele::template_utils::type_list<_Endpoints...>{};
         static constexpr auto EndpointsCount = (0 + ... + (_Endpoints::Direction == EndpointDirection::Bidirectional ? 2 : 1));
 
         /**
@@ -124,7 +124,7 @@ namespace Zhele::Usb
             auto dst = std::copy(head.begin(), head.end(), result.begin());
 
             Endpoints.foreach([&dst](auto endpoint) {
-                auto nextEndpointDescriptor = Zhele::TemplateUtils::TypeUnbox<endpoint>::GetDescriptor();
+                auto nextEndpointDescriptor = Zhele::template_utils::type_unbox<endpoint>::GetDescriptor();
                 dst = std::copy(nextEndpointDescriptor.begin(), nextEndpointDescriptor.end(), dst);
             });
 
@@ -160,7 +160,7 @@ namespace Zhele::Usb
         */
         static consteval auto BuildIndexesArray()
         {
-            constexpr auto interfaces = Zhele::TemplateUtils::TypeList<Interfaces...>{};
+            constexpr auto interfaces = Zhele::template_utils::type_list<Interfaces...>{};
             constexpr auto maxInterfaceNumber = interfaces.sort([](auto a, auto b) { return a.Number < b.Number; }).back().Number;
             std::array<int8_t, maxInterfaceNumber + 1> indexes {};
 
@@ -186,6 +186,6 @@ namespace Zhele::Usb
         }
     };
     template<typename... Interfaces>
-    InterfaceHandlers(Zhele::TemplateUtils::TypeList<Interfaces...> interfaces) -> InterfaceHandlers<Interfaces...>;
+    InterfaceHandlers(Zhele::template_utils::type_list<Interfaces...> interfaces) -> InterfaceHandlers<Interfaces...>;
 }
 #endif // ZHELE_USB_INTERFACE_H

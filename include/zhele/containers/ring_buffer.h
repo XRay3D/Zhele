@@ -31,9 +31,9 @@ namespace Zhele::Containers
         class RingBufferPO2
         {
             static_assert((_Size & (_Size - 1)) == 0);//_Size must be a power of 2
-            using Atomic = std::atomic<typename Zhele::TemplateUtils::SuitableUnsignedTypeForLength<_Size>::type>;
+            using Atomic = std::atomic<typename Zhele::template_utils::SuitableUnsignedTypeForLength<_Size>::type>;
         public:
-            using size_type = typename Zhele::TemplateUtils::SuitableUnsignedTypeForLength<_Size>::type;
+            using size_type = typename Zhele::template_utils::SuitableUnsignedTypeForLength<_Size>::type;
             using reference = _DataType&;
             using const_reference = const _DataType&;
 
@@ -170,9 +170,9 @@ namespace Zhele::Containers
         template<unsigned _Size, typename _DataType = uint8_t>
         class RingBuffer
         {
-            using Atomic = std::atomic<typename Zhele::TemplateUtils::SuitableUnsignedTypeForLength<_Size>::type>;
+            using Atomic = std::atomic<typename Zhele::template_utils::SuitableUnsignedTypeForLength<_Size>::type>;
         public:
-            using size_type = typename Zhele::TemplateUtils::SuitableUnsignedTypeForLength<_Size>::type;
+            using size_type = typename Zhele::template_utils::SuitableUnsignedTypeForLength<_Size>::type;
             using reference = _DataType&;
             using const_reference = const _DataType&;
 

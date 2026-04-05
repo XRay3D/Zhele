@@ -15,7 +15,7 @@
 
 #include <type_traits>
 
-namespace Zhele::TemplateUtils
+namespace Zhele::template_utils
 {
 
     template <unsigned _Length>
@@ -40,7 +40,7 @@ namespace Zhele::TemplateUtils
     template <unsigned _Length>
     fixed_string_16(const char16_t (&str)[_Length]) -> fixed_string_16<_Length - 1>;
 
-    constexpr Zhele::TemplateUtils::fixed_string_16 EmptyFixedString16(u"");
+    constexpr Zhele::template_utils::fixed_string_16 EmptyFixedString16(u"");
 }
 
 #endif //!ZHELE_FIXEDSTRING_H

@@ -85,7 +85,7 @@ namespace Zhele
             using ClockPin = typename _ClockPins::first_type::template Pin<clockPinNumber>;
             using SsPin = std::conditional_t<ssPinNumber != -1, typename _SsPins::first_type::template Pin<ssPinNumber>, typename IO::NullPin>;
 
-            constexpr auto usedPorts = TypeList<typename MosiPin::Port, typename MisoPin::Port, typename ClockPin::Port, typename SsPin::Port>::remove_duplicates();
+            constexpr auto usedPorts = type_list<typename MosiPin::Port, typename MisoPin::Port, typename ClockPin::Port, typename SsPin::Port>::remove_duplicates();
             usedPorts.foreach([](auto port) { port.Enable(); });
 
             if constexpr(mosiPinNumber != -1)

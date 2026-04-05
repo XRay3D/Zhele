@@ -22,8 +22,8 @@ namespace Zhele::Timers
     namespace Private
     {
         class Tim1Regs; class Tim2Regs; class Tim3Regs; class Tim4Regs;
-        using TimerRegs = TypeList<Tim1Regs, Tim2Regs, Tim3Regs, Tim4Regs>;
-        using TimerRemaps = TypeList<Zhele::IO::Timer1Remap, Zhele::IO::Timer2Remap, Zhele::IO::Timer3Remap
+        using TimerRegs = type_list<Tim1Regs, Tim2Regs, Tim3Regs, Tim4Regs>;
+        using TimerRemaps = type_list<Zhele::IO::Timer1Remap, Zhele::IO::Timer2Remap, Zhele::IO::Timer3Remap
 #if defined (TIM4)
         , Zhele::IO::Timer4Remap
 #endif
@@ -32,7 +32,7 @@ namespace Zhele::Timers
         template <typename _Regs>
         struct TimerRemapHelper
         {
-            using type = TypeUnbox<TimerRemaps::template get<TimerRegs::template search<_Regs>()>()>;
+            using type = type_unbox<TimerRemaps::template get<TimerRegs::template search<_Regs>()>()>;
         };
 
         template<typename Regs>

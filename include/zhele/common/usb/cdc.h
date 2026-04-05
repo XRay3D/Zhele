@@ -56,7 +56,7 @@ namespace Zhele::Usb
     class CdcCommInterface : public Interface<_Number, _AlternateSetting, DeviceAndInterfaceClass::Comm, _SubClass, _Protocol, _Ep0, _Endpoint>
     {
         using Base = Interface<_Number, _AlternateSetting, DeviceAndInterfaceClass::Comm, _SubClass, _Protocol, _Ep0, _Endpoint>;
-        static constexpr auto Functionals = Zhele::TemplateUtils::TypeList<_Functionals...>{};
+        static constexpr auto Functionals = Zhele::template_utils::type_list<_Functionals...>{};
 
         static LineCoding _lineCoding;
 
@@ -137,12 +137,12 @@ namespace Zhele::Usb
             auto dst = std::copy(head.begin(), head.end(), result.begin());
 
             Functionals.foreach([&dst](auto functional){
-                auto nextFunctionalDescriptor = Zhele::TemplateUtils::TypeUnbox<functional>::GetDescriptor();
+                auto nextFunctionalDescriptor = Zhele::template_utils::type_unbox<functional>::GetDescriptor();
                 dst = std::copy(nextFunctionalDescriptor.begin(), nextFunctionalDescriptor.end(), dst);
             });
         
             Base::Endpoints.foreach([&dst](auto endpoint) {
-                auto nextEndpointDescriptor = Zhele::TemplateUtils::TypeUnbox<endpoint>::GetDescriptor();
+                auto nextEndpointDescriptor = Zhele::template_utils::type_unbox<endpoint>::GetDescriptor();
                 dst = std::copy(nextEndpointDescriptor.begin(), nextEndpointDescriptor.end(), dst);
             });
 

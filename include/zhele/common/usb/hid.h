@@ -38,7 +38,7 @@ namespace Zhele::Usb
     template<uint16_t _Version = 0x0200, typename... _Reports>
     class HidImpl
     {
-        static constexpr auto Reports = Zhele::TemplateUtils::TypeList<_Reports...>{};
+        static constexpr auto Reports = Zhele::template_utils::type_list<_Reports...>{};
 
         /**
          * @brief Total reports size

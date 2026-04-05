@@ -13,7 +13,7 @@
 #include "type_list.h"
 #include <stdint.h>
 
-namespace Zhele::TemplateUtils
+namespace Zhele::template_utils
 {
     /**
     * @brief Allows to select suitable unsigned integer type to cover necessary bit count
@@ -26,7 +26,7 @@ namespace Zhele::TemplateUtils
     template<uint8_t length> 
     static consteval auto GetSuitableUnsignedType()
     {
-        constexpr auto unsignedTypes = TypeList<uint_fast8_t, uint_fast16_t, uint_fast32_t, uint_fast16_t>{};
+        constexpr auto unsignedTypes = type_list<uint_fast8_t, uint_fast16_t, uint_fast32_t, uint_fast16_t>{};
 
         return unsignedTypes.template get<(length - 1) / 8>();
     }
@@ -41,7 +41,7 @@ namespace Zhele::TemplateUtils
     template<unsigned Size>
     class SuitableUnsignedTypeForLength
     {
-        using unsignedTypes = TypeList<uint_fast8_t, uint_fast16_t, uint_fast32_t, uint_fast16_t>;
+        using unsignedTypes = type_list<uint_fast8_t, uint_fast16_t, uint_fast32_t, uint_fast16_t>;
     public:
         using type = std::conditional_t<Size <= 0xff,
             uint_fast8_t,

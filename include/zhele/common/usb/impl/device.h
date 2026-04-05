@@ -312,7 +312,7 @@ namespace Zhele::Usb
         uint16_t size = 0;
 
         _configurations.foreach([&size](auto configuration) {
-            size += TypeUnbox<configuration>::GetDescriptor().size();
+            size += type_unbox<configuration>::GetDescriptor().size();
         });
 
         return size;
@@ -328,7 +328,7 @@ namespace Zhele::Usb
         auto dst = result.begin();
 
         _configurations.foreach([&dst](auto configuration) {
-            auto nextConfigurationDescriptor = TypeUnbox<configuration>::GetDescriptor();
+            auto nextConfigurationDescriptor = type_unbox<configuration>::GetDescriptor();
             dst = std::copy(nextConfigurationDescriptor.begin(), nextConfigurationDescriptor.end(), dst);
         });
 
