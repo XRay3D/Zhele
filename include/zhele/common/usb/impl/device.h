@@ -359,7 +359,7 @@ namespace Zhele::Usb
         
         switch (setupRequest->Request) {
         case StandartRequestCode::GetStatus: {
-            uint16_t status = 0;
+            static constexpr uint16_t status = 0;
             _Ep0::SendData(&status, sizeof(status));
             break;
         }
@@ -371,26 +371,26 @@ namespace Zhele::Usb
         case StandartRequestCode::GetDescriptor: {
             switch (static_cast<GetDescriptorParameter>(setupRequest->Value)) {
             case GetDescriptorParameter::DeviceDescriptor: {
-                constexpr auto descriptor = BuildDeviceDescriptor();
+                static constexpr auto descriptor = BuildDeviceDescriptor();
                 _Ep0::SendData(&descriptor, setupRequest->Length < sizeof(descriptor) ? setupRequest->Length : sizeof(descriptor));
                 break;
             }
 
             case GetDescriptorParameter::ConfigurationDescriptor: {
-                constexpr auto descriptor = BuildConfigurationDescriptor();
+                static constexpr auto descriptor = BuildConfigurationDescriptor();
                 _Ep0::SendData(descriptor.data(), setupRequest->Length < descriptor.size() ? setupRequest->Length : descriptor.size());
                 break;
             }
             case GetDescriptorParameter::StringLangDescriptor: {
-                LangIdDescriptor langIdDescriptor;
+                static constexpr LangIdDescriptor langIdDescriptor;
                 _Ep0::SendData(&langIdDescriptor, setupRequest->Length < sizeof(langIdDescriptor) ? setupRequest->Length : sizeof(langIdDescriptor));
                 break;
             }
             case GetDescriptorParameter::StringManDescriptor: {
                 if constexpr (!std::is_same_v<decltype(_Manufacturer), decltype(EmptyFixedString16)>)
                 {
-                    constexpr auto descriptor = BuildStringDescriptor(_Manufacturer);
-                    constexpr auto size = descriptor.size() * sizeof(descriptor[0]);
+                    static constexpr auto descriptor = BuildStringDescriptor(_Manufacturer);
+                    static constexpr auto size = descriptor.size() * sizeof(descriptor[0]);
                     _Ep0::SendData(descriptor.data(), setupRequest->Length < size ? setupRequest->Length : size);
                     break;
                 }
@@ -399,8 +399,8 @@ namespace Zhele::Usb
             case GetDescriptorParameter::StringProdDescriptor: {
                 if constexpr (!std::is_same_v<decltype(_Product), decltype(EmptyFixedString16)>)
                 {
-                    constexpr auto descriptor = BuildStringDescriptor(_Product);
-                    constexpr auto size = descriptor.size() * sizeof(descriptor[0]);
+                    static constexpr auto descriptor = BuildStringDescriptor(_Product);
+                    static constexpr auto size = descriptor.size() * sizeof(descriptor[0]);
                     _Ep0::SendData(descriptor.data(), setupRequest->Length < size ? setupRequest->Length : size);
                     break;
                 }
@@ -408,8 +408,8 @@ namespace Zhele::Usb
             case GetDescriptorParameter::StringSerialNumberDescriptor: {
                 if constexpr (!std::is_same_v<decltype(_Serial), decltype(EmptyFixedString16)>)
                 {
-                    constexpr auto descriptor = BuildStringDescriptor(_Serial);
-                    constexpr auto size = descriptor.size() * sizeof(descriptor[0]);
+                    static constexpr auto descriptor = BuildStringDescriptor(_Serial);
+                    static constexpr auto size = descriptor.size() * sizeof(descriptor[0]);
                     _Ep0::SendData(descriptor.data(), setupRequest->Length < size ? setupRequest->Length : size);
                     break;
                 }
@@ -421,7 +421,7 @@ namespace Zhele::Usb
             break;
         }
         case StandartRequestCode::GetConfiguration: {
-            uint8_t response = _isDeviceConfigured ? 1 : 0;
+            static uint8_t response = _isDeviceConfigured ? 1 : 0;
             _Ep0::SendData(&response, 1);
             break;
         }
