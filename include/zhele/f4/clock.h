@@ -72,10 +72,10 @@ namespace Zhele::Clock
     inline void PllClock::SetSystemOutputDivider()
     {
         static_assert(divider == 2 || divider == 4 || divider == 6 || divider == 8, "Divider can be one of 2, 4, 6, 8");
-        static constexpr uint8_t pllpValue = (divider - 2) << 2;
+        static constexpr uint8_t pllpValue = (divider - 2) >> 1;
         PllP::Set(pllpValue);
     }
-
+ 
     inline unsigned PllClock::GetUsbOutputDivider()
     {
         return PllQ::Get();

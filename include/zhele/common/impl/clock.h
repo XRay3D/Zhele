@@ -178,9 +178,7 @@ namespace Zhele::Clock
             resultFrequence = PllClock::ClockFreq() / PllClock::GetSystemOutputDivider();
         }
         else {
-            // TODO:: Commented becasuse build failed on GCC 12
-            //static_assert(false, "Invalid clock source");
-            return InvalidClockSource;
+            static_assert(false, "Invalid clock source");
         }
 
         Flash::ConfigureFrequence(resultFrequence);
