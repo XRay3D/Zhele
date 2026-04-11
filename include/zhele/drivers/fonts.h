@@ -6,7 +6,7 @@
  * Thank @greiman so much
  * 
  * @date 2021
- * @license FreeBSD
+ * @license MIT
  */
 
 #ifndef ZHELE_DRIVERS_FONTS_H
@@ -19,7 +19,7 @@ namespace Zhele::Drivers
     /**
      * @brief Base class for fonts
      * 
-     * @tparam _MonoSpace Is font is monospace.
+     * @tparam _MonoSpace Is font is monospace
      */
     template <bool _MonoSpace = true>
     class FontBase
@@ -31,7 +31,7 @@ namespace Zhele::Drivers
         static const bool MonoSpace = _MonoSpace;
 
         /**
-         * @brief Font height.
+         * @brief Font height
          */
         static const uint8_t Height;
 
@@ -40,17 +40,17 @@ namespace Zhele::Drivers
          * 
          * @param [in] symbol Symbol
          * 
-         * @returns Array with bytes for given symbol.
+         * @returns Array with bytes for given symbol
          */
         static const uint8_t* Get(char symbol);
     };
 
     /**
-     * @brief Common template for monospace fonts.
+     * @brief Common template for monospace fonts
      * 
      * @tparam _Width Width
      * @tparam _Height Height
-     * @tparam _AsciiOffset First symbol`s number.
+     * @tparam _AsciiOffset First symbol`s number
      * @tparam Tag Tag (for support different fonts with same size)
      */
     template <uint8_t _Width, uint8_t _Height, uint8_t _AsciiOffset = 0, typename Tag = void>
@@ -78,7 +78,7 @@ namespace Zhele::Drivers
          * 
          * @param [in] symbol Symbol
          * 
-         * @returns Symbols`s width.
+         * @returns Symbols`s width
          */
         static const uint8_t GetWidth(char symbol)
         {

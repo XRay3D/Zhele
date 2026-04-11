@@ -3,29 +3,20 @@
  * United header for CRC32
  *
  * @author Alexey Zhelonkin
- * @date 2024
- * @licence FreeBSD
+ * @license MIT
  */
 
-#if defined(STM32F0)
-    #include <stm32f0xx.h>
-#endif
-#if defined(STM32F1)
-    #include <stm32f1xx.h>
-#endif
-#if defined(STM32F4)
-    #include <stm32f4xx.h>
-#endif
-#if defined(STM32L4)
-    #include <stm32l4xx.h>
-#endif
-#if defined(STM32G0)
-    #include <stm32g0xx.h>
+#ifndef ZHELE_CRC_H
+#define ZHELE_CRC_H
+
+#include "platform_detector.h"
+
+#if defined(ZHELE_PLATFORM_STM32)
+  #include "platform/stm32/crc.h"
+#elif defined(ZHELE_PLATFORM_CH32)
+  #include "platform/ch32/crc.h"
+#else
+  #error "Zhele: unsupported platform. Define ZHELE_PLATFORM_XX or include CMSIS device headers."
 #endif
 
-#include "clock.h"
-#include "common/crc.h"
-
-namespace Zhele {
-    using Crc = Private::Crc32<Clock::CrcClock>;
-}
+#endif // ZHELE_CRC_H

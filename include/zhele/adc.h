@@ -3,19 +3,20 @@
  * United header for ADC
  *
  * @author Alexey Zhelonkin
- * @date 2019
- * @licence FreeBSD
+ * @license MIT
  */
 
-#if defined(STM32F0)
-    #include "f0/adc.h"
+#ifndef ZHELE_ADC_H
+#define ZHELE_ADC_H
+
+#include "platform_detector.h"
+
+#if defined(ZHELE_PLATFORM_STM32)
+  #include "platform/stm32/adc.h"
+#elif defined(ZHELE_PLATFORM_CH32)
+  #include "platform/ch32/adc.h"
+#else
+  #error "Zhele: unsupported platform. Define ZHELE_PLATFORM_XX or include CMSIS device headers."
 #endif
-#if defined(STM32F1)
-    #include "f1/adc.h"
-#endif
-#if defined(STM32F4)
-    #include "f4/adc.h"
-#endif
-#if defined(STM32G0)
-    #include "g0/adc.h"
-#endif
+
+#endif // ZHELE_ADC_H

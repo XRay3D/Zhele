@@ -1,24 +1,17 @@
- /**
+/**
  * @file
  * United header for pinlist
- * 
- * @author Aleksei Zhelonkin
- * @date 2019
- * @licence FreeBSD
+ *
+ * PinList is platform-agnostic: it works with any set of pins whose
+ * Port type satisfies the GpioPort concept. No platform dispatch needed
+ *
+ * @author Alexey Zhelonkin
+ * @license MIT
  */
 
-#if defined(STM32F0)
-    #include "f0/pinlist.h"
-#endif
-#if defined(STM32F1)
-    #include "f1/pinlist.h"
-#endif
-#if defined(STM32F4)
-    #include "f4/pinlist.h"
-#endif
-#if defined(STM32L4)
-    #include "l4/pinlist.h"
-#endif
-#if defined(STM32G0)
-    #include "g0/pinlist.h"
-#endif
+#ifndef ZHELE_PINLIST_H
+#define ZHELE_PINLIST_H
+
+#include "common/pinlist.h"
+
+#endif // ZHELE_PINLIST_H

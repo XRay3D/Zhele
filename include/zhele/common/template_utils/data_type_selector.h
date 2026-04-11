@@ -4,7 +4,7 @@
  * 
  * @author Konstantin Chizhov
  * @date 2013
- * @license FreeBSD
+ * @license MIT
  */
 
 #ifndef ZHELE_DATA_TYPE_SELECTOR_H

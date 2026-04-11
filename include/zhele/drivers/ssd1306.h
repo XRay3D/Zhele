@@ -3,7 +3,7 @@
  * Implements class for Ssd1306 OLED display
  * @author Alexey Zhelonkin (based on Tilen Majerle library)
  * @date 2021
- * @license FreeBSD
+ * @license MIT
  */
 
 #ifndef ZHELE_DRIVERS_SSD1306_H
@@ -38,8 +38,8 @@ namespace Zhele::Drivers
         /**
          * Initialize display
          * 
-         * @retval true - Display success initialized.
-         * @retval false - Display not detected.
+         * @retval true - Display success initialized
+         * @retval false - Display not detected
          */
         static bool Init();
 

@@ -1,10 +1,10 @@
 /**
  * @file
- * Ring buffer methods implementation.
+ * Ring buffer methods implementation
  * 
  * @author Konstantin Chizhov
  * @date 2012
- * @license FreeBSD
+ * @license MIT
  */
 
 #ifndef ZHELE_RINGBUFFER_IMPL_H

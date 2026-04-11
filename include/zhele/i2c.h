@@ -1,23 +1,22 @@
 /**
  * @file
  * United header for I2C
- * 
+ *
  * @author Alexey Zhelonkin
- * @date 2019
- * @license FreeBSD
+ * @license MIT
  */
-#if defined(STM32F0)
-    #include "f0/i2c.h"
+
+#ifndef ZHELE_I2C_H
+#define ZHELE_I2C_H
+
+#include "platform_detector.h"
+
+#if defined(ZHELE_PLATFORM_STM32)
+  #include "platform/stm32/i2c.h"
+#elif defined(ZHELE_PLATFORM_CH32)
+  #include "platform/ch32/i2c.h"
+#else
+  #error "Zhele: unsupported platform. Define ZHELE_PLATFORM_XX or include CMSIS device headers."
 #endif
-#if defined(STM32F1)
-    #include "f1/i2c.h"
-#endif
-#if defined(STM32F4)
-    #include "f4/i2c.h"
-#endif
-#if defined(STM32L4)
-    #include "l4/i2c.h"
-#endif
-#if defined(STM32G0)
-    #include "g0/i2c.h"
-#endif
+
+#endif // ZHELE_I2C_H

@@ -4,7 +4,7 @@
  * 
  * @author Aleksei Zhelonkin
  * @date 2021
- * @license FreeBSD
+ * @license MIT
  */
 #ifndef ZHELE_DRIVERS_RC522_H
 #define  ZHELE_DRIVERS_RC522_H
@@ -23,10 +23,10 @@ namespace Zhele
          * @tparam _SSPin Slave select pin for transaction control
          * 
          * @todo
-         * Class exports basic functional: Init and Check method.
-         * It is enough for most of tasks.
+         * Class exports basic functional: Init and Check method
+         * It is enough for most of tasks
          * However, it will be good to implements extended functional
-         * (such as small methods (GetVersion and more) and more difficult (Self test, for example).
+         * (such as small methods (GetVersion and more) and more difficult (Self test, for example)
          * The best source for Arduino that i know is MFRC522 class
          * https://github.com/miguelbalboa/rfid/
          */
@@ -34,7 +34,7 @@ namespace Zhele
         class Rc522
         { 
             /**
-             * @brief MFRC522 commands. Described in chapter 10 of datasheet.
+             * @brief MFRC522 commands. Described in chapter 10 of datasheet
 
              */
             enum class Commands : uint8_t
@@ -64,7 +64,7 @@ namespace Zhele
             };
 
             /**
-             * @brief MFRC522 registers. Described in chapter 9 of datasheet.
+             * @brief MFRC522 registers. Described in chapter 9 of datasheet
              */
             enum class Registers : uint8_t
             {
@@ -137,7 +137,7 @@ namespace Zhele
              * @brief Initialize MCU and MFRC522 unit
              * 
              * @details
-             * Init _SSPin and MFRC522 module for work.
+             * Init _SSPin and MFRC522 module for work
              * 
              * @note
              * Initialize SPI manually!
@@ -173,7 +173,7 @@ namespace Zhele
 			 * @brief Initialize MCU and MFRC522 unit
 			 * 
 			 * @details
-			 * Init SPI, _SSPin and MFRC522 module for work.
+			 * Init SPI, _SSPin and MFRC522 module for work
 			 * 
 			 * @par Returns
 			 *	Nothing
@@ -185,13 +185,13 @@ namespace Zhele
             }
 
             /**
-             * @brief Try to read card and fix collision.
+             * @brief Try to read card and fix collision
              * 
              * @param [out] cardId Buffer for card ID
              * 
-             * @retval I2cStatus::Success If card was presented and successful readed.
-             * @retval I2cStatus::NoTagError If card was presented but fail readed.
-             * @retval I2cStatus::error If card was not presented and another fails.
+             * @retval I2cStatus::Success If card was presented and successful readed
+             * @retval I2cStatus::NoTagError If card was presented but fail readed
+             * @retval I2cStatus::error If card was not presented and another fails
              */
             static Status Check(uint8_t* cardId)
             {
@@ -206,10 +206,10 @@ namespace Zhele
             }
 
             /**
-             * @brief Compare two card ID.
+             * @brief Compare two card ID
              * 
              * @details
-             * Compare two 5-bytes arrays.
+             * Compare two 5-bytes arrays
              * 
              * @param[in] first First ID
              * @param[in] second Second ID
@@ -229,7 +229,7 @@ namespace Zhele
 
         private:
             /**
-             * @brief Writes value to register.
+             * @brief Writes value to register
              * 
              * @param [in] registerAddress Register address
              * @param [in] value Value for write
@@ -246,7 +246,7 @@ namespace Zhele
             }
 
             /**
-             * @brief Reads register value.
+             * @brief Reads register value
              * 
              * @param [in] registerAddress Register address
              * 
@@ -472,7 +472,7 @@ namespace Zhele
                 {
                     idCheck ^= id[i];
                 }
-                //todo:: Check this code! In TM lib it's strange place.
+                //todo:: Check this code! In TM lib it's strange place
                 return idCheck == id[4] ? Status::Success : Status::Error;
             }
 

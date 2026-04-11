@@ -4,7 +4,7 @@
  * 
  * @author Alexey Zhelonkin (based on VladislavS code)
  * @date 2023
- * @license FreeBSD
+ * @license MIT
  */
 
 #ifndef ZHELE_TYPELIST_H
@@ -272,7 +272,7 @@ namespace Zhele::template_utils {
     }
 
     /**
-     * @brief Apply a callback for each type in the list (empty list — no call).
+     * @brief Apply a callback for each type in the list (empty list — no call)
      */
     static constexpr void foreach(auto&&)
     requires (sizeof...(Ts) == 0)

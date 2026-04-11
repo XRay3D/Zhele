@@ -1,10 +1,10 @@
 /**
  * @file
- * Implements ring buffer.
+ * Implements ring buffer
  * 
  * @author Konstantin Chizhov
  * @date 2012
- * @license FreeBSD
+ * @license MIT
  */
 
 #ifndef ZHELE_RINGBUFFER_H
@@ -20,8 +20,8 @@ namespace Zhele::Containers
     namespace Private
     {
         /**
-         * @brief Implements ringbuffer with size equals to power of 2.
-         * It is slightly faster than RingBuffer, but limited to sizes.
+         * @brief Implements ringbuffer with size equals to power of 2
+         * It is slightly faster than RingBuffer, but limited to sizes
          * 
          * @tparam _Size Size
          * @tparam _DataType Data type
@@ -38,7 +38,7 @@ namespace Zhele::Containers
             using const_reference = const _DataType&;
 
             /**
-            * @brief Constructor.
+            * @brief Constructor
             * 
             * @par Returns
             *   Nothing
@@ -104,7 +104,7 @@ namespace Zhele::Containers
             const_reference back() const;
 
             /**
-            * @brief Add an item to the end.
+            * @brief Add an item to the end
             *
             * @param [in] value Value  
             * 
@@ -243,7 +243,7 @@ namespace Zhele::Containers
             const_reference back() const;
 
             /**
-            * @brief Add an item to the end.
+            * @brief Add an item to the end
             *
             * @param [in] value Value  
             * 

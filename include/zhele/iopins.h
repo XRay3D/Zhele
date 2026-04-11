@@ -1,24 +1,51 @@
-/*
+/**
  * @file
- * United header for iopins
- * 
+ * United header for iopins + GpioPin concept
+ *
  * @author Alexey Zhelonkin
- * @date 2019
- * @license FreeBSD
+ * @license MIT
  */
 
-#if defined(STM32F0)
-    #include "f0/iopins.h"
+#ifndef ZHELE_IOPINS_H
+#define ZHELE_IOPINS_H
+
+#include "platform_detector.h"
+
+#if defined(ZHELE_PLATFORM_STM32)
+#include "platform/stm32/iopins.h"
+#elif defined(ZHELE_PLATFORM_CH32)
+#include "platform/ch32/iopins.h"
+#else
+#error "Zhele: unsupported platform. Define ZHELE_PLATFORM_XX or include CMSIS device headers."
 #endif
-#if defined(STM32F1)
-    #include "f1/iopins.h"
-#endif
-#if defined(STM32F4)
-    #include "f4/iopins.h"
-#endif
-#if defined(STM32L4)
-    #include "l4/iopins.h"
-#endif
-#if defined(STM32G0)
-    #include "g0/iopins.h"
-#endif
+
+#include <concepts>
+
+namespace Zhele::IO
+{
+  /**
+   * @brief Minimum interface every GPIO pin must satisfy
+   *
+   * Optional methods (SetSpeed, AltFuncNumber, …) are NOT part of this
+   * concept — check T::Port::supports_* or use the sub-concepts from
+   * ioports.h when you need them
+   */
+  template <typename T>
+  concept io_pin = requires {
+    typename T::Port;
+    typename T::DataType;
+    { T::Number   } -> std::convertible_to<unsigned>;
+    { T::Inverted } -> std::convertible_to<bool>;
+  } && requires(bool state) {
+    { T::Set()         } -> std::same_as<void>;
+    { T::Set(state)    } -> std::same_as<void>;
+    { T::Clear()       } -> std::same_as<void>;
+    { T::Toggle()      } -> std::same_as<void>;
+    { T::IsSet()       } -> std::same_as<bool>;
+    { T::SetDirRead()  } -> std::same_as<void>;
+    { T::SetDirWrite() } -> std::same_as<void>;
+  };
+
+} // namespace Zhele::IO
+
+#endif // ZHELE_IOPINS_H

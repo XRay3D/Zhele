@@ -1,23 +1,22 @@
 /**
  * @file
  * United header for DMA
- * 
+ *
  * @author Alexey Zhelonkin
- * @date 2019
- * @license FreeBSD
+ * @license MIT
  */
-#if defined(STM32F0)
-    #include "f0/dma.h"
+
+#ifndef ZHELE_DMA_H
+#define ZHELE_DMA_H
+
+#include "platform_detector.h"
+
+#if defined(ZHELE_PLATFORM_STM32)
+  #include "platform/stm32/dma.h"
+#elif defined(ZHELE_PLATFORM_CH32)
+  #include "platform/ch32/dma.h"
+#else
+  #error "Zhele: unsupported platform. Define ZHELE_PLATFORM_XX or include CMSIS device headers."
 #endif
-#if defined(STM32F1)
-    #include "f1/dma.h"
-#endif
-#if defined(STM32F4)
-    #include "f4/dma.h"
-#endif
-#if defined(STM32L4)
-    #include "l4/dma.h"
-#endif
-#if defined(STM32G0)
-    #include "g0/dma.h"
-#endif
+
+#endif // ZHELE_DMA_H

@@ -3,22 +3,20 @@
  * United header for Flash
  *
  * @author Alexey Zhelonkin
- * @date 2020
- * @licence FreeBSD
+ * @license MIT
  */
 
-#if defined(STM32F0)
-    #include "f0/flash.h"
+#ifndef ZHELE_FLASH_H
+#define ZHELE_FLASH_H
+
+#include "platform_detector.h"
+
+#if defined(ZHELE_PLATFORM_STM32)
+  #include "platform/stm32/flash.h"
+#elif defined(ZHELE_PLATFORM_CH32)
+  #include "platform/ch32/flash.h"
+#else
+  #error "Zhele: unsupported platform. Define ZHELE_PLATFORM_XX or include CMSIS device headers."
 #endif
-#if defined(STM32F1)
-    #include "f1/flash.h"
-#endif
-#if defined(STM32F4)
-    #include "f4/flash.h"
-#endif
-#if defined(STM32L4)
-    #include "l4/flash.h"
-#endif
-#if defined(STM32G0)
-    #include "g0/flash.h"
-#endif
+
+#endif // ZHELE_FLASH_H

@@ -1,12 +1,12 @@
 /**
  * @file
- * Implements compile tests.
- * Templates (functions and classes) are compiled only if they are instanced.
- * So, for check that all code is correct for compiler, I should call all template methods.
+ * Implements compile tests
+ * Templates (functions and classes) are compiled only if they are instanced
+ * So, for check that all code is correct for compiler, I should call all template methods
  * 
- * @author Aleksei Zhelonkin.
+ * @author Aleksei Zhelonkin
  * @date 2021
- * @license FreeBSD
+ * @license MIT
  */
 
 

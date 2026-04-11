@@ -1,12 +1,12 @@
 /**
  * @file
- * Provides code for lcd based on HD44780 controller.
+ * Provides code for lcd based on HD44780 controller
  * 
  * I2c version based on LiquidCrystal_I2C
  * 
  * @author Konstantin Chizhov
  * @date 2018
- * @license FreeBSD
+ * @license MIT
  */
 #ifndef ZHELE_DRIVERS_HD44780_H
 #define ZHELE_DRIVERS_HD44780_H
@@ -18,7 +18,7 @@
 namespace Zhele::Drivers
 {
     /**
-     * @brief Base class for lcd.
+     * @brief Base class for lcd
      */
     class LcdBase
     {
@@ -63,7 +63,7 @@ namespace Zhele::Drivers
         };
     public:
         /**
-         * @brief Display power settings.
+         * @brief Display power settings
          */
         enum PowerControl : uint8_t
         {
@@ -76,7 +76,7 @@ namespace Zhele::Drivers
         };
 
         /**
-         * @brief Delay for hd44780.
+         * @brief Delay for hd44780
          * 
          * @par Returns
          * 	Nothing
@@ -118,9 +118,9 @@ namespace Zhele::Drivers
         
     public:
         /**
-         * @brief Returns line width.
+         * @brief Returns line width
          *
-         * @returns Line width.
+         * @returns Line width
          */
         static uint8_t LineWidth()
         {
@@ -128,9 +128,9 @@ namespace Zhele::Drivers
         }
 
         /**
-		 * @brief Returns lines count.
+		 * @brief Returns lines count
 		 *
-		 * @returns Lines count.
+		 * @returns Lines count
 		 */
         static uint8_t Lines()
         {
@@ -138,7 +138,7 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Init display.
+         * @brief Init display
          * 
          * @par Returns
          *  Nothing
@@ -162,7 +162,7 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Clear display.
+         * @brief Clear display
          * 
          * @par Returns
          *  Nothing
@@ -175,7 +175,7 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Returns cursor home.
+         * @brief Returns cursor home
          * 
          * @par Returns
          *  Nothing
@@ -187,9 +187,9 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Set cursor's position.
+         * @brief Set cursor's position
          * 
-         * @param [in] position New position.
+         * @param [in] position New position
          * 
          * @par Returns
          *  Nothing
@@ -201,10 +201,10 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Set cursor's position.
+         * @brief Set cursor's position
          * 
-         * @param [in] x New X-position.
-         * @param [in] y New Y-position.
+         * @param [in] x New X-position
+         * @param [in] y New Y-position
          * 
          * @par Returns
          *  Nothing
@@ -219,7 +219,7 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Print text.
+         * @brief Print text
          * 
          * @param [in] text Text
          * 
@@ -235,7 +235,7 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Print one character.
+         * @brief Print one character
          * 
          * @param [in] symbol Symbol
          * 
@@ -249,11 +249,11 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Control display power settings.
+         * @brief Control display power settings
          * 
-         * @tparam DisplayState Display state (on/off).
-         * @tparam CursorState Cursor state.
-         * @tparam BlinkState Cursor blink state.
+         * @tparam DisplayState Display state (on/off)
+         * @tparam CursorState Cursor state
+         * @tparam BlinkState Cursor blink state
          * 
          * @par Returns
          *  Nothing
@@ -311,7 +311,7 @@ namespace Zhele::Drivers
         using Base = Lcd<RS, E, D4, D5, D6, D7, LINE_WIDTH, LINES>;
     public:
         /**
-         * @brief Init display.
+         * @brief Init display
          * 
          * @par Returns
          *  Nothing
@@ -323,10 +323,10 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Check display is busy.
+         * @brief Check display is busy
          * 
-         * @retval true Display busy.
-         * @retval false Display not busy.
+         * @retval true Display busy
+         * @retval false Display not busy
          */
         static bool Busy()
         {
@@ -336,9 +336,9 @@ namespace Zhele::Drivers
 
     private:
         /**
-         * @brief Read value from display.
+         * @brief Read value from display
          * 
-         * @returns Readed value.
+         * @returns Readed value
          */
         static uint8_t Read()
         {
@@ -385,9 +385,9 @@ namespace Zhele::Drivers
 
     public:
         /**
-         * @brief Returns line width.
+         * @brief Returns line width
          *
-         * @returns Line width.
+         * @returns Line width
          */
         static uint8_t LineWidth()
         {
@@ -395,9 +395,9 @@ namespace Zhele::Drivers
         }
 
         /**
-		 * @brief Returns lines count.
+		 * @brief Returns lines count
 		 *
-		 * @returns Lines count.
+		 * @returns Lines count
 		 */
         static uint8_t Lines()
         {
@@ -405,7 +405,7 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Init display.
+         * @brief Init display
          * 
          * @par Returns
          *  Nothing
@@ -428,7 +428,7 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Clear display.
+         * @brief Clear display
          * 
          * @par Returns
          *  Nothing
@@ -441,7 +441,7 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Returns cursor home.
+         * @brief Returns cursor home
          * 
          * @par Returns
          *  Nothing
@@ -453,9 +453,9 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Set cursor's position.
+         * @brief Set cursor's position
          * 
-         * @param [in] position New position.
+         * @param [in] position New position
          * 
          * @par Returns
          *  Nothing
@@ -466,10 +466,10 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Set cursor's position.
+         * @brief Set cursor's position
          * 
-         * @param [in] x New X-position.
-         * @param [in] y New Y-position.
+         * @param [in] x New X-position
+         * @param [in] y New Y-position
          * 
          * @par Returns
          *  Nothing
@@ -482,7 +482,7 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Print text.
+         * @brief Print text
          * 
          * @param [in] text Text
          * 
@@ -497,7 +497,7 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Print one character.
+         * @brief Print one character
          * 
          * @param [in] symbol Symbol
          * 
@@ -510,11 +510,11 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Control display power settings.
+         * @brief Control display power settings
          * 
-         * @tparam DisplayState Display state (on/off).
-         * @tparam CursorState Cursor state.
-         * @tparam BlinkState Cursor blink state.
+         * @tparam DisplayState Display state (on/off)
+         * @tparam CursorState Cursor state
+         * @tparam BlinkState Cursor blink state
          * 
          * @par Returns
          *  Nothing

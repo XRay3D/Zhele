@@ -7,7 +7,7 @@
  * 
  * @author Alexey Zhelonkin
  * @date 2021
- * @license FreeBSD
+ * @license MIT
  */
 
 #ifndef ZHELE_FIXEDSTRING_H

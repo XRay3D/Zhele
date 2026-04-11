@@ -1,22 +1,22 @@
 /**
  * @file
  * United header for USB
+ *
  * @author Alexey Zhelonkin
- * @date 2019
- * @license FreeBSD
+ * @license MIT
  */
-#if defined(STM32F0)
-    #include "f0/usb.h"
+
+#ifndef ZHELE_USB_H
+#define ZHELE_USB_H
+
+#include "platform_detector.h"
+
+#if defined(ZHELE_PLATFORM_STM32)
+  #include "platform/stm32/usb.h"
+#elif defined(ZHELE_PLATFORM_CH32)
+  #include "platform/ch32/usb.h"
+#else
+  #error "Zhele: unsupported platform. Define ZHELE_PLATFORM_XX or include CMSIS device headers."
 #endif
-#if defined(STM32F1)
-    #include "f1/usb.h"
-#endif
-#if defined(STM32F4)
-    #include "f4/usb.h"
-#endif
-#if defined(STM32L4)
-    #include "l4/usb.h"
-#endif
-#if defined(STM32G0)
-    #include "g0/usb.h"
-#endif
+
+#endif // ZHELE_USB_H

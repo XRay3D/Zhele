@@ -4,7 +4,7 @@
  * 
  * @author Aleksei Zhelonkin
  * @date 2022
- * @license FreeBSD
+ * @license MIT
  */
 
 #include <zhele/iopins.h>

@@ -1,23 +1,22 @@
- /**
+/**
  * @file
  * United header for SPI
- * 
- * @author Aleksei Zhelonkin
- * @date 2019
- * @licence FreeBSD
+ *
+ * @author Alexey Zhelonkin
+ * @license MIT
  */
-#if defined(STM32F0)
-    #include "f0/spi.h"
+
+#ifndef ZHELE_SPI_H
+#define ZHELE_SPI_H
+
+#include "platform_detector.h"
+
+#if defined(ZHELE_PLATFORM_STM32)
+#include "platform/stm32/spi.h"
+#elif defined(ZHELE_PLATFORM_CH32)
+#include "platform/ch32/spi.h"
+#else
+#error "Zhele: unsupported platform. Define ZHELE_PLATFORM_XX or include CMSIS device headers."
 #endif
-#if defined(STM32F1)
-    #include "f1/spi.h"
-#endif
-#if defined(STM32F4)
-    #include "f4/spi.h"
-#endif
-#if defined(STM32L4)
-    #include "l4/spi.h"
-#endif
-#if defined(STM32G0)
-    #include "g0/spi.h"
-#endif
+
+#endif // ZHELE_SPI_H

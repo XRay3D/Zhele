@@ -4,7 +4,7 @@
  * 
  * @author Aleksei Zhelonkin
  * @date 2021
- * @license FreeBSD
+ * @license MIT
  */
 
 #ifndef ZHELE_DS18B20_H
@@ -33,7 +33,7 @@ namespace Zhele::Drivers
         };
 
         /**
-         * @brief Ds18b20 scratchpad structure.
+         * @brief Ds18b20 scratchpad structure
          */
         struct Scratchpad
         {

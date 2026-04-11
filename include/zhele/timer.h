@@ -1,22 +1,22 @@
 /**
  * @file
  * United header for timers
+ *
  * @author Alexey Zhelonkin
- * @date 2019
- * @license FreeBSD
+ * @license MIT
  */
-#if defined(STM32F0)
-    #include "f0/timer.h"
+
+#ifndef ZHELE_TIMER_H
+#define ZHELE_TIMER_H
+
+#include "platform_detector.h"
+
+#if defined(ZHELE_PLATFORM_STM32)
+  #include "platform/stm32/timer.h"
+#elif defined(ZHELE_PLATFORM_CH32)
+  #include "platform/ch32/timer.h"
+#else
+  #error "Zhele: unsupported platform. Define ZHELE_PLATFORM_XX or include CMSIS device headers."
 #endif
-#if defined(STM32F1)
-    #include "f1/timer.h"
-#endif
-#if defined(STM32F4)
-    #include "f4/timer.h"
-#endif
-#if defined(STM32L4)
-    #include "l4/timer.h"
-#endif
-#if defined(STM32G0)
-    #include "g0/timer.h"
-#endif
+
+#endif // ZHELE_TIMER_H

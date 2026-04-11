@@ -12,7 +12,8 @@ default(
     source/*.cpp source/*.hpp
     include/*.hpp
     test/*.cpp test/*.hpp
-    example/*.cpp example/*.hpp
+    example/stm32/*.cpp example/stm32/*/*.cpp example/stm32/*/*/*.cpp
+    example/stm32/*/*/*/*.cpp example/stm32/*/*/*/*/*.cpp example/*.hpp
 )
 default(FIX NO)
 

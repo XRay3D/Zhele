@@ -4,7 +4,7 @@
  * 
  * @author Aleksei Zhelonkin
  * @date 2021
- * @license FreeBSD
+ * @license MIT
  */
 
 #ifndef ZHELE_DRIVERS_DS1307_H
@@ -69,7 +69,7 @@ namespace Zhele::Drivers
 		}
 
 		/**
-		 * @brief Returns Ds1307::Time struct object.
+		 * @brief Returns Ds1307::Time struct object
 		 */
 		static Time GetDateTime()
 		{
@@ -274,7 +274,7 @@ namespace Zhele::Drivers
 		 * 
 		 * @details
 		 * ds1307 store values in bcd format, so after read
-		 * value it should be decoded to normal.
+		 * value it should be decoded to normal
 		 * 
 		 * @param [in] bcd Encoded by bcd value
 		 * 
@@ -290,7 +290,7 @@ namespace Zhele::Drivers
 		 * 
 		 * @details
 		 * ds1307 store values in bcd format, so before
-		 * writing to ds1307 unit value should be encoded to bcd format.
+		 * writing to ds1307 unit value should be encoded to bcd format
 		 * 
 		 * @param [in] bin Value to encode
 		 * 

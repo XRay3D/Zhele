@@ -3,7 +3,7 @@
  * Implements class for ST7735 based TFT display
  * @author Alexey Zhelonkin (based on afiskon port)
  * @date 2022
- * @license FreeBSD
+ * @license MIT
  */
 
 #ifndef ZHELE_DRIVERS_ST7735_H

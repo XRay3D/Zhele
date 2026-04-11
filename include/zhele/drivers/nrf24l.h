@@ -1,10 +1,10 @@
 /**
  * @file
- * Contains class for NRF24L transeiver.
+ * Contains class for NRF24L transeiver
  * 
  * @author Aleksei Zhelonkin (based on Tilen Majerle library)
  * @date 2021
- * @licence FreeBSD
+ * @licence MIT
  */
 
 #ifndef ZHELE_DRIVERS_NRF24L_H
@@ -13,7 +13,7 @@
 namespace Zhele::Drivers
 {	
     /**
-     * @brief Base class for Nrf24l modules. Contains enums, constants, etc.
+     * @brief Base class for Nrf24l modules. Contains enums, constants, etc
      */
     class Nrf24lBase
     {
@@ -101,7 +101,7 @@ namespace Zhele::Drivers
             PowerUp = PowerUpMask, ///< Power up
             PowerDown = 0, ///< Power down
 
-            /// CRC encoding scheme.
+            /// CRC encoding scheme
             CRCOPos = 2,
             CRCOMask = 1 << CRCOPos,
             CRCScheme2Bytes = CRCOMask, ///< 2-bytes CRC
@@ -330,7 +330,7 @@ namespace Zhele::Drivers
      * @details
      * Some enums are declared as "class" for more strict methods arguments, but
      * at same time it's necessary to combine them. Method casts arguments to unsigned, makes "OR" and
-     * casts result vice conversely.
+     * casts result vice conversely
      * 
      * @tparam T type
      * 
@@ -680,7 +680,7 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Writes value to register.
+         * @brief Writes value to register
          * 
          * @param [in] registerAddress Register address
          * @param [in] value Value for write
@@ -697,7 +697,7 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Writes multi data to register.
+         * @brief Writes multi data to register
          * 
          * @param [in] registerAddress Register address
          * @param [in] data Data to write

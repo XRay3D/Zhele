@@ -8,10 +8,12 @@
  *
  * @author Konstantin Chizhov / X-Ray
  * @date 2025
- * @license FreeBSD
+ * @license MIT
  */
 
-#pragma once
+
+#ifndef ZHELE_COMMON_TEMPLATE_UTILS_ENUM_H
+#define ZHELE_COMMON_TEMPLATE_UTILS_ENUM_H
 
 #include <utility>
 
@@ -157,3 +159,5 @@ static_assert([](E e) consteval { auto _ = e--; return e; }(E::B) == E::A);
 } // namespace Test
 
 #endif
+
+#endif // ZHELE_COMMON_TEMPLATE_UTILS_ENUM_H

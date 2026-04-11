@@ -4,7 +4,7 @@
  * 
  * @author Konstantin Chizhov
  * @date 2012
- * @license FreeBSD
+ * @license MIT
  */
 
 #ifndef ZHELE_DRIVERS_SDCARD_H

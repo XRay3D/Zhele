@@ -6,7 +6,7 @@
  * 
  * @author Aleksei Zhelonkin
  * @date 2022
- * @license FreeBSD
+ * @license MIT
  */
 
 #ifndef ZHELE_DRIVERS_IR_H

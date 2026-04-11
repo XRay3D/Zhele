@@ -6,7 +6,7 @@
  * 
  * @author Aleksei Zhelonkin
  * @date 2021
- * @license FreeBSD
+ * @license MIT
  */
 
 #ifndef ZHELE_DRIVERS_BMP280_H
@@ -223,7 +223,7 @@ namespace Zhele::Drivers
         }
 
         /**
-         * @brief Read 3-bytes register.
+         * @brief Read 3-bytes register
          * 
          * @param regAddress Register address
          * 
