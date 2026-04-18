@@ -37,12 +37,12 @@ namespace Zhele::IO {
 
   template<typename _Port, uint8_t _Pin, typename _ConfigPort>
   void TPin<_Port, _Pin, _ConfigPort>::SetDirRead() {
-    Port::template SetConfiguration(1u << _Pin, _Port::Configuration::In);
+    Port::SetConfiguration(_Port::Configuration::In, static_cast<typename _Port::DataType>(1u << _Pin));
   }
 
   template<typename _Port, uint8_t _Pin, typename _ConfigPort>
   void TPin<_Port, _Pin, _ConfigPort>::SetDirWrite() {
-    _ConfigPort::template SetConfiguration<1u << _Pin, _Port::Configuration::Out>();
+    _ConfigPort::template SetConfiguration<_Port::Configuration::Out, static_cast<typename _ConfigPort::DataType>(1u << _Pin)>();
   }
 
   template<typename _Port, uint8_t _Pin, typename _ConfigPort>

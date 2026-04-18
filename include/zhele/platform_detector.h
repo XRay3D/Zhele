@@ -8,6 +8,7 @@
 
 #if !defined(ZHELE_PLATFORM_STM32) && !defined(ZHELE_PLATFORM_CH32)
   #include "platform/stm32/platform_detector.h"
+  #include "platform/ch32/platform_detector.h"
 #endif
 
 #endif // ZHELE_PLATFORM_DETECTOR_H
