@@ -15,6 +15,8 @@
   #include "platform/stm32/ioports.h"
 #elif defined(ZHELE_PLATFORM_CH32)
   #include "platform/ch32/ioports.h"
+#elif defined(ZHELE_PLATFORM_NIIET)
+  #include "platform/niiet/ioports.h"
 #else
   #error "Zhele: unsupported platform. Define ZHELE_PLATFORM_XX or include CMSIS device headers"
 #endif

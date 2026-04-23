@@ -36,7 +36,7 @@ namespace Zhele::IO {
     using Configuration = typename _ConfigPort::Configuration;
     using DriverType    = typename _ConfigPort::DriverType;
     using PullMode      = typename _ConfigPort::PullMode;
-    // Speed inherited from IoSpeed<_ConfigPort> if supported
+    // Speed type alias inherited from IoSpeed<_ConfigPort> when the port supports it.
     static constexpr bool supports_speed = requires { typename _ConfigPort::Speed; };
 
     static void Set();
@@ -49,7 +49,6 @@ namespace Zhele::IO {
     static void SetDirRead();
     static void SetDirWrite();
 
-
     static void WaitForSet();
     static void WaitForClear();
 
@@ -58,7 +57,6 @@ namespace Zhele::IO {
     template<typename _ConfigPort::Configuration configuration>
     static void SetConfiguration();
 
-    
     static void SetDriverType(typename _ConfigPort::DriverType driverType);
 
     template<typename _ConfigPort::DriverType driverType>
@@ -69,12 +67,12 @@ namespace Zhele::IO {
     template<PullMode pullMode>
     static void SetPullMode();
 
-    template<typename _ConfigPort::Speed speed>
-    static void SetSpeed()
-    requires requires { typename _ConfigPort::Speed; };
+    static void SetSpeed(auto speed)
+    requires supports_speed;
 
-    static void SetSpeed(typename _ConfigPort::Speed)
-    requires requires { typename _ConfigPort::Speed; };
+    template<auto speed>
+    static void SetSpeed()
+    requires supports_speed;
 
     static void AltFuncNumber(uint8_t funcNumber)
     requires requires(uint8_t n) { _ConfigPort::AltFuncNumber(n); };

@@ -9,6 +9,8 @@
 #ifndef ZHELE_IOPIN_IMPL_COMMON_H
 #define ZHELE_IOPIN_IMPL_COMMON_H
 
+#include <type_traits>
+
 namespace Zhele::IO {
   template<typename _Port, uint8_t _Pin, typename _ConfigPort>
   void TPin<_Port, _Pin, _ConfigPort>::Set() {
@@ -79,15 +81,18 @@ namespace Zhele::IO {
   }
 
   template<typename _Port, uint8_t _Pin, typename _ConfigPort>
-  void TPin<_Port, _Pin, _ConfigPort>::SetSpeed(typename _ConfigPort::Speed speed)
-  requires requires { typename _ConfigPort::Speed; } {
-    _ConfigPort::SetSpeed(speed, 1u << _Pin);
+  void TPin<_Port, _Pin, _ConfigPort>::SetSpeed(auto speed)
+  requires (TPin<_Port, _Pin, _ConfigPort>::supports_speed) {
+    static_assert(std::is_same_v<decltype(speed), typename _ConfigPort::Speed>, "SetSpeed: argument type must match Port::Speed");
+    _ConfigPort::SetSpeed(speed, static_cast<typename _ConfigPort::DataType>(1u << _Pin));
   }
 
   template<typename _Port, uint8_t _Pin, typename _ConfigPort>
-  template<typename _ConfigPort::Speed speed>
-  void TPin<_Port, _Pin, _ConfigPort>::SetSpeed() requires requires { typename _ConfigPort::Speed; } {
-    _ConfigPort::template SetSpeed<speed, 1u << _Pin>();
+  template<auto speed>
+  void TPin<_Port, _Pin, _ConfigPort>::SetSpeed()
+  requires (TPin<_Port, _Pin, _ConfigPort>::supports_speed) {
+    static_assert(std::is_same_v<decltype(speed), typename _ConfigPort::Speed>, "SetSpeed: template argument type must match Port::Speed");
+    _ConfigPort::template SetSpeed<speed, static_cast<typename _ConfigPort::DataType>(1u << _Pin)>();
   }
 
   template<typename _Port, uint8_t _Pin, typename _ConfigPort>

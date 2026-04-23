@@ -15,6 +15,8 @@
 #include "platform/stm32/iopins.h"
 #elif defined(ZHELE_PLATFORM_CH32)
 #include "platform/ch32/iopins.h"
+#elif defined(ZHELE_PLATFORM_NIIET)
+#include "platform/niiet/iopins.h"
 #else
 #error "Zhele: unsupported platform. Define ZHELE_PLATFORM_XX or include CMSIS device headers."
 #endif
@@ -45,6 +47,10 @@ namespace Zhele::IO
     { T::SetDirRead()  } -> std::same_as<void>;
     { T::SetDirWrite() } -> std::same_as<void>;
   };
+
+  template <typename T>
+  concept speed_configurable_io_pin = io_pin<T> &&
+    requires { typename T::Speed; };
 
 } // namespace Zhele::IO
 

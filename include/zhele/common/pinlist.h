@@ -86,12 +86,12 @@ namespace Zhele::IO {
     template<PullMode mode, DataType mask = std::numeric_limits<DataType>::max()>
     static void SetPullMode();
 
-    static void SetSpeed(typename FirstPort::Speed speed, DataType mask = std::numeric_limits<DataType>::max())
-    requires requires { typename FirstPort::Speed; };
+    static void SetSpeed(auto speed, DataType mask = std::numeric_limits<DataType>::max())
+    requires supports_speed;
 
-    template<typename FirstPort::Speed speed, DataType mask = std::numeric_limits<DataType>::max()>
+    template<auto speed, DataType mask = std::numeric_limits<DataType>::max()>
     static void SetSpeed()
-    requires requires { typename FirstPort::Speed; };
+    requires supports_speed;
 
     static void AltFuncNumber(uint8_t number,
                               DataType mask = std::numeric_limits<DataType>::max());

@@ -164,17 +164,19 @@ namespace Zhele::IO {
   }
 
   template<typename... _Pins>
-  void PinList<_Pins...>::SetSpeed(typename PinList<_Pins...>::FirstPort::Speed speed, typename PinList<_Pins...>::DataType mask)
-  requires requires { typename PinList<_Pins...>::FirstPort::Speed; } {
+  void PinList<_Pins...>::SetSpeed(auto speed, typename PinList<_Pins...>::DataType mask)
+  requires (PinList<_Pins...>::supports_speed) {
+    static_assert(std::is_same_v<decltype(speed), typename PinList<_Pins...>::FirstPort::Speed>, "SetSpeed: argument type must match Port::Speed");
     _ports.foreach([mask, speed](auto port) {
       port.SetSpeed(speed, GetPinlistValueForPort(port, mask));
     });
   }
 
   template<typename... _Pins>
-  template<typename PinList<_Pins...>::FirstPort::Speed speed, typename PinList<_Pins...>::DataType mask>
+  template<auto speed, typename PinList<_Pins...>::DataType mask>
   void PinList<_Pins...>::SetSpeed()
-  requires requires { typename PinList<_Pins...>::FirstPort::Speed; } {
+  requires (PinList<_Pins...>::supports_speed) {
+    static_assert(std::is_same_v<decltype(speed), typename PinList<_Pins...>::FirstPort::Speed>, "SetSpeed: template argument type must match Port::Speed");
     _ports.foreach([](auto port) {
       port.template SetSpeed<speed, GetPinlistValueForPort(port, mask)>();
     });

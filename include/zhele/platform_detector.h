@@ -6,9 +6,10 @@
 #ifndef ZHELE_PLATFORM_DETECTOR_H
 #define ZHELE_PLATFORM_DETECTOR_H
 
-#if !defined(ZHELE_PLATFORM_STM32) && !defined(ZHELE_PLATFORM_CH32)
+#if !defined(ZHELE_PLATFORM_STM32) && !defined(ZHELE_PLATFORM_CH32) && !defined(ZHELE_PLATFORM_NIIET)
   #include "platform/stm32/platform_detector.h"
   #include "platform/ch32/platform_detector.h"
+  #include "platform/niiet/platform_detector.h"
 #endif
 
 #endif // ZHELE_PLATFORM_DETECTOR_H
