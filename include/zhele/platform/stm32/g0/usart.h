@@ -21,7 +21,6 @@
 #include "clock.h"
 #include "dma.h"
 #include "iopins.h"
-#include "zhele/common/template_utils/array.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -90,38 +89,20 @@ namespace Zhele
             SelectTxRxPins<txPinIndex, rxPinIndex>();
         }
 
-        struct Usart1TxPins
-        {
-            using io_pins = IO::PinList<IO::Pa9, IO::Pb6, IO::Pc4>;
-            static constexpr ArrayU8 alt_functions{1, 0, 1};
-        };
-        struct Usart1RxPins
-        {
-            using io_pins = IO::PinList<IO::Pa10, IO::Pb7, IO::Pc5>;
-            static constexpr ArrayU8 alt_functions{1, 0, 1};
-        };
+        using Usart1TxPins = IO::AltPinList<{1, 0, 1},
+            IO::Pa9, IO::Pb6, IO::Pc4>;
+        using Usart1RxPins = IO::AltPinList<{1, 0, 1},
+            IO::Pa10, IO::Pb7, IO::Pc5>;
 
-        struct Usart2TxPins
-        {
-            using io_pins = IO::PinList<IO::Pa2, IO::Pa14, IO::Pd5>;
-            static constexpr ArrayU8 alt_functions{1, 1, 0};
-        };
-        struct Usart2RxPins
-        {
-            using io_pins = IO::PinList<IO::Pa3, IO::Pa15, IO::Pd6>;
-            static constexpr ArrayU8 alt_functions{1, 1, 0};
-        };
+        using Usart2TxPins = IO::AltPinList<{1, 1, 0},
+            IO::Pa2, IO::Pa14, IO::Pd5>;
+        using Usart2RxPins = IO::AltPinList<{1, 1, 0},
+            IO::Pa3, IO::Pa15, IO::Pd6>;
 
-        struct Usart3TxPins
-        {
-            using io_pins = IO::PinList<IO::Pa5, IO::Pb2, IO::Pb8, IO::Pb10, IO::Pc4, IO::Pc10>;
-            static constexpr ArrayU8 alt_functions{4, 4, 4, 4, 0, 0};
-        };
-        struct Usart3RxPins
-        {
-            using io_pins = IO::PinList<IO::Pb0, IO::Pb9, IO::Pb11, IO::Pc5, IO::Pc11>;
-            static constexpr ArrayU8 alt_functions{4, 4, 4, 0, 0};
-        };
+        using Usart3TxPins = IO::AltPinList<{4, 4, 4, 4, 0, 0},
+            IO::Pa5, IO::Pb2, IO::Pb8, IO::Pb10, IO::Pc4, IO::Pc10>;
+        using Usart3RxPins = IO::AltPinList<{4, 4, 4, 0, 0},
+            IO::Pb0, IO::Pb9, IO::Pb11, IO::Pc5, IO::Pc11>;
 
         IO_STRUCT_WRAPPER(USART1, Usart1Regs, USART_TypeDef);
         IO_STRUCT_WRAPPER(USART2, Usart2Regs, USART_TypeDef);

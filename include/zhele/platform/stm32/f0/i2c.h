@@ -13,7 +13,6 @@
 
 #include "dma.h"
 #include "iopins.h"
-#include "zhele/common/template_utils/array.h"
 
 #include <cstdint>
 #include <type_traits>
@@ -80,16 +79,10 @@ namespace Zhele
             SelectPins<sclPinIndex, sdaPinIndex>();
         }
 
-        struct I2C1SclPins
-        {
-            using io_pins = IO::PinList<IO::Pa9, IO::Pa11, IO::Pb6, IO::Pb8, IO::Pb10>;
-            static constexpr ArrayU8 alt_functions{4, 5, 1, 1, 1};
-        };
-        struct I2C1SdaPins
-        {
-            using io_pins = IO::PinList<IO::Pa10, IO::Pa12, IO::Pb7, IO::Pb9, IO::Pb11>;
-            static constexpr ArrayU8 alt_functions{4, 5, 1, 1, 1};
-        };
+        using I2C1SclPins = IO::AltPinList<{4, 5, 1, 1, 1},
+            IO::Pa9, IO::Pa11, IO::Pb6, IO::Pb8, IO::Pb10>;
+        using I2C1SdaPins = IO::AltPinList<{4, 5, 1, 1, 1},
+            IO::Pa10, IO::Pa12, IO::Pb7, IO::Pb9, IO::Pb11>;
 
         IO_STRUCT_WRAPPER(I2C1, I2C1Regs, I2C_TypeDef);
     }

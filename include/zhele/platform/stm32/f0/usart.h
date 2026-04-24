@@ -13,7 +13,6 @@
 #include "clock.h"
 #include "dma.h"
 #include "iopins.h"
-#include "zhele/common/template_utils/array.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -82,27 +81,15 @@ namespace Zhele
             SelectTxRxPins<txPinIndex, rxPinIndex>();
         }
 
-        struct Usart1TxPins
-        {
-            using io_pins = IO::PinList<IO::Pa2, IO::Pa9, IO::Pb6>;
-            static constexpr ArrayU8 alt_functions{1, 1, 0};
-        };
-        struct Usart1RxPins
-        {
-            using io_pins = IO::PinList<IO::Pa10, IO::Pa15, IO::Pb7>;
-            static constexpr ArrayU8 alt_functions{1, 1, 0};
-        };
+        using Usart1TxPins = IO::AltPinList<{1, 1, 0},
+            IO::Pa2, IO::Pa9, IO::Pb6>;
+        using Usart1RxPins = IO::AltPinList<{1, 1, 0},
+            IO::Pa10, IO::Pa15, IO::Pb7>;
 
-        struct Usart2TxPins
-        {
-            using io_pins = IO::PinList<IO::Pa2, IO::Pd5>;
-            static constexpr ArrayU8 alt_functions{1, 1};
-        };
-        struct Usart2RxPins
-        {
-            using io_pins = IO::PinList<IO::Pa3, IO::Pd6>;
-            static constexpr ArrayU8 alt_functions{1, 1};
-        };
+        using Usart2TxPins = IO::AltPinList<{1, 1},
+            IO::Pa2, IO::Pd5>;
+        using Usart2RxPins = IO::AltPinList<{1, 1},
+            IO::Pa3, IO::Pd6>;
 
         IO_STRUCT_WRAPPER(USART1, Usart1Regs, USART_TypeDef);
     #if defined(USART2)
