@@ -11,7 +11,6 @@
 #include "../common/timer.h"
 
 #include "iopins.h"
-#include "zhele/common/template_utils/array.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -104,10 +103,14 @@ namespace Zhele::Timers
 
 
         template<unsigned ChannelNumber> struct Tim3ChPins;
-        template<> struct Tim3ChPins<0>{ struct Pins { using io_pins = IO::PinList<Pa6, Pb4>; static constexpr ArrayU8 alt_functions{1, 1}; }; };
-        template<> struct Tim3ChPins<1>{ struct Pins { using io_pins = IO::PinList<Pa7, Pb5>; static constexpr ArrayU8 alt_functions{1, 1}; }; };
-        template<> struct Tim3ChPins<2>{ struct Pins { using io_pins = IO::PinList<Pb0, Pb10>; static constexpr ArrayU8 alt_functions{1, 1}; }; };
-        template<> struct Tim3ChPins<3>{ struct Pins { using io_pins = IO::PinList<Pb1, Pb11>; static constexpr ArrayU8 alt_functions{1, 1}; }; };
+        template<> struct Tim3ChPins<0>{ using Pins = IO::AltPinList<{1, 1},
+            Pa6, Pb4>; };
+        template<> struct Tim3ChPins<1>{ using Pins = IO::AltPinList<{1, 1},
+            Pa7, Pb5>; };
+        template<> struct Tim3ChPins<2>{ using Pins = IO::AltPinList<{1, 1},
+            Pb0, Pb10>; };
+        template<> struct Tim3ChPins<3>{ using Pins = IO::AltPinList<{1, 1},
+            Pb1, Pb11>; };
         
     #if defined (TIM1)
         IO_STRUCT_WRAPPER(TIM1, Tim1Regs, TIM_TypeDef);

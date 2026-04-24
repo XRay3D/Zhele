@@ -13,7 +13,6 @@
 
 #include "dma.h"
 #include "iopins.h"
-#include "zhele/common/template_utils/array.h"
 
 #include <cstdint>
 #include <type_traits>
@@ -80,27 +79,15 @@ namespace Zhele
             SelectPins<sclPinIndex, sdaPinIndex>();
         }
 
-        struct I2c1SclPins
-        {
-            using io_pins = IO::PinList<IO::Pa9, IO::Pb6, IO::Pb8>;
-            static constexpr ArrayU8 alt_functions{6, 6, 6};
-        };
-        struct I2c1SdaPins
-        {
-            using io_pins = IO::PinList<IO::Pa10, IO::Pb7, IO::Pb9>;
-            static constexpr ArrayU8 alt_functions{6, 6, 6};
-        };
+        using I2c1SclPins = IO::AltPinList<{6, 6, 6},
+            IO::Pa9, IO::Pb6, IO::Pb8>;
+        using I2c1SdaPins = IO::AltPinList<{6, 6, 6},
+            IO::Pa10, IO::Pb7, IO::Pb9>;
 
-        struct I2c2SclPins
-        {
-            using io_pins = IO::PinList<IO::Pa1, IO::Pb10, IO::Pb13>;
-            static constexpr ArrayU8 alt_functions{6, 6, 6};
-        };
-        struct I2c2SdaPins
-        {
-            using io_pins = IO::PinList<IO::Pa12, IO::Pb11, IO::Pb14>;
-            static constexpr ArrayU8 alt_functions{6, 6, 6};
-        };
+        using I2c2SclPins = IO::AltPinList<{6, 6, 6},
+            IO::Pa1, IO::Pb10, IO::Pb13>;
+        using I2c2SdaPins = IO::AltPinList<{6, 6, 6},
+            IO::Pa12, IO::Pb11, IO::Pb14>;
 
         IO_STRUCT_WRAPPER(I2C1, I2c1Regs, I2C_TypeDef);
         IO_STRUCT_WRAPPER(I2C2, I2c2Regs, I2C_TypeDef);
