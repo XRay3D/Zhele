@@ -7,8 +7,7 @@
  * @license MIT
  */
 
-#ifndef ZHELE_PLATFORM_STM32_COMMON_USB_CONFIGURATION_H
-#define ZHELE_PLATFORM_STM32_COMMON_USB_CONFIGURATION_H
+#pragma once
 
 #include "interface.h"
 
@@ -134,4 +133,3 @@ namespace Zhele::Usb
         }
     };
 }
-#endif // ZHELE_PLATFORM_STM32_COMMON_USB_CONFIGURATION_H

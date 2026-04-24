@@ -6,8 +6,7 @@
  * @license MIT
  */
 
-#ifndef ZHELE_PLATFORM_STM32_F0_TIMER_H
-#define ZHELE_PLATFORM_STM32_F0_TIMER_H
+#pragma once
 
 #include "../common/timer.h"
 
@@ -124,4 +123,3 @@ namespace Zhele::Timers
     using Timer3 = Private::GPTimer<Private::Tim3Regs, Clock::Tim3Clock, TIM3_IRQn, Private::Tim3ChPins>;
 }
 
-#endif //! ZHELE_PLATFORM_STM32_F0_TIMER_H

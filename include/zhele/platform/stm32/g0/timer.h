@@ -6,8 +6,7 @@
  * @license MIT
  */
 
-#ifndef ZHELE_PLATFORM_STM32_G0_TIMER_H
-#define ZHELE_PLATFORM_STM32_G0_TIMER_H
+#pragma once
 
 #include <stm32g0xx.h>
 
@@ -144,4 +143,3 @@ namespace Zhele::Timers
     using Timer17 = Private::BaseTimer<Private::Tim17Regs, Clock::Tim17Clock, TIM17_IRQn>;
 }
 
-#endif //! ZHELE_PLATFORM_STM32_G0_TIMER_H

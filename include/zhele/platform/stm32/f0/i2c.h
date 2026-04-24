@@ -7,8 +7,7 @@
  * @license MIT
  */
 
-#ifndef ZHELE_PLATFORM_STM32_F0_I2C_H
-#define ZHELE_PLATFORM_STM32_F0_I2C_H
+#pragma once
 
 #include "../common/i2c.h"
 
@@ -97,4 +96,4 @@ namespace Zhele
     using I2c1 = Private::I2cBase<Private::I2C1Regs, I2C1_IRQn, I2C1_IRQn, Clock::I2c1Clock, Private::I2C1SclPins, Private::I2C1SdaPins, Dma1Channel2, Dma1Channel3>;
 }
 
-#endif //! ZHELE_PLATFORM_STM32_F0_I2C_H
+

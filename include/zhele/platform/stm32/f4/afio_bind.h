@@ -9,8 +9,7 @@
  * @license MIT
  */
 
-#ifndef ZHELE_PLATFORM_STM32_F4_AFIO_BIND_H
-#define ZHELE_PLATFORM_STM32_F4_AFIO_BIND_H
+#pragma once
 
 #include <zhele/common/template_utils/type_list.h>
 
@@ -53,4 +52,4 @@ namespace Zhele::Private
 } // namespace Private
 
 
-#endif // !ZHELE_PLATFORM_STM32_F4_AFIO_BIND_H
+

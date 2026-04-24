@@ -7,8 +7,7 @@
  * @license MIT
  */
 
-#ifndef ZHELE_PLATFORM_STM32_G0_I2C_H
-#define ZHELE_PLATFORM_STM32_G0_I2C_H
+#pragma once
 
 #include "../common/i2c.h"
 
@@ -117,4 +116,4 @@ namespace Zhele
     using I2c2NoDma = I2c2<>;
 }
 
-#endif //! ZHELE_PLATFORM_STM32_G0_I2C_H
+

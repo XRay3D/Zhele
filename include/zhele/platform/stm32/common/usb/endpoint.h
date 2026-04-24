@@ -14,8 +14,7 @@
  * @license MIT
  */
 
-#ifndef ZHELE_PLATFORM_STM32_COMMON_USB_ENDPOINT_H
-#define ZHELE_PLATFORM_STM32_COMMON_USB_ENDPOINT_H
+#pragma once
 
 #include <zhele/common/template_utils/type_list.h>
 
@@ -1439,4 +1438,3 @@ namespace Zhele::Usb
      */
     using DefaultEp0 = ZeroEndpointBase<64>;
 }
-#endif // ZHELE_PLATFORM_STM32_COMMON_USB_ENDPOINT_H
