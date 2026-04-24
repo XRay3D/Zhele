@@ -13,8 +13,8 @@
 #include "clock.h"
 #include "dma.h"
 #include "iopins.h"
+#include "zhele/common/template_utils/array.h"
 
-#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
@@ -85,23 +85,23 @@ namespace Zhele
         struct Usart1TxPins
         {
             using io_pins = IO::PinList<IO::Pa2, IO::Pa9, IO::Pb6>;
-            static constexpr std::array<uint8_t, 3> alt_functions{1, 1, 0};
+            static constexpr ArrayU8 alt_functions{1, 1, 0};
         };
         struct Usart1RxPins
         {
             using io_pins = IO::PinList<IO::Pa10, IO::Pa15, IO::Pb7>;
-            static constexpr std::array<uint8_t, 3> alt_functions{1, 1, 0};
+            static constexpr ArrayU8 alt_functions{1, 1, 0};
         };
 
         struct Usart2TxPins
         {
             using io_pins = IO::PinList<IO::Pa2, IO::Pd5>;
-            static constexpr std::array<uint8_t, 2> alt_functions{1, 1};
+            static constexpr ArrayU8 alt_functions{1, 1};
         };
         struct Usart2RxPins
         {
             using io_pins = IO::PinList<IO::Pa3, IO::Pd6>;
-            static constexpr std::array<uint8_t, 2> alt_functions{1, 1};
+            static constexpr ArrayU8 alt_functions{1, 1};
         };
 
         IO_STRUCT_WRAPPER(USART1, Usart1Regs, USART_TypeDef);

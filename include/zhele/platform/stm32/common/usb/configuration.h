@@ -46,7 +46,7 @@ namespace Zhele::Usb
         */
         constexpr auto GetBytes()
         {
-            return std::array<uint8_t, 9> {
+            return ArrayU8 {
                 Length,
                 static_cast<uint8_t>(Type),
                 static_cast<uint8_t>(TotalLength & 0xff), static_cast<uint8_t>((TotalLength >> 8) & 0xff),

@@ -13,8 +13,8 @@
 #include "endpoint.h"
 
 #include <zhele/common/template_utils/type_list.h>
+#include "zhele/common/template_utils/array.h"
 
-#include <array>
 
 namespace Zhele::Usb
 {
@@ -36,7 +36,7 @@ namespace Zhele::Usb
 
         constexpr auto GetBytes() const
         {
-            return std::array<uint8_t, 9> {
+            return ArrayU8 {
                 Length,
                 static_cast<uint8_t>(Type),
                 Number,

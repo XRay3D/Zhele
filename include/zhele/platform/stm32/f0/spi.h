@@ -12,8 +12,8 @@
 #include "../common/spi.h"
 
 #include "dma.h"
+#include "zhele/common/template_utils/array.h"
 
-#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
@@ -136,43 +136,43 @@ namespace Zhele
         struct Spi1SsPins
         {
             using io_pins = IO::PinList<IO::Pa4, IO::Pa15, IO::Pe12>;
-            static constexpr std::array<uint8_t, 3> alt_functions{0, 0, 1};
+            static constexpr ArrayU8 alt_functions{0, 0, 1};
         };
         struct Spi1ClockPins
         {
             using io_pins = IO::PinList<IO::Pa5, IO::Pb3, IO::Pe13>;
-            static constexpr std::array<uint8_t, 3> alt_functions{0, 0, 1};
+            static constexpr ArrayU8 alt_functions{0, 0, 1};
         };
         struct Spi1MisoPins
         {
             using io_pins = IO::PinList<IO::Pa6, IO::Pb4, IO::Pe14>;
-            static constexpr std::array<uint8_t, 3> alt_functions{0, 0, 1};
+            static constexpr ArrayU8 alt_functions{0, 0, 1};
         };
         struct Spi1MosiPins
         {
             using io_pins = IO::PinList<IO::Pa7, IO::Pb5, IO::Pe15>;
-            static constexpr std::array<uint8_t, 3> alt_functions{0, 0, 1};
+            static constexpr ArrayU8 alt_functions{0, 0, 1};
         };
 		
         struct Spi2SsPins
         {
             using io_pins = IO::PinList<IO::Pb12, IO::Pb9, IO::Pd0>;
-            static constexpr std::array<uint8_t, 3> alt_functions{0, 5, 1};
+            static constexpr ArrayU8 alt_functions{0, 5, 1};
         };
         struct Spi2ClockPins
         {
             using io_pins = IO::PinList<IO::Pb13, IO::Pb10, IO::Pd1>;
-            static constexpr std::array<uint8_t, 3> alt_functions{0, 5, 1};
+            static constexpr ArrayU8 alt_functions{0, 5, 1};
         };
         struct Spi2MisoPins
         {
             using io_pins = IO::PinList<IO::Pb14, IO::Pc2, IO::Pd3>;
-            static constexpr std::array<uint8_t, 3> alt_functions{0, 1, 1};
+            static constexpr ArrayU8 alt_functions{0, 1, 1};
         };
         struct Spi2MosiPins
         {
             using io_pins = IO::PinList<IO::Pb15, IO::Pc3, IO::Pd4>;
-            static constexpr std::array<uint8_t, 3> alt_functions{0, 1, 1};
+            static constexpr ArrayU8 alt_functions{0, 1, 1};
         };
     }
     using Spi1 = Private::Spi<
