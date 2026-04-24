@@ -6,8 +6,7 @@
  * @licence MIT
  */
 
-#ifndef ZHELE_COMMON_PINLIST_H
-#define ZHELE_COMMON_PINLIST_H
+#pragma once
 
 #include "template_utils/type_list.h"
 #include "template_utils/data_type_selector.h"
@@ -123,4 +122,4 @@ namespace Zhele::IO {
 
 #include "impl/pinlist.h"
 
-#endif // ZHELE_COMMON_PINLIST_H
+

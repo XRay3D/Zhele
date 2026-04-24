@@ -7,15 +7,14 @@
  * @license MIT
  */
 
-#ifndef ZHELE_PLATFORM_STM32_G0_I2C_H
-#define ZHELE_PLATFORM_STM32_G0_I2C_H
+#pragma once
 
 #include "../common/i2c.h"
 
 #include "dma.h"
 #include "iopins.h"
+#include "zhele/common/template_utils/array.h"
 
-#include <array>
 #include <cstdint>
 #include <type_traits>
 
@@ -84,23 +83,23 @@ namespace Zhele
         struct I2c1SclPins
         {
             using io_pins = IO::PinList<IO::Pa9, IO::Pb6, IO::Pb8>;
-            static constexpr std::array<uint8_t, 3> alt_functions{6, 6, 6};
+            static constexpr ArrayU8 alt_functions{6, 6, 6};
         };
         struct I2c1SdaPins
         {
             using io_pins = IO::PinList<IO::Pa10, IO::Pb7, IO::Pb9>;
-            static constexpr std::array<uint8_t, 3> alt_functions{6, 6, 6};
+            static constexpr ArrayU8 alt_functions{6, 6, 6};
         };
 
         struct I2c2SclPins
         {
             using io_pins = IO::PinList<IO::Pa1, IO::Pb10, IO::Pb13>;
-            static constexpr std::array<uint8_t, 3> alt_functions{6, 6, 6};
+            static constexpr ArrayU8 alt_functions{6, 6, 6};
         };
         struct I2c2SdaPins
         {
             using io_pins = IO::PinList<IO::Pa12, IO::Pb11, IO::Pb14>;
-            static constexpr std::array<uint8_t, 3> alt_functions{6, 6, 6};
+            static constexpr ArrayU8 alt_functions{6, 6, 6};
         };
 
         IO_STRUCT_WRAPPER(I2C1, I2c1Regs, I2C_TypeDef);
@@ -117,4 +116,4 @@ namespace Zhele
     using I2c2NoDma = I2c2<>;
 }
 
-#endif //! ZHELE_PLATFORM_STM32_G0_I2C_H
+
