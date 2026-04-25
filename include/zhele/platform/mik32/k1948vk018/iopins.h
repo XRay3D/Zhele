@@ -4,7 +4,9 @@
  */
 #pragma once
 
-#include <K1948VK018.h>
+#include <gpio.h>
+#include <mik32_memory_map.h>
+#include <power_manager.h>
 
 #include "ioports.h"
 #include "../common/iopins.h"

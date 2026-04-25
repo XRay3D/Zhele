@@ -4,36 +4,33 @@
  */
 #pragma once
 
-#include <K1948VK018.h>
+#include <gpio.h>
+#include <mik32_memory_map.h>
 
 #include "../common/clock_gpio_ahb.h"
-#include "../common/ioreg.h"
 #include "../common/ioports_gpio.h"
+#include "../common/ioreg.h"
 
-namespace Zhele::IO
-{
+namespace Zhele::IO {
 
-#define MAKE_PORT(REGS, ClkEnReg, className, ID) \
-  namespace Private \
-  { \
-    IO_STRUCT_WRAPPER(REGS, className##Regs, GPIO_TypeDef); \
-  } \
-  using className = Private::PortImplementation<Private::className##Regs, ClkEnReg, ID>;
+#define MAKE_PORT(REGS, ClkEnReg, className, ID)            \
+    namespace Private {                                     \
+    IO_STRUCT_WRAPPER(REGS, className##REGS, GPIO_TypeDef); \
+    }                                                       \
+    using className = Private::PortImplementation<Private::className##REGS, ClkEnReg, ID>;
 
-#if defined(GPIOA)
-  MAKE_PORT(GPIOA, Zhele::Clock::PortaClock, Porta, 'A')
+#if defined(GPIO_0)
+MAKE_PORT(GPIO_0, Zhele::Clock::Port0Clock, Porta, 'A')
 #endif
 
-#if defined(GPIOB)
-  MAKE_PORT(GPIOB, Zhele::Clock::PortbClock, Portb, 'B')
+#if defined(GPIO_1)
+MAKE_PORT(GPIO_1, Zhele::Clock::Port1Clock, Portb, 'B')
 #endif
 
-#if defined(GPIOC)
-  MAKE_PORT(GPIOC, Zhele::Clock::PortcClock, Portc, 'C')
+#if defined(GPIO_2)
+MAKE_PORT(GPIO_2, Zhele::Clock::Port2Clock, Portc, 'C')
 #endif
 
 #undef MAKE_PORT
 
 } // namespace Zhele::IO
-
-

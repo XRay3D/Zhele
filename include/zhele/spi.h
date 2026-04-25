@@ -12,6 +12,8 @@
 
 #if defined(ZHELE_PLATFORM_STM32)
 #include "platform/stm32/spi.h"
+#elif defined(ZHELE_PLATFORM_MIK32)
+//#include "platform/mik32/iopins.h"
 #elif defined(ZHELE_PLATFORM_CH32)
 #include "platform/ch32/spi.h"
 #else
