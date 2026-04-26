@@ -18,11 +18,11 @@ namespace Zhele::Clock {
   struct PortClock {
     static void Enable() {
       ApbClockEnable::Or(Mask);
-      ApbResetDisable::Or(Mask);
+      // ApbResetDisable::Or(Mask);
     }
     static void Disable() {
       ApbResetDisable::And(static_cast<uint32_t>(~Mask));
-      ApbClockEnable::And(static_cast<uint32_t>(~Mask));
+      // ApbClockEnable::And(static_cast<uint32_t>(~Mask));
     }
   };
 

@@ -133,15 +133,17 @@ namespace Zhele::IO {
   }
 
   template<typename... _Pins>
-  void PinList<_Pins...>::SetDriverType(typename PinList<_Pins...>::DriverType driver, typename PinList<_Pins...>::DataType mask) {
+  void PinList<_Pins...>::SetDriverType(auto driver, typename PinList<_Pins...>::DataType mask) 
+  requires (PinList<_Pins...>::supports_driver) {
     _ports.foreach([mask, driver](auto port) {
       port.SetDriverType(driver, GetPinlistValueForPort(port, mask));
     });
   }
 
   template<typename... _Pins>
-  template<typename PinList<_Pins...>::DriverType driver, typename PinList<_Pins...>::DataType mask>
-  void PinList<_Pins...>::SetDriverType() {
+  template<auto driver, typename PinList<_Pins...>::DataType mask>
+  void PinList<_Pins...>::SetDriverType() 
+  requires (PinList<_Pins...>::supports_driver) {
     _ports.foreach([](auto port) {
       port.template SetDriverType<driver, GetPinlistValueForPort(port, mask)>();
     });
