@@ -25,6 +25,9 @@
     #include <stm32g4xx.h>
 #endif
 
-#include "common/watchdog.h"
+#if defined(STM32H5)
+    #include <stm32h5xx.h>
+#endif
 
+#include "common/watchdog.h"
 #endif // ZHELE_PLATFORM_STM32_WATCHDOG_H

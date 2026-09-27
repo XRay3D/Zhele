@@ -12,24 +12,20 @@
 
 #if defined(STM32C0)
     #include "c0/iopins.h"
-#endif
-#if defined(STM32F0)
+#elif defined(STM32F0)
     #include "f0/iopins.h"
-#endif
-#if defined(STM32F1)
+#elif defined(STM32F1)
     #include "f1/iopins.h"
-#endif
-#if defined(STM32F4)
+#elif defined(STM32F4)
     #include "f4/iopins.h"
-#endif
-#if defined(STM32L4)
+#elif defined(STM32L4)
     #include "l4/iopins.h"
-#endif
-#if defined(STM32G0)
+#elif defined(STM32G0)
     #include "g0/iopins.h"
-#endif
-#if defined(STM32G4)
+#elif defined(STM32G4)
     #include "g4/iopins.h"
+#elif defined(STM32H5)
+    #include "h5/iopins.h"
 #endif
 
 #endif // ZHELE_PLATFORM_STM32_IOPINS_H

@@ -49,9 +49,14 @@ namespace Zhele::Private
     {
 #if defined (DAC_CR_BOFF1)
         _Regs()->CR &= ~(DAC_CR_BOFF1 << (_Channel * ChannelOffset));
-#else
+#else 
         // MODE = 000: normal mode, connected to external pin with buffer enabled
         _Regs()->MCR &= ~(DAC_MCR_MODE1_1 << (_Channel * ChannelOffset));
+#endif    
+#if defined (DAC_MCR_MODE1)
+        _Regs()->MCR &= ~(DAC_MCR_MODE1_Msk << (_Channel * ChannelOffset));
+#else
+        _Regs()->CR &= ~(DAC_CR_BOFF1 << (_Channel * ChannelOffset));
 #endif
     }
 
@@ -74,6 +79,12 @@ namespace Zhele::Private
         auto ahbFreq = _ClockCtrl::ClockFreq();
         _Regs()->MCR = (_Regs()->MCR & ~DAC_MCR_HFSEL)
             | (ahbFreq > 160000000u ? DAC_MCR_HFSEL_1 : (ahbFreq > 80000000u ? DAC_MCR_HFSEL_0 : 0));
+#endif
+#if defined (DAC_MCR_MODE1)
+        _Regs()->MCR = (_Regs()->MCR & ~(DAC_MCR_MODE1_Msk << (_Channel * ChannelOffset)))
+            | (0b010u << (_Channel * ChannelOffset));
+#else
+        _Regs()->CR |= (DAC_CR_BOFF1 << (_Channel * ChannelOffset));
 #endif
     }
 

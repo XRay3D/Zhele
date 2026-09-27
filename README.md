@@ -6,9 +6,10 @@ Framework for MCU on C++ templates. Project based on "mcucpp" by Konstantin Chiz
 Originally an STM32-only framework, Zhele is now multi-platform. The platform-specific code lives
 under `include/zhele/platform/`, and the active backend is detected automatically from the linked
 CMSIS device headers (or can be forced with `-DZHELE_PLATFORM_XX`). Supported platforms:
-- **STM32** (F0 / F1 / F4 / G0 / L4) — the most complete backend
+- **STM32** (C0 / F0 / F1 / F4 / G0 / H5 / L4) — the most complete backend
 - **WCH CH32** — initial support (V0 line only for now)
-- **NIIET K1921VG015** — initial GPIO support
+- **NIIET K1921** (RISC-V) — `K1921VG015`: GPIO, UART, µDMA;
+  `K1921VG5T` / `K1921VG7T`: GPIO, UART, SPI, DMA
 
 The getting-started guide below uses STM32; CH32 and NIIET need their own CMSIS/SDK and toolchain
 setup (see the `wch_cmake` / `niiet_cmake` helpers and the examples under `example/ch32` and
