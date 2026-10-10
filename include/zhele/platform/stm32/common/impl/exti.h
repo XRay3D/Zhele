@@ -70,7 +70,7 @@ namespace Zhele
         EXTI->RPR1 = (1 << _Line);
         EXTI->FPR1 = (1 << _Line);
 #else
-        EXTI->PR |= (1 << _Line);
+        EXTI->PR = (1u << _Line);
 #endif
     }
 }

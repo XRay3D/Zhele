@@ -419,7 +419,7 @@ namespace Zhele::Private
     template<typename RegularTrigger, typename TriggerMode>
     void ADC_TEMPLATE_QUALIFIER::SetRegularTrigger(RegularTrigger trigger, TriggerMode mode)
     {
-        _Regs()->CR2 = (_Regs()->CR2 & ~(ADC_CR2_EXTSEL | ADC_CR2_EXTTRIG)) | ((trigger & 0x0f) << ADC_CR2_EXTSEL) | (mode << ADC_CR2_EXTTRIG_Pos);
+        _Regs()->CR2 = (_Regs()->CR2 & ~(ADC_CR2_EXTSEL | ADC_CR2_EXTTRIG)) | ((trigger & 0x0f) << ADC_CR2_EXTSEL_Pos) | (mode << ADC_CR2_EXTTRIG_Pos);
     }
 
     ADC_TEMPLATE_ARGS
