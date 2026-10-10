@@ -13,37 +13,41 @@
 #include <stm32f0xx.h>
 #include "../common/dma.h"
 
+#include <meta>
+
 namespace Zhele
 {
     namespace Private
     {
         using Dma1 = IoStruct<DMA1_BASE, DMA_TypeDef>;
-        
-        using Dma1Channel1 = IoStruct<DMA1_Channel1_BASE, DMA_Channel_TypeDef>;
-        using Dma1Channel2 = IoStruct<DMA1_Channel2_BASE, DMA_Channel_TypeDef>;
-        using Dma1Channel3 = IoStruct<DMA1_Channel3_BASE, DMA_Channel_TypeDef>;
-        using Dma1Channel4 = IoStruct<DMA1_Channel4_BASE, DMA_Channel_TypeDef>;
-        using Dma1Channel5 = IoStruct<DMA1_Channel5_BASE, DMA_Channel_TypeDef>;
-    #if defined (DMA1_Channel6)
-        using Dma1Channel6 = IoStruct<DMA1_Channel6_BASE, DMA_Channel_TypeDef>;
-    #endif
-    #if defined (DMA1_Channel7)
-        using Dma1Channel7 = IoStruct<DMA1_Channel7_BASE, DMA_Channel_TypeDef>;	
-    #endif
+
+        struct DmaChannelEntry { unsigned number; uintptr_t base; IRQn_Type irq; };
+        inline constexpr DmaChannelEntry dma1Channels[] = {
+            { 1, DMA1_Channel1_BASE, DMA1_Channel1_IRQn },
+            { 2, DMA1_Channel2_BASE, DMA1_Ch2_3_DMA2_Ch1_2_IRQn },
+            { 3, DMA1_Channel3_BASE, DMA1_Ch2_3_DMA2_Ch1_2_IRQn },
+            { 4, DMA1_Channel4_BASE, DMA1_Channel4_5_6_7_IRQn },
+            { 5, DMA1_Channel5_BASE, DMA1_Channel4_5_6_7_IRQn },
+        #if defined (DMA1_Channel6)
+            { 6, DMA1_Channel6_BASE, DMA1_Channel4_5_6_7_IRQn },
+        #endif
+        #if defined (DMA1_Channel7)
+            { 7, DMA1_Channel7_BASE, DMA1_Channel4_5_6_7_IRQn },
+        #endif
+        };
     }
 
     using Dma1 = DmaModule<Private::Dma1, Clock::Dma1Clock, 7>;
-    using Dma1Channel1 = DmaChannel<Dma1, Private::Dma1Channel1, 1, DMA1_Channel1_IRQn>;
-    using Dma1Channel2 = DmaChannel<Dma1, Private::Dma1Channel2, 2, DMA1_Ch2_3_DMA2_Ch1_2_IRQn>;
-    using Dma1Channel3 = DmaChannel<Dma1, Private::Dma1Channel3, 3, DMA1_Ch2_3_DMA2_Ch1_2_IRQn>;
-    using Dma1Channel4 = DmaChannel<Dma1, Private::Dma1Channel4, 4, DMA1_Channel4_5_6_7_IRQn>;
-    using Dma1Channel5 = DmaChannel<Dma1, Private::Dma1Channel5, 5, DMA1_Channel4_5_6_7_IRQn>;
-#if defined (DMA1_Channel6)
-    using Dma1Channel6 = DmaChannel<Dma1, Private::Dma1Channel6, 6, DMA1_Channel4_5_6_7_IRQn>;
-#endif
-#if defined (DMA1_Channel7)
-    using Dma1Channel7 = DmaChannel<Dma1, Private::Dma1Channel7, 7, DMA1_Channel4_5_6_7_IRQn>;
-#endif
+
+    // Dma1ChannelN = DmaChannel<Dma1, Private::Dma1ChannelN, N, irq> for every channel the device has
+    consteval
+    {
+        for (const Private::DmaChannelEntry& channel : Private::dma1Channels)
+            std::meta::queue_injection(^^{
+                namespace Private { using \["Dma1Channel", channel.number] = IoStruct<\val(channel.base), DMA_Channel_TypeDef>; }
+                using \["Dma1Channel", channel.number] = DmaChannel<Dma1, Private::\["Dma1Channel", channel.number], \val(channel.number), \val(channel.irq)>;
+            });
+    }
 
 #if defined (RCC_AHBENR_DMA2EN)
     namespace Private

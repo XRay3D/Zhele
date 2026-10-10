@@ -15,12 +15,9 @@
 
 namespace Zhele
 {
-    namespace Private
+    namespace Regs::Exti
     {
-        using ExtiRegs = IoStruct<EXTI_BASE, EXTI_TypeDef>;
-        using ExtiRisingReg = ExtiRegs::Reg<^^EXTI_TypeDef::RTSR>;
-        using ExtiFallingReg = ExtiRegs::Reg<^^EXTI_TypeDef::FTSR>;
-        using ExtiMaskReg = ExtiRegs::Reg<^^EXTI_TypeDef::IMR>;
+        consteval { Private::InjectRegisters(EXTI_BASE, ^^EXTI_TypeDef); }
     }
 
     template<uint8_t _Line, IRQn_Type _IRQn>
@@ -28,8 +25,8 @@ namespace Zhele
     void Exti<_Line, _IRQn>::Init()
     {
         EnableClock();
-        Private::ExtiRisingReg::WriteBit<_Line>(trigger & Rising);
-        Private::ExtiFallingReg::WriteBit<_Line>(trigger & Falling);
+        Regs::Exti::RTSR::WriteBit<_Line>(trigger & Rising);
+        Regs::Exti::FTSR::WriteBit<_Line>(trigger & Falling);
         SelectPort<port>();
     }
 
@@ -37,8 +34,8 @@ namespace Zhele
     void Exti<_Line, _IRQn>::Init(Trigger trigger, char portId)
     {
         EnableClock();
-        Private::ExtiRisingReg::WriteBit<_Line>(trigger & Rising);
-        Private::ExtiFallingReg::WriteBit<_Line>(trigger & Falling);
+        Regs::Exti::RTSR::WriteBit<_Line>(trigger & Rising);
+        Regs::Exti::FTSR::WriteBit<_Line>(trigger & Falling);
         SelectPort(portId);
     }
 
@@ -61,14 +58,14 @@ namespace Zhele
     template<uint8_t _Line, IRQn_Type _IRQn>
     void Exti<_Line, _IRQn>::EnableInterrupt()
     {
-        Private::ExtiMaskReg::SetBit<_Line>();
+        Regs::Exti::IMR::SetBit<_Line>();
         NVIC_EnableIRQ(_IRQn);
     }
 
     template<uint8_t _Line, IRQn_Type _IRQn>
     void Exti<_Line, _IRQn>::DisableInterrupt()
     {
-        Private::ExtiMaskReg::ClearBit<_Line>();
+        Regs::Exti::IMR::ClearBit<_Line>();
         NVIC_DisableIRQ(_IRQn);
     }
 

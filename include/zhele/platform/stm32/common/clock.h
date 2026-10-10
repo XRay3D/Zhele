@@ -19,6 +19,13 @@
 namespace Zhele
 {
     using ClockFrequenceT = uint32_t;
+
+    /// RCC registers: Regs::Rcc::CR, Regs::Rcc::APB2ENR, ...
+    namespace Regs::Rcc
+    {
+        consteval { Private::InjectRegisters(RCC_BASE, ^^RCC_TypeDef); }
+    }
+
     namespace Clock
     {
         /**
@@ -40,25 +47,25 @@ namespace Zhele
             return field < 4 ? 0 : field - 3;
         }
 
-        using RccCrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::CR>;
+        using RccCrReg = Regs::Rcc::CR;
 #if defined (STM32C0)
-        using RccCsrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::CSR2>;
-        using RccBdcrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::CSR1>;
+        using RccCsrReg = Regs::Rcc::CSR2;
+        using RccBdcrReg = Regs::Rcc::CSR1;
 #elif defined (STM32H5)
         // H5 has no RCC_CSR at all: LSI and LSE both live in BDCR
-        using RccCsrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::BDCR>;
-        using RccBdcrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::BDCR>;
+        using RccCsrReg = Regs::Rcc::BDCR;
+        using RccBdcrReg = Regs::Rcc::BDCR;
 #else
-        using RccCsrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::CSR>;
-        using RccBdcrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::BDCR>;
+        using RccCsrReg = Regs::Rcc::CSR;
+        using RccBdcrReg = Regs::Rcc::BDCR;
 #endif
 
 #if defined (STM32H5)
         // H5 split the old CFGR in two: the system clock mux stayed in CFGR1,
         // the bus prescalers moved to CFGR2
-        using RccCfgrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR1>;
+        using RccCfgrReg = Regs::Rcc::CFGR1;
 #else
-        using RccCfgrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>;
+        using RccCfgrReg = Regs::Rcc::CFGR;
 #endif
 
         /**

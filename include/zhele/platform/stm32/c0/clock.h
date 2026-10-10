@@ -42,7 +42,7 @@ namespace Zhele::Clock
     // --- HSI48 / HSISYS -----------------------------------------------------------------
     // HSI_VALUE (from CMSIS) is the undivided HSI48 frequency (48 MHz). The actual SYSCLK
     // source HSISYS is HSI48 / HSIDIV, where HSIDIV encodes 2^n (n in [0..7] => /1../128).
-    using HsiDivBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CR>, RCC_CR_HSIDIV_Msk>;
+    using HsiDivBitField = MaskedBitField<Regs::Rcc::CR, RCC_CR_HSIDIV_Msk>;
 
     inline unsigned HsiClock::GetDivider()
     {
@@ -69,7 +69,7 @@ namespace Zhele::Clock
     }
 
     // --- AHB / APB buses ----------------------------------------------------------------
-    using AhbPrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_HPRE_Msk>;
+    using AhbPrescalerBitField = MaskedBitField<Regs::Rcc::CFGR, RCC_CFGR_HPRE_Msk>;
 
     class AhbClock : public BusClock<SysClock, AhbPrescalerBitField>
     {
@@ -103,7 +103,7 @@ namespace Zhele::Clock
         }
     };
 
-    using ApbPrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_PPRE_Msk>;
+    using ApbPrescalerBitField = MaskedBitField<Regs::Rcc::CFGR, RCC_CFGR_PPRE_Msk>;
 
     /**
      * @brief Implements APB clock
@@ -142,14 +142,14 @@ namespace Zhele::Clock
     using Apb2Clock = ApbClock;
 
     // --- Peripheral clock enable / reset registers --------------------------------------
-    using AhbClockEnableReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::AHBENR>;
-    using PeriphClockEnable1 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APBENR1>;
-    using PeriphClockEnable2 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APBENR2>;
-    using IOPeriphClockEnable = PeriphReg<RCC_BASE, ^^RCC_TypeDef::IOPENR>;
+    using AhbClockEnableReg = Regs::Rcc::AHBENR;
+    using PeriphClockEnable1 = Regs::Rcc::APBENR1;
+    using PeriphClockEnable2 = Regs::Rcc::APBENR2;
+    using IOPeriphClockEnable = Regs::Rcc::IOPENR;
 
-    using AhbResetReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::AHBRSTR>;
-    using ApbResetReg1 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APBRSTR1>;
-    using ApbResetReg2 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APBRSTR2>;
+    using AhbResetReg = Regs::Rcc::AHBRSTR;
+    using ApbResetReg1 = Regs::Rcc::APBRSTR1;
+    using ApbResetReg2 = Regs::Rcc::APBRSTR2;
 
     // --- GPIO port clocks (guarded so the same file fits every C0 part) -----------------
 #if defined (RCC_IOPENR_GPIOAEN)

@@ -14,6 +14,8 @@
 
 #include "../common/exti.h"
 
+#include <meta>
+
 namespace Zhele
 {
     template<uint8_t _Line, IRQn_Type _IRQn>
@@ -35,23 +37,14 @@ namespace Zhele
         Zhele::Clock::SysCfgCompClock::Enable();
     }
 
-    using Exti0 = Exti<0, EXTI0_1_IRQn>;
-    using Exti1 = Exti<1, EXTI0_1_IRQn>;
-
-    using Exti2 = Exti<2, EXTI2_3_IRQn>;
-    using Exti3 = Exti<3, EXTI2_3_IRQn>;
-
-    using Exti4 = Exti<4, EXTI4_15_IRQn>;
-    using Exti5 = Exti<5, EXTI4_15_IRQn>;
-    using Exti6 = Exti<6, EXTI4_15_IRQn>;
-    using Exti7 = Exti<7, EXTI4_15_IRQn>;
-    using Exti8 = Exti<8, EXTI4_15_IRQn>;
-    using Exti9 = Exti<9, EXTI4_15_IRQn>;
-    using Exti10 = Exti<10, EXTI4_15_IRQn>;
-    using Exti11 = Exti<11, EXTI4_15_IRQn>;
-    using Exti12 = Exti<12, EXTI4_15_IRQn>;
-    using Exti13 = Exti<13, EXTI4_15_IRQn>;
-    using Exti14 = Exti<14, EXTI4_15_IRQn>;
-    using Exti15 = Exti<15, EXTI4_15_IRQn>;
+    // Exti0..Exti15; lines 0-1, 2-3 and 4-15 share an IRQ
+    consteval
+    {
+        for (unsigned line = 0; line < 16; ++line)
+        {
+            const IRQn_Type irq = line < 2 ? EXTI0_1_IRQn : line < 4 ? EXTI2_3_IRQn : EXTI4_15_IRQn;
+            std::meta::queue_injection(^^{ using \["Exti", line] = Exti<\val(line), \val(irq)>; });
+        }
+    }
 }
 #endif //! ZHELE_PLATFORM_STM32_F0_EXTI_H

@@ -13,6 +13,9 @@
 #include <stm32f0xx.h>
 #include "../common/clock.h"
 
+#include <meta>
+#include <string_view>
+
 namespace Zhele::Clock
 {
 
@@ -73,7 +76,7 @@ namespace Zhele::Clock
         /**
          * @brief Implements Hsi48 clock source
          */
-        using RccCr2Reg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::CR2>;
+        using RccCr2Reg = Regs::Rcc::CR2;
         class Hsi48Clock : public ClockBase<RccCr2Reg>
         {
         public:
@@ -98,7 +101,7 @@ namespace Zhele::Clock
         };
     #endif
 
-    using AhbPrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_HPRE_Msk>;
+    using AhbPrescalerBitField = MaskedBitField<Regs::Rcc::CFGR, RCC_CFGR_HPRE_Msk>;
 
     class AhbClock : public BusClock<SysClock, AhbPrescalerBitField>
     {
@@ -133,7 +136,7 @@ namespace Zhele::Clock
         }
     };
 
-    using ApbPrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_PPRE_Msk>;
+    using ApbPrescalerBitField = MaskedBitField<Regs::Rcc::CFGR, RCC_CFGR_PPRE_Msk>;
 
     /**
      * @brief Implements APB clock
@@ -171,7 +174,7 @@ namespace Zhele::Clock
     using Apb1Clock = ApbClock;
     using Apb2Clock = ApbClock;
 
-    using AdcPrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_ADCPRE_Msk>;
+    using AdcPrescalerBitField = MaskedBitField<Regs::Rcc::CFGR, RCC_CFGR_ADCPRE_Msk>;
 
     class AdcClockSource : _AdcClockSource
     {
@@ -237,104 +240,112 @@ namespace Zhele::Clock
         }
     };
     
-    using AhbClockEnableReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::AHBENR>;
-    using PeriphClockEnable1 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB1ENR>;
-    using PeriphClockEnable2 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB2ENR>;
+    using AhbClockEnableReg = Regs::Rcc::AHBENR;
+    using PeriphClockEnable1 = Regs::Rcc::APB1ENR;
+    using PeriphClockEnable2 = Regs::Rcc::APB2ENR;
 
-    using CrcClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_CRCEN, AhbClock>;
-    using DmaClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_DMAEN, AhbClock>;
+    namespace Private
+    {
+        /// Peripheral clocks: name, enable register, enable bit, bus the peripheral is clocked from
+        struct ClockEntry { std::string_view name; std::meta::info reg; unsigned mask; std::meta::info bus; };
+        inline constexpr ClockEntry clocks[] = {
+            { "Crc", ^^AhbClockEnableReg, RCC_AHBENR_CRCEN, ^^AhbClock },
+            { "Dma", ^^AhbClockEnableReg, RCC_AHBENR_DMAEN, ^^AhbClock },
+            { "Flitf", ^^AhbClockEnableReg, RCC_AHBENR_FLITFEN, ^^AhbClock },
+            { "Sram", ^^AhbClockEnableReg, RCC_AHBENR_SRAMEN, ^^AhbClock },
+            { "Porta", ^^AhbClockEnableReg, RCC_AHBENR_GPIOAEN, ^^AhbClock },
+            { "Portb", ^^AhbClockEnableReg, RCC_AHBENR_GPIOBEN, ^^AhbClock },
+            { "Portc", ^^AhbClockEnableReg, RCC_AHBENR_GPIOCEN, ^^AhbClock },
+            { "Portf", ^^AhbClockEnableReg, RCC_AHBENR_GPIOFEN, ^^AhbClock },
+            { "I2c1", ^^PeriphClockEnable1, RCC_APB1ENR_I2C1EN, ^^ApbClock },
+            { "Power", ^^PeriphClockEnable1, RCC_APB1ENR_PWREN, ^^ApbClock },
+            { "Tim3", ^^PeriphClockEnable1, RCC_APB1ENR_TIM3EN, ^^ApbClock },
+            { "Tim14", ^^PeriphClockEnable1, RCC_APB1ENR_TIM14EN, ^^ApbClock },
+            { "WatchDog", ^^PeriphClockEnable1, RCC_APB1ENR_WWDGEN, ^^ApbClock },
+            { "Adc", ^^PeriphClockEnable2, RCC_APB2ENR_ADCEN, ^^AdcClockSource },
+            { "DbgMcu", ^^PeriphClockEnable2, RCC_APB2ENR_DBGMCUEN, ^^ApbClock },
+            { "Spi1", ^^PeriphClockEnable2, RCC_APB2ENR_SPI1EN, ^^ApbClock },
+            { "SysCfgComp", ^^PeriphClockEnable2, RCC_APB2ENR_SYSCFGCOMPEN, ^^ApbClock },
+            { "Tim1", ^^PeriphClockEnable2, RCC_APB2ENR_TIM1EN, ^^ApbClock },
+            { "Tim16", ^^PeriphClockEnable2, RCC_APB2ENR_TIM16EN, ^^ApbClock },
+            { "Tim17", ^^PeriphClockEnable2, RCC_APB2ENR_TIM17EN, ^^ApbClock },
+            { "Usart1", ^^PeriphClockEnable2, RCC_APB2ENR_USART1EN, ^^ApbClock },
+        #if defined (RCC_AHBENR_DMA2EN)
+            { "Dma2", ^^AhbClockEnableReg, RCC_AHBENR_DMA2EN, ^^AhbClock },
+        #endif
+        #if defined (RCC_AHBENR_GPIODEN)
+            { "Portd", ^^AhbClockEnableReg, RCC_AHBENR_GPIODEN, ^^AhbClock },
+        #endif
+        #if defined (RCC_AHBENR_GPIOEEN)
+            { "Porte", ^^AhbClockEnableReg, RCC_AHBENR_GPIOEEN, ^^AhbClock },
+        #endif
+        #if defined (RCC_AHBENR_TSCEN)
+            { "Tsc", ^^AhbClockEnableReg, RCC_AHBENR_TSCEN, ^^AhbClock },
+        #endif
+        #if defined (RCC_APB1ENR_CANEN)
+            { "Can", ^^PeriphClockEnable1, RCC_APB1ENR_CANEN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB1ENR_CECEN)
+            { "Cec", ^^PeriphClockEnable1, RCC_APB1ENR_CECEN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB1ENR_DACEN)
+            { "Dac", ^^PeriphClockEnable1, RCC_APB1ENR_DACEN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB1ENR_I2C2EN)
+            { "I2c2", ^^PeriphClockEnable1, RCC_APB1ENR_I2C2EN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB1ENR_SPI2EN)
+            { "Spi2", ^^PeriphClockEnable1, RCC_APB1ENR_SPI2EN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB1ENR_TIM2EN)
+            { "Tim2", ^^PeriphClockEnable1, RCC_APB1ENR_TIM2EN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB1ENR_TIM6EN)
+            { "Tim6", ^^PeriphClockEnable1, RCC_APB1ENR_TIM6EN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB1ENR_TIM7EN)
+            { "Tim7", ^^PeriphClockEnable1, RCC_APB1ENR_TIM7EN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB1ENR_USART2EN)
+            { "Usart2", ^^PeriphClockEnable1, RCC_APB1ENR_USART2EN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB1ENR_USART3EN)
+            { "Usart3", ^^PeriphClockEnable1, RCC_APB1ENR_USART3EN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB1ENR_USART4EN)
+            { "Usart4", ^^PeriphClockEnable1, RCC_APB1ENR_USART4EN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB1ENR_USART5EN)
+            { "Usart5", ^^PeriphClockEnable1, RCC_APB1ENR_USART5EN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB1ENR_CRSEN)
+            { "Crs", ^^PeriphClockEnable1, RCC_APB1ENR_CRSEN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB1ENR_USBEN)
+            { "Usb", ^^PeriphClockEnable1, RCC_APB1ENR_USBEN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB2ENR_TIM15EN)
+            { "Tim15", ^^PeriphClockEnable2, RCC_APB2ENR_TIM15EN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB2ENR_USART6EN)
+            { "Usart6", ^^PeriphClockEnable2, RCC_APB2ENR_USART6EN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB2ENR_USART7EN)
+            { "Usart7", ^^PeriphClockEnable2, RCC_APB2ENR_USART7EN, ^^ApbClock },
+        #endif
+        #if defined (RCC_APB2ENR_USART8EN)
+            { "Usart8", ^^PeriphClockEnable2, RCC_APB2ENR_USART8EN, ^^ApbClock },
+        #endif
+        };
+    }
+
+    // using <Name>Clock = ClockControl<reg, mask, bus>; for every entry
+    consteval
+    {
+        for (const Private::ClockEntry& clock : Private::clocks)
+            std::meta::queue_injection(^^{ using \[clock.name, "Clock"] = ClockControl<typename \[:clock.reg:], \val(clock.mask), typename \[:clock.bus:]>; });
+    }
     using Dma1Clock = DmaClock;
-    using FlitfClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_FLITFEN, AhbClock>;
-    using SramClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_SRAMEN, AhbClock>;
-    using PortaClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_GPIOAEN, AhbClock>;
-    using PortbClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_GPIOBEN, AhbClock>;
-    using PortcClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_GPIOCEN, AhbClock>;
-    using PortfClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_GPIOFEN, AhbClock>;
-
-    using I2c1Clock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_I2C1EN, ApbClock>;
-    using PowerClock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_PWREN, ApbClock>;
-    using Tim3Clock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_TIM3EN, ApbClock>;
-    using Tim14Clock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_TIM14EN, ApbClock>;
-    using WatchDogClock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_WWDGEN, ApbClock>;
-
-    using AdcClock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_ADCEN, AdcClockSource>;
-    using DbgMcuClock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_DBGMCUEN, ApbClock>;
-    using Spi1Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_SPI1EN, ApbClock>;
-    using SysCfgCompClock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_SYSCFGCOMPEN, ApbClock>;
-    using Tim1Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_TIM1EN, ApbClock>;
-    using Tim16Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_TIM16EN, ApbClock>;
-    using Tim17Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_TIM17EN, ApbClock>;
-    using Usart1Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_USART1EN, ApbClock>;
-
-    /// Specific *ENR clocks
-    #if defined (RCC_AHBENR_DMA2EN)
-        using Dma2Clock = ClockControl<AhbClockEnableReg, RCC_AHBENR_DMA2EN, AhbClock>;
-    #endif
-    #if defined (RCC_AHBENR_GPIODEN)
-        using PortdClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_GPIODEN, AhbClock>;
-    #endif
-    #if defined (RCC_AHBENR_GPIOEEN)
-        using PorteClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_GPIOEEN, AhbClock>;
-    #endif
-    #if defined (RCC_AHBENR_TSCEN)
-        using TscClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_TSCEN, AhbClock>;
-    #endif
-
-    #if defined (RCC_APB1ENR_CANEN)
-        using CanClock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_CANEN, ApbClock>;
-    #endif
-    #if defined (RCC_APB1ENR_CECEN)
-        using CecClock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_CECEN, ApbClock>;
-    #endif
-    #if defined (RCC_APB1ENR_DACEN)
-        using DacClock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_DACEN, ApbClock>;
-    #endif
-    #if defined (RCC_APB1ENR_I2C2EN)
-        using I2c2Clock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_I2C2EN, ApbClock>;
-    #endif
-    #if defined (RCC_APB1ENR_SPI2EN)
-        using Spi2Clock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_SPI2EN, ApbClock>;
-    #endif
-    #if defined (RCC_APB1ENR_TIM2EN)
-        using Tim2Clock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_TIM2EN, ApbClock>;
-    #endif
-    #if defined (RCC_APB1ENR_TIM6EN)
-        using Tim6Clock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_TIM6EN, ApbClock>;
-    #endif
-    #if defined (RCC_APB1ENR_TIM7EN)
-        using Tim7Clock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_TIM7EN, ApbClock>;
-    #endif
-    #if defined (RCC_APB1ENR_USART2EN)
-        using Usart2Clock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_USART2EN, ApbClock>;
-    #endif
-    #if defined (RCC_APB1ENR_USART3EN)
-        using Usart3Clock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_USART3EN, ApbClock>;
-    #endif
-    #if defined (RCC_APB1ENR_USART4EN)
-        using Usart4Clock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_USART4EN, ApbClock>;
-    #endif
-    #if defined (RCC_APB1ENR_USART5EN)
-        using Usart5Clock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_USART5EN, ApbClock>;
-    #endif
-    #if defined (RCC_APB1ENR_CRSEN)
-        using CrsClock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_CRSEN, ApbClock>;
-    #endif
-    #if defined (RCC_APB1ENR_USBEN)
-        using UsbClock = ClockControl<PeriphClockEnable1, RCC_APB1ENR_USBEN, ApbClock>;
-    #endif
-
-    #if defined (RCC_APB2ENR_TIM15EN)
-        using Tim15Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_TIM15EN, ApbClock>;
-    #endif
-    #if defined (RCC_APB2ENR_USART6EN)
-        using Usart6Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_USART6EN, ApbClock>;
-    #endif
-    #if defined (RCC_APB2ENR_USART7EN)
-        using Usart7Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_USART7EN, ApbClock>;
-    #endif
-    #if defined (RCC_APB2ENR_USART8EN)
-        using Usart8Clock = ClockControl<PeriphClockEnable2, RCC_APB2ENR_USART8EN, ApbClock>;
-    #endif
 }
 
 #endif //! ZHELE_PLATFORM_STM32_F0_CLOCK_H

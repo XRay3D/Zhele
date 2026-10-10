@@ -86,7 +86,7 @@ namespace Zhele::Clock
         return 1;
     }
 
-    using AhbPrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_HPRE_Msk>;
+    using AhbPrescalerBitField = MaskedBitField<Regs::Rcc::CFGR, RCC_CFGR_HPRE_Msk>;
 
     class AhbClock : public BusClock<SysClock, AhbPrescalerBitField>
     {
@@ -121,7 +121,7 @@ namespace Zhele::Clock
         }
     };
 
-    using Apb1PrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_PPRE1_Msk>;
+    using Apb1PrescalerBitField = MaskedBitField<Regs::Rcc::CFGR, RCC_CFGR_PPRE1_Msk>;
     
     /**
      * @brief Implements APB1 clock
@@ -157,7 +157,7 @@ namespace Zhele::Clock
         }
     };
 
-    using Apb2PrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_PPRE2_Msk>;
+    using Apb2PrescalerBitField = MaskedBitField<Regs::Rcc::CFGR, RCC_CFGR_PPRE2_Msk>;
 
     /**
      * @brief Implements APB2 clock
@@ -193,7 +193,7 @@ namespace Zhele::Clock
         }
     };
 
-    using AdcPrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_ADCPRE_Msk>;
+    using AdcPrescalerBitField = MaskedBitField<Regs::Rcc::CFGR, RCC_CFGR_ADCPRE_Msk>;
 
     class AdcClockSource : _AdcClockSource
     {
@@ -261,9 +261,9 @@ namespace Zhele::Clock
         }
     };
 
-    using AhbClockEnableReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::AHBENR>;
-    using PeriphClockEnable1 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB1ENR>;
-    using PeriphClockEnable2 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB2ENR>;
+    using AhbClockEnableReg = Regs::Rcc::AHBENR;
+    using PeriphClockEnable1 = Regs::Rcc::APB1ENR;
+    using PeriphClockEnable2 = Regs::Rcc::APB2ENR;
 
     using CrcClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_CRCEN, AhbClock>;
     using Dma1Clock = ClockControl<AhbClockEnableReg, RCC_AHBENR_DMA1EN, AhbClock>;

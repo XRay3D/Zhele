@@ -28,6 +28,11 @@
 
 #include "clock.h"
 
+namespace Zhele::Regs::Afio
+{
+    consteval { Private::InjectRegisters(AFIO_BASE, ^^AFIO_TypeDef); }
+}
+
 namespace Zhele::IO
 {
     namespace Private
@@ -37,46 +42,46 @@ namespace Zhele::IO
 
 
         // Timers Remap
-        using Timer1RemapBitField = MaskedBitField<PeriphReg<AFIO_BASE, ^^AFIO_TypeDef::MAPR>, AFIO_MAPR_TIM1_REMAP_Msk>;
+        using Timer1RemapBitField = MaskedBitField<Regs::Afio::MAPR, AFIO_MAPR_TIM1_REMAP_Msk>;
         template<> class PeriphRemapBitField<Zhele::Clock::Tim1Clock> { public: using BitField = Timer1RemapBitField; };
 
-        using Timer2RemapBitField = MaskedBitField<PeriphReg<AFIO_BASE, ^^AFIO_TypeDef::MAPR>, AFIO_MAPR_TIM2_REMAP_Msk>;
+        using Timer2RemapBitField = MaskedBitField<Regs::Afio::MAPR, AFIO_MAPR_TIM2_REMAP_Msk>;
         template<> class PeriphRemapBitField<Zhele::Clock::Tim2Clock> { public: using BitField = Timer2RemapBitField; };
 
-        using Timer3RemapBitField = MaskedBitField<PeriphReg<AFIO_BASE, ^^AFIO_TypeDef::MAPR>, AFIO_MAPR_TIM3_REMAP_Msk>;
+        using Timer3RemapBitField = MaskedBitField<Regs::Afio::MAPR, AFIO_MAPR_TIM3_REMAP_Msk>;
         template<> class PeriphRemapBitField<Zhele::Clock::Tim3Clock> { public: using BitField = Timer3RemapBitField; };
     #if defined (TIM4)
-        using Timer4RemapBitField = MaskedBitField<PeriphReg<AFIO_BASE, ^^AFIO_TypeDef::MAPR>, AFIO_MAPR_TIM4_REMAP_Msk>;
+        using Timer4RemapBitField = MaskedBitField<Regs::Afio::MAPR, AFIO_MAPR_TIM4_REMAP_Msk>;
         template<> class PeriphRemapBitField<Zhele::Clock::Tim4Clock> { public: using BitField = Timer4RemapBitField; };
     #endif
 
         // Usarts remap
-        using Usart1RemapBitField = MaskedBitField<PeriphReg<AFIO_BASE, ^^AFIO_TypeDef::MAPR>, AFIO_MAPR_USART1_REMAP_Msk>;
+        using Usart1RemapBitField = MaskedBitField<Regs::Afio::MAPR, AFIO_MAPR_USART1_REMAP_Msk>;
         template<> class PeriphRemapBitField<Zhele::Clock::Usart1Clock> { public: using BitField = Usart1RemapBitField; };
 
-        using Usart2RemapBitField = MaskedBitField<PeriphReg<AFIO_BASE, ^^AFIO_TypeDef::MAPR>, AFIO_MAPR_USART2_REMAP_Msk>;
+        using Usart2RemapBitField = MaskedBitField<Regs::Afio::MAPR, AFIO_MAPR_USART2_REMAP_Msk>;
         template<> class PeriphRemapBitField<Zhele::Clock::Usart2Clock> { public: using BitField = Usart2RemapBitField; };
 
         #if defined (USART3)
-            using Usart3RemapBitField = MaskedBitField<PeriphReg<AFIO_BASE, ^^AFIO_TypeDef::MAPR>, AFIO_MAPR_USART3_REMAP_Msk>;
+            using Usart3RemapBitField = MaskedBitField<Regs::Afio::MAPR, AFIO_MAPR_USART3_REMAP_Msk>;
             template<> class PeriphRemapBitField<Zhele::Clock::Usart3Clock> { public: using BitField = Usart3RemapBitField; };
         #endif
 
         // SPI remap
-        using Spi1RemapBitField = MaskedBitField<PeriphReg<AFIO_BASE, ^^AFIO_TypeDef::MAPR>, AFIO_MAPR_SPI1_REMAP_Msk>;
+        using Spi1RemapBitField = MaskedBitField<Regs::Afio::MAPR, AFIO_MAPR_SPI1_REMAP_Msk>;
         template<> class PeriphRemapBitField<Zhele::Clock::Spi1Clock> { public: using BitField = Spi1RemapBitField; };
         // High-density F103 have SPI3 but no SPI3 remap bit (connectivity line only)
         #if defined(AFIO_MAPR_SPI3_REMAP)
-            using Spi3RemapBitField = MaskedBitField<PeriphReg<AFIO_BASE, ^^AFIO_TypeDef::MAPR>, AFIO_MAPR_SPI3_REMAP_Msk>;
+            using Spi3RemapBitField = MaskedBitField<Regs::Afio::MAPR, AFIO_MAPR_SPI3_REMAP_Msk>;
             template<> class PeriphRemapBitField<Zhele::Clock::Spi3Clock> { public: using BitField = Spi3RemapBitField; };
         #endif
 
         // I2C remap
-        using I2c1RemapBitField = MaskedBitField<PeriphReg<AFIO_BASE, ^^AFIO_TypeDef::MAPR>, AFIO_MAPR_I2C1_REMAP_Msk>;
+        using I2c1RemapBitField = MaskedBitField<Regs::Afio::MAPR, AFIO_MAPR_I2C1_REMAP_Msk>;
         template<> class PeriphRemapBitField<Zhele::Clock::I2c1Clock> { public: using BitField = I2c1RemapBitField; };
 
         // SWJ remap
-        using SwjRemapBitField = MaskedBitField<PeriphReg<AFIO_BASE, ^^AFIO_TypeDef::MAPR>, AFIO_MAPR_SWJ_CFG_Msk>;
+        using SwjRemapBitField = MaskedBitField<Regs::Afio::MAPR, AFIO_MAPR_SWJ_CFG_Msk>;
 
         template<typename Clock>
         using PeriphRemap = typename Private::PeriphRemapBitField<Clock>::BitField;

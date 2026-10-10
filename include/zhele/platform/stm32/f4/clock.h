@@ -15,13 +15,13 @@
 
 namespace Zhele::Clock
 {
-    using PllM = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::PLLCFGR>, RCC_PLLCFGR_PLLM_Msk>;
-    using PllN = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::PLLCFGR>, RCC_PLLCFGR_PLLN_Msk>;
-    using PllP = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::PLLCFGR>, RCC_PLLCFGR_PLLP_Msk>;
-    using PllQ = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::PLLCFGR>, RCC_PLLCFGR_PLLQ_Msk>;
+    using PllM = MaskedBitField<Regs::Rcc::PLLCFGR, RCC_PLLCFGR_PLLM_Msk>;
+    using PllN = MaskedBitField<Regs::Rcc::PLLCFGR, RCC_PLLCFGR_PLLN_Msk>;
+    using PllP = MaskedBitField<Regs::Rcc::PLLCFGR, RCC_PLLCFGR_PLLP_Msk>;
+    using PllQ = MaskedBitField<Regs::Rcc::PLLCFGR, RCC_PLLCFGR_PLLQ_Msk>;
 
 #if defined (RCC_PLLCFGR_PLLR_Pos)
-    using PllR = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::PLLCFGR>, RCC_PLLCFGR_PLLR_Msk>;
+    using PllR = MaskedBitField<Regs::Rcc::PLLCFGR, RCC_PLLCFGR_PLLR_Msk>;
 #endif
 
     inline unsigned PllClock::GetDivider()
@@ -101,7 +101,7 @@ namespace Zhele::Clock
     }
 #endif
 
-    using AhbPrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_HPRE_Msk>;
+    using AhbPrescalerBitField = MaskedBitField<Regs::Rcc::CFGR, RCC_CFGR_HPRE_Msk>;
 
     class AhbClock : public BusClock<SysClock, AhbPrescalerBitField>
     {
@@ -136,7 +136,7 @@ namespace Zhele::Clock
         }
     };
 
-    using Apb1PrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_PPRE1_Msk>;
+    using Apb1PrescalerBitField = MaskedBitField<Regs::Rcc::CFGR, RCC_CFGR_PPRE1_Msk>;
 
     /**
      * @brief Implements APB clock
@@ -172,7 +172,7 @@ namespace Zhele::Clock
         }
     };
 
-    using Apb2PrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_PPRE2_Msk>;
+    using Apb2PrescalerBitField = MaskedBitField<Regs::Rcc::CFGR, RCC_CFGR_PPRE2_Msk>;
 
     /**
      * @brief Implements APB clock
@@ -208,15 +208,15 @@ namespace Zhele::Clock
         }
     };
     
-    using Ahb1ClockEnableReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::AHB1ENR>;
-    using Ahb2ClockEnableReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::AHB2ENR>;
-    using Ahb3ClockEnableReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::AHB3ENR>;
+    using Ahb1ClockEnableReg = Regs::Rcc::AHB1ENR;
+    using Ahb2ClockEnableReg = Regs::Rcc::AHB2ENR;
+    using Ahb3ClockEnableReg = Regs::Rcc::AHB3ENR;
     
-    using PeriphClockEnable1 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB1ENR>;
-    using PeriphClockEnable2 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB2ENR>;
+    using PeriphClockEnable1 = Regs::Rcc::APB1ENR;
+    using PeriphClockEnable2 = Regs::Rcc::APB2ENR;
 
-    using Apb1ResetReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB1RSTR>;
-    using Apb2ResetReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB2RSTR>;
+    using Apb1ResetReg = Regs::Rcc::APB1RSTR;
+    using Apb2ResetReg = Regs::Rcc::APB2RSTR;
 
     using PortaClock = ClockControl<Ahb1ClockEnableReg, RCC_AHB1ENR_GPIOAEN, AhbClock>;
     using PortbClock = ClockControl<Ahb1ClockEnableReg, RCC_AHB1ENR_GPIOBEN, AhbClock>;

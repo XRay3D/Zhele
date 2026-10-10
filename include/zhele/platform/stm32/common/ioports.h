@@ -678,45 +678,49 @@ namespace Zhele
             }
         };
 
-        #if defined(GPIOA)
-        namespace Private { using PortaRegs = IoStruct<GPIOA_BASE, GPIO_TypeDef>; }
-        using Porta = Private::PortImplementation<Private::PortaRegs, Clock::PortaClock, 'A'>;
-        #endif
+        namespace Private
+        {
+            struct PortEntry { char letter; uintptr_t base; };
+            inline constexpr PortEntry ports[] = {
+            #if defined (GPIOA)
+                { 'A', GPIOA_BASE },
+            #endif
+            #if defined (GPIOB)
+                { 'B', GPIOB_BASE },
+            #endif
+            #if defined (GPIOC)
+                { 'C', GPIOC_BASE },
+            #endif
+            #if defined (GPIOD)
+                { 'D', GPIOD_BASE },
+            #endif
+            #if defined (GPIOE)
+                { 'E', GPIOE_BASE },
+            #endif
+            #if defined (GPIOF)
+                { 'F', GPIOF_BASE },
+            #endif
+            #if defined (GPIOG)
+                { 'G', GPIOG_BASE },
+            #endif
+            #if defined (GPIOH)
+                { 'H', GPIOH_BASE },
+            #endif
+            };
+        }
 
-        #if defined(GPIOB)
-        namespace Private { using PortbRegs = IoStruct<GPIOB_BASE, GPIO_TypeDef>; }
-        using Portb = Private::PortImplementation<Private::PortbRegs, Clock::PortbClock, 'B'>;
-        #endif
-
-        #if defined(GPIOC)
-        namespace Private { using PortcRegs = IoStruct<GPIOC_BASE, GPIO_TypeDef>; }
-        using Portc = Private::PortImplementation<Private::PortcRegs, Clock::PortcClock, 'C'>;
-        #endif
-
-        #if defined(GPIOD)
-        namespace Private { using PortdRegs = IoStruct<GPIOD_BASE, GPIO_TypeDef>; }
-        using Portd = Private::PortImplementation<Private::PortdRegs, Clock::PortdClock, 'D'>;
-        #endif
-
-        #if defined(GPIOE)
-        namespace Private { using PorteRegs = IoStruct<GPIOE_BASE, GPIO_TypeDef>; }
-        using Porte = Private::PortImplementation<Private::PorteRegs, Clock::PorteClock, 'E'>;
-        #endif
-
-        #if defined(GPIOF)
-        namespace Private { using PortfRegs = IoStruct<GPIOF_BASE, GPIO_TypeDef>; }
-        using Portf = Private::PortImplementation<Private::PortfRegs, Clock::PortfClock, 'F'>;
-        #endif
-
-        #if defined(GPIOG)
-        namespace Private { using PortgRegs = IoStruct<GPIOG_BASE, GPIO_TypeDef>; }
-        using Portg = Private::PortImplementation<Private::PortgRegs, Clock::PortgClock, 'G'>;
-        #endif
-
-        #if defined(GPIOH)
-        namespace Private { using PorthRegs = IoStruct<GPIOH_BASE, GPIO_TypeDef>; }
-        using Porth = Private::PortImplementation<Private::PorthRegs, Clock::PorthClock, 'H'>;
-        #endif
+        // Porta = PortImplementation<Private::PortaRegs, Clock::PortaClock, 'A'> for every port present
+        consteval
+        {
+            for (const Private::PortEntry& port : Private::ports)
+            {
+                const char lower[] = { char(port.letter - 'A' + 'a'), 0 };
+                std::meta::queue_injection(^^{
+                    namespace Private { using \["Port", lower, "Regs"] = IoStruct<\val(port.base), GPIO_TypeDef>; }
+                    using \["Port", lower] = Private::PortImplementation<Private::\["Port", lower, "Regs"], Clock::\["Port", lower, "Clock"], \val(port.letter)>;
+                });
+            }
+        }
     }
 }
 

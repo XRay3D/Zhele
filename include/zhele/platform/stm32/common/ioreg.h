@@ -197,6 +197,28 @@ namespace Zhele
         }
     };
 
+    namespace Private
+    {
+        /**
+         * @brief Inject `using <REG> = PeriphReg<base, ^^Struct::REG>;` for every register of a
+         * CMSIS peripheral struct into the enclosing namespace; array registers (AFR, EXTICR, ...)
+         * become `template<std::size_t> using <REG>`. Call from a `consteval {}` block:
+         * `namespace Regs::Rcc { consteval { Private::InjectRegisters(RCC_BASE, ^^RCC_TypeDef); } }`
+         */
+        consteval void InjectRegisters(uintptr_t base, std::meta::info periph)
+        {
+            for (std::meta::info member : std::meta::nonstatic_data_members_of(periph, std::meta::access_context::unchecked()))
+            {
+                if (!std::meta::has_identifier(member) || std::meta::identifier_of(member).starts_with("RESERVED"))
+                    continue;
+                if (std::meta::is_array_type(std::meta::type_of(member)))
+                    std::meta::queue_injection(^^{ template<std::size_t _Index> using \[std::meta::identifier_of(member)] = PeriphReg<\val(base), \val(member), _Index>; });
+                else
+                    std::meta::queue_injection(^^{ using \[std::meta::identifier_of(member)] = PeriphReg<\val(base), \val(member)>; });
+            }
+        }
+    }
+
     /**
      * @brief Peripheral register block at a compile-time address
      *
