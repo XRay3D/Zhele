@@ -28,3 +28,10 @@ target_link_libraries(led_blinking_f031 CMSIS::STM32::F031K6 STM32::NoSys STM32:
 target_compile_definitions(led_blinking_f031 PRIVATE HSI_VALUE=8000000 HSE_VALUE=8000000)
 target_compile_options(led_blinking_f031 PRIVATE -fno-exceptions $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti> -ffunction-sections -fdata-sections)
 stm32_print_size_of_target(led_blinking_f031)
+
+# Cycle benchmark of library primitives, timed with TIM2 at HCLK
+add_executable(bench_f031 bench.cpp)
+target_link_libraries(bench_f031 CMSIS::STM32::F031K6 STM32::NoSys STM32::Nano)
+target_compile_definitions(bench_f031 PRIVATE HSI_VALUE=8000000 HSE_VALUE=8000000)
+target_compile_options(bench_f031 PRIVATE -fno-exceptions $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti> -ffunction-sections -fdata-sections)
+stm32_print_size_of_target(bench_f031)

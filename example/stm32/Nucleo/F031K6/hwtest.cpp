@@ -2,8 +2,8 @@
 // 115200 8N1) one line per peripheral: "<name>: PASS" or "<name>: FAIL <detail>". After "done"
 // it echoes every received byte, so the host can verify RX as well.
 //
-// Deliberately uses only the pointer+size API that exists on every branch, so the same source
-// is built against master, stm32-cxx26 and stm32-token-injection for a like-for-like size check.
+// The same source builds against master, stm32-cxx26 and stm32-token-injection: the span API is
+// exercised only where the library provides it (detected with a requires-expression).
 #include <zhele/crc.h>
 #include <zhele/dma.h>
 #include <zhele/exti.h>
@@ -14,6 +14,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <span>
 
 using namespace Zhele;
 using namespace Zhele::IO;
@@ -103,7 +104,7 @@ namespace
 
     bool TestCrc(uint32_t& hardware, uint32_t& software)
     {
-        static const uint8_t vector[] = "123456789";
+        alignas(4) static const uint8_t vector[] = "123456789";
         Crc::Enable();
         hardware = Crc::CalculateCrc32(vector, 9);
         software = SoftCrc32(vector, 9);
@@ -145,6 +146,118 @@ namespace
         return extiHits == 1 && extiPendingOther == 1;
     }
 
+    volatile bool dmaRxDone = false;
+    volatile unsigned dmaRxSize = 0;
+
+    void DmaRxCallback(void*, unsigned size, bool success)
+    {
+        dmaRxSize = size;
+        dmaRxDone = success;
+    }
+
+    void WaitTxIdle()
+    {
+        while (!(USART1->ISR & USART_ISR_TC)) { }
+    }
+
+    // Transmit through USART1 TX DMA (channel 2); the host sees the text in the log
+    bool TestUsartDmaTx()
+    {
+        static const char text[] = "usart_dma_tx payload\r\n";
+        Vcp::WriteAsync(text, sizeof(text) - 1);
+        for (uint32_t i = 0; i < 200000 && !Vcp::DmaTx::TransferComplete(); ++i) { }
+        const bool complete = Vcp::DmaTx::TransferComplete();
+        WaitTxIdle();
+        USART1->CR3 &= ~USART_CR3_DMAT;
+        return complete;
+    }
+
+    // Receive 4 bytes ("abcd") from the host through USART1 RX DMA (channel 3) with a callback
+    bool TestUsartDmaRx(const char*& detail)
+    {
+        static uint8_t buffer[4];
+        while (Vcp::ReadReady()) (void)Vcp::Read();
+        USART1->ICR = USART_ICR_ORECF | USART_ICR_FECF | USART_ICR_NCF | USART_ICR_PECF;
+
+        Vcp::EnableAsyncRead(buffer, sizeof(buffer), DmaRxCallback);
+        Print("usart_dma_rx: send 4 bytes\r\n");
+        for (uint32_t i = 0; i < 4000000 && !dmaRxDone; ++i) { }
+        USART1->CR3 &= ~USART_CR3_DMAR;
+
+        if (!dmaRxDone) { detail = "timeout"; return false; }
+        if (dmaRxSize != 4) { detail = "size"; return false; }
+        if (std::memcmp(buffer, "abcd", 4) != 0) { detail = "data"; return false; }
+        return true;
+    }
+
+    template<typename U, typename C>
+    concept HasSpanApi = requires(std::span<const uint8_t> bytes) { U::Write(bytes); C::CalculateCrc32(bytes); };
+
+    // span overloads: USART write, CRC and DMA transfer (a template, so the branch is discarded
+    // where the library has no span API)
+    template<typename U = Vcp, typename C = Crc, typename D = Dma1Channel1>
+    int TestSpanApi()
+    {
+        if constexpr (HasSpanApi<U, C>)
+        {
+            static const uint8_t vector[] = { '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+            const bool crcOk = C::CalculateCrc32(std::span<const uint8_t>(vector)) == 0xCBF43926u;
+
+            static uint32_t source[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+            static uint32_t destination[8];
+            D::Transfer(
+                D::Mem2Mem | D::MSize32Bits | D::PSize32Bits
+                    | D::MemIncrement | D::PeriphIncrement,
+                std::span<uint32_t>(destination), source);
+            for (uint32_t i = 0; i < 100000 && !D::TransferComplete(); ++i) { }
+            D::ClearFlags();
+            const bool dmaOk = std::memcmp(source, destination, sizeof(source)) == 0;
+
+            static const uint8_t line[] = { 's', 'p', 'a', 'n', ' ', 'w', 'r', 'i', 't', 'e', '\r', '\n' };
+            U::Write(std::span<const uint8_t>(line));
+            return crcOk && dmaOk ? 1 : 0;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    // TIM3 CH1 PWM on PA6 (8 MHz / 100 = 80 kHz, 25 % duty); the pin is sampled through IDR
+    bool TestPwm(unsigned& dutyPercent)
+    {
+        using namespace Zhele::Timers;
+        using Pwm = Timer3::PWMGeneration<0>;
+
+        Timer3::Enable();
+        Timer3::Stop();
+        Timer3::SetPrescaler(0);
+        Timer3::ResetCounterValue();          // TestTimer left CNT above the new ARR
+        Timer3::SetPeriodAndUpdate(100 - 1);  // UG also loads the preloaded PSC
+        Pwm::SelectPins<Pa6>();
+        Pwm::Enable();
+        Pwm::SetOutputMode(Pwm::OutputMode::PWM1);
+        Pwm::SetPulse(25);
+        Timer3::Start();
+
+        unsigned high = 0;
+        constexpr unsigned samples = 4000;
+        for (unsigned i = 0; i < samples; ++i)
+            high += Pa6::IsSet() ? 1 : 0;
+
+        Timer3::Stop();
+        dutyPercent = high * 100 / samples;
+        return dutyPercent >= 15 && dutyPercent <= 35;
+    }
+
+    // Same vector at an odd address: a word load from it faults on Cortex-M0 (run last on purpose)
+    bool TestCrcUnaligned()
+    {
+        alignas(4) static uint8_t buffer[12];
+        std::memcpy(buffer + 1, "123456789", 9);
+        return Crc::CalculateCrc32(buffer + 1, 9) == 0xCBF43926u;
+    }
+
     bool TestFlash(const char*& detail)
     {
         const unsigned page = Flash::PageCount() - 1; // last 1 KB page of the 32 KB F031K6
@@ -184,6 +297,26 @@ int main()
     const char* detail = nullptr;
     Report("flash", TestFlash(detail), detail);
 
+    Report("usart_dma_tx", TestUsartDmaTx());
+    detail = nullptr;
+    Report("usart_dma_rx", TestUsartDmaRx(detail), detail);
+
+    const int span = TestSpanApi();
+    if (span < 0)
+        Print("span: SKIP (no span API)\r\n");
+    else
+        Report("span", span == 1);
+
+    unsigned duty = 0;
+    const bool pwmOk = TestPwm(duty);
+    char dutyText[] = "duty 00%";
+    dutyText[5] = '0' + duty / 10 % 10;
+    dutyText[6] = '0' + duty % 10;
+    Print("pwm: "); Print(pwmOk ? "PASS " : "FAIL "); Print(dutyText); Print("\r\n");
+
+    Print("crc_unaligned: ...\r\n");
+    Report("crc_unaligned", TestCrcUnaligned());
+
     Print("done\r\n");
 
     for (;;)
@@ -203,6 +336,12 @@ extern "C"
     {
         ++timerTicks;
         Zhele::Timers::Timer3::ClearInterruptFlag();
+    }
+
+    void DMA1_Channel2_3_IRQHandler()
+    {
+        Vcp::DmaTx::IrqHandler();
+        Vcp::DmaRx::IrqHandler();
     }
 
     void EXTI0_1_IRQHandler()
