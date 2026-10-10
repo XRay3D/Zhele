@@ -42,7 +42,7 @@ namespace Zhele
     }
 
     template<typename _Module, typename _ChannelRegs, unsigned _Channel, IRQn_Type _IRQNumber>
-    void DmaChannel<_Module, _ChannelRegs, _Channel, _IRQNumber>::TransferImpl(Mode mode, const void* buffer, volatile void* periph, uint32_t bufferSize, [[maybe_unused]] uint8_t channel)
+    [[gnu::always_inline]] inline void DmaChannel<_Module, _ChannelRegs, _Channel, _IRQNumber>::TransferImpl(Mode mode, const void* buffer, volatile void* periph, uint32_t bufferSize, [[maybe_unused]] uint8_t channel)
     {
         _Module::Enable();
         if(!TransferError())

@@ -345,7 +345,7 @@ namespace Zhele
         static void IrqHandler();
 
     private:
-        [[gnu::always_inline]] static void TransferImpl(Mode mode, const void* buffer, volatile void* periph, uint32_t bufferSize, uint8_t channel);
+        static void TransferImpl(Mode mode, const void* buffer, volatile void* periph, uint32_t bufferSize, uint8_t channel);
 
         static constexpr uint32_t EnableBit =
         #if defined (DMA_CCR_EN)
