@@ -14,86 +14,84 @@ namespace Zhele
 {
     namespace Private
     {
-        #define USART_TEMPLATE_ARGS template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
-        #define USART_TEMPLATE_QUALIFIER Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>
 
-        USART_TEMPLATE_ARGS
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
         template<unsigned long baud>
-        void USART_TEMPLATE_QUALIFIER::Init(UsartMode mode)
+        void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::Init(UsartMode mode)
         {
             Init(baud, mode);
         }
 
-        USART_TEMPLATE_ARGS
-        void USART_TEMPLATE_QUALIFIER::Init(unsigned baud, UsartMode mode)
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::Init(unsigned baud, UsartMode mode)
         {
             _ClockCtrl::Enable();
             SetBaud(baud);
-            _Regs()->STATUS_REG = 0x00;
+            _Regs()->[:StatusMember:] = 0x00;
             _Regs()->CR3 = mode.CR3;
             _Regs()->CR2 = mode.CR2;
             _Regs()->CR1 = mode.CR1 | USART_CR1_UE;
         }
 
-        USART_TEMPLATE_ARGS
-        void USART_TEMPLATE_QUALIFIER::SetConfig(UsartMode modeMask)
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::SetConfig(UsartMode modeMask)
         {
             _Regs()->CR3 |= modeMask.CR3;
             _Regs()->CR2 |= modeMask.CR2;
             _Regs()->CR1 |= modeMask.CR1;
         }
 
-        USART_TEMPLATE_ARGS
-        void USART_TEMPLATE_QUALIFIER::ClearConfig(UsartMode modeMask)
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::ClearConfig(UsartMode modeMask)
         {
             _Regs()->CR3 &= ~modeMask.CR3;
             _Regs()->CR2 &= ~modeMask.CR2;
             _Regs()->CR1 &= ~modeMask.CR1;
         }
 
-        USART_TEMPLATE_ARGS
-        void USART_TEMPLATE_QUALIFIER::SetBaud(unsigned baud)
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::SetBaud(unsigned baud)
         {
             _Regs()->BRR = _ClockCtrl::ClockFreq() / baud;
         }
 
-        USART_TEMPLATE_ARGS
-        bool USART_TEMPLATE_QUALIFIER::ReadReady()
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        bool Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::ReadReady()
         {
-            return _Regs()->STATUS_REG & RxNotEmptyInt;
+            return _Regs()->[:StatusMember:] & RxNotEmptyInt;
         }
 
-        USART_TEMPLATE_ARGS
-        uint8_t USART_TEMPLATE_QUALIFIER::Read()
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        uint8_t Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::Read()
         {
             while(!ReadReady())
                 ;
-            return _Regs()->RECEIVE_DATA_REG;
+            return _Regs()->[:RxDataMember:];
         }
 
-        USART_TEMPLATE_ARGS
-        void USART_TEMPLATE_QUALIFIER::EnableAsyncRead(void* receiveBuffer, size_t bufferSize, TransferCallback callback)
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::EnableAsyncRead(void* receiveBuffer, size_t bufferSize, TransferCallback callback)
         {
             _DmaRx::ClearTransferComplete();
-            _Regs()->CR3 |= USART_CR3_DMAR;
+            _Regs::template SetBits<^^USART_TypeDef::CR3, USART_CR3_DMAR>();
             _DmaRx::SetTransferCallback(callback);
-            _DmaRx::Transfer(_DmaRx::Periph2Mem | _DmaRx::MemIncrement, receiveBuffer, &_Regs()->RECEIVE_DATA_REG, bufferSize);
+            _DmaRx::Transfer(_DmaRx::Periph2Mem | _DmaRx::MemIncrement, receiveBuffer, &_Regs()->[:RxDataMember:], bufferSize);
         }
 
-        USART_TEMPLATE_ARGS
-        bool USART_TEMPLATE_QUALIFIER::WriteReady()
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        bool Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::WriteReady()
         {
             if constexpr (!std::is_same_v<_DmaTx, void>) {
                 bool dmaActive = (_Regs()->CR3 & USART_CR3_DMAT) && _DmaTx::Enabled();
-                return (!dmaActive || _DmaTx::TransferComplete()) && (_Regs()->STATUS_REG & TxEmptyInt);
+                return (!dmaActive || _DmaTx::TransferComplete()) && (_Regs()->[:StatusMember:] & TxEmptyInt);
             } else {
-                return _Regs()->STATUS_REG & TxEmptyInt;
+                return _Regs()->[:StatusMember:] & TxEmptyInt;
             }
             
         }
 
-        USART_TEMPLATE_ARGS
-        void USART_TEMPLATE_QUALIFIER::Write(const void* data, size_t size, bool async)
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::Write(const void* data, size_t size, bool async)
         {
             if (async && size > 1) {
                 WriteAsync(data, size);
@@ -102,8 +100,8 @@ namespace Zhele
             }
         }
 
-        USART_TEMPLATE_ARGS
-        void USART_TEMPLATE_QUALIFIER::Write(const void* data, size_t size)
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::Write(const void* data, size_t size)
         {
             const uint8_t *ptr = static_cast<const uint8_t*>(data);
             while (size--) {
@@ -111,8 +109,8 @@ namespace Zhele
             }
         }
 
-        USART_TEMPLATE_ARGS
-        void USART_TEMPLATE_QUALIFIER::WriteAsync(const void* data, size_t size, TransferCallback callback)
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::WriteAsync(const void* data, size_t size, TransferCallback callback)
         {
             if (size == 0)
                 return;
@@ -120,41 +118,41 @@ namespace Zhele
             while (!WriteReady()) ;
             _DmaTx::ClearTransferComplete();
             _DmaTx::SetTransferCallback(callback);
-            _Regs()->CR3 |= USART_CR3_DMAT;
-        #if defined (USART_TYPE_1)
+            _Regs::template SetBits<^^USART_TypeDef::CR3, USART_CR3_DMAT>();
+        #if defined (USART_ISR_PE)
             _Regs()->ICR = TxCompleteInt;
         #endif
-        #if defined (USART_TYPE_2)
+        #if defined (USART_SR_PE)
             _Regs()->SR &= ~TxCompleteInt;
         #endif
-            _DmaTx::Transfer(_DmaTx::Mem2Periph | _DmaTx::MemIncrement, data, &_Regs()->TRANSMIT_DATA_REG, size);
+            _DmaTx::Transfer(_DmaTx::Mem2Periph | _DmaTx::MemIncrement, data, &_Regs()->[:TxDataMember:], size);
         }
 
-        USART_TEMPLATE_ARGS
-        void USART_TEMPLATE_QUALIFIER::Write(uint8_t data)
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::Write(uint8_t data)
         {
             while (!WriteReady()) continue;
 
-            _Regs()->TRANSMIT_DATA_REG = data;  
+            _Regs()->[:TxDataMember:] = data;  
         }
 
 #if defined (USART_CR2_RTOEN)
-        USART_TEMPLATE_ARGS
-        inline void USART_TEMPLATE_QUALIFIER::EnableReceiverTimeout(uint32_t bitCount)
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        inline void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::EnableReceiverTimeout(uint32_t bitCount)
         {
-            _Regs()->CR2 |= USART_CR2_RTOEN;
+            _Regs::template SetBits<^^USART_TypeDef::CR2, USART_CR2_RTOEN>();
             SetReceiverTimeout(bitCount);
         }
 
-        USART_TEMPLATE_ARGS
-        inline void USART_TEMPLATE_QUALIFIER::SetReceiverTimeout(uint32_t bitCount)
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        inline void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::SetReceiverTimeout(uint32_t bitCount)
         {
             _Regs()->RTOR = (_Regs()->RTOR & ~USART_RTOR_RTO_Msk)
                 | (bitCount << USART_RTOR_RTO_Pos);
         }
 #endif
-        USART_TEMPLATE_ARGS
-        void USART_TEMPLATE_QUALIFIER::EnableInterrupt(InterruptFlags interruptFlags)
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::EnableInterrupt(InterruptFlags interruptFlags)
         {
             uint32_t cr1Mask = 0;
             uint32_t cr2Mask = 0;
@@ -196,8 +194,8 @@ namespace Zhele
                 NVIC_EnableIRQ(_IRQNumber);
         }
 
-        USART_TEMPLATE_ARGS
-        void USART_TEMPLATE_QUALIFIER::DisableInterrupt(InterruptFlags interruptFlags)
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::DisableInterrupt(InterruptFlags interruptFlags)
         {
             uint32_t cr1Mask = 0;
             uint32_t cr2Mask = 0;
@@ -235,36 +233,36 @@ namespace Zhele
             _Regs()->CR3 &= ~cr3Mask;
         }
 
-        USART_TEMPLATE_ARGS
-        typename USART_TEMPLATE_QUALIFIER::InterruptFlags USART_TEMPLATE_QUALIFIER::InterruptSource()
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        typename Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::InterruptFlags Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::InterruptSource()
         {
-            return static_cast<InterruptFlags>(_Regs()->STATUS_REG & InterruptMask);
+            return static_cast<InterruptFlags>(_Regs()->[:StatusMember:] & InterruptMask);
         }
 
-        USART_TEMPLATE_ARGS
-        typename USART_TEMPLATE_QUALIFIER::Error USART_TEMPLATE_QUALIFIER::GetError()
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        typename Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::Error Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::GetError()
         {
-            return static_cast<Error>(_Regs()->STATUS_REG & ErrorMask);
+            return static_cast<Error>(_Regs()->[:StatusMember:] & ErrorMask);
         }
 
-        USART_TEMPLATE_ARGS
-        void USART_TEMPLATE_QUALIFIER::ClearInterruptFlag(InterruptFlags interruptFlags)
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::ClearInterruptFlag(InterruptFlags interruptFlags)
         {
-        #if defined(USART_TYPE_1)
+        #if defined (USART_ISR_PE)
             _Regs()->ICR = interruptFlags;
         #endif
-        #if defined(USART_TYPE_2)
+        #if defined (USART_SR_PE)
             _Regs()->SR &= ~interruptFlags;
         #endif
         }
 
-        USART_TEMPLATE_ARGS
-        inline void USART_TEMPLATE_QUALIFIER::ClearAllInterruptFlags()
+        template<typename _Regs, IRQn_Type _IRQNumber, typename _ClockCtrl, typename _TxPins, typename _RxPins, typename _DmaTx, typename _DmaRx>
+        inline void Usart<_Regs, _IRQNumber, _ClockCtrl, _TxPins, _RxPins, _DmaTx, _DmaRx>::ClearAllInterruptFlags()
         {
-        #if defined(USART_TYPE_1)
+        #if defined (USART_ISR_PE)
             _Regs()->ICR = 0xffffffffUL;
         #endif
-        #if defined(USART_TYPE_2)
+        #if defined (USART_SR_PE)
             _Regs()->SR = 0x00000000;
         #endif
         }

@@ -20,8 +20,8 @@ namespace Zhele
 {
     namespace Private
     {
-        I2C_TEMPLATE_ARGS
-        void I2C_TEMPLATE_QUALIFIER::SelectPins(uint8_t sclPinNumber, uint8_t sdaPinNumber)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        void I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::SelectPins(uint8_t sclPinNumber, uint8_t sdaPinNumber)
         {
             using Type = typename _SclPins::DataType;
 
@@ -40,9 +40,9 @@ namespace Zhele
             _SdaPins::SetPullMode(_SdaPins::PullMode::PullUp, maskSda);
         }
         
-        I2C_TEMPLATE_ARGS
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
         template<unsigned sclPinNumber, unsigned sdaPinNumber>
-        void I2C_TEMPLATE_QUALIFIER::SelectPins()
+        void I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::SelectPins()
         {            
             using SclPin = typename _SclPins::template Pin<sclPinNumber>;
             SclPin::Port::Enable();
@@ -62,9 +62,9 @@ namespace Zhele
             SdaPin::template SetPullMode<SdaPin::PullMode::PullUp>();
         }
 
-        I2C_TEMPLATE_ARGS
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
         template<typename SclPin, typename SdaPin>
-        void I2C_TEMPLATE_QUALIFIER::SelectPins()
+        void I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::SelectPins()
         {
             const int sclPinIndex = _SclPins::template IndexOf<SclPin>;
             const int sdaPinIndex = _SdaPins::template IndexOf<SdaPin>;
@@ -84,10 +84,10 @@ namespace Zhele
         using I2C3SdaPins = IO::PinList<IO::Pc0>;
         using I2C3SclPins = IO::PinList<IO::Pc1>;
 
-        IO_STRUCT_WRAPPER(I2C1, I2C1Regs, I2C_TypeDef);
-        IO_STRUCT_WRAPPER(I2C2, I2C2Regs, I2C_TypeDef);
+        using I2C1Regs = IoStruct<I2C1_BASE, I2C_TypeDef>;
+        using I2C2Regs = IoStruct<I2C2_BASE, I2C_TypeDef>;
     #if defined (I2C3)
-        IO_STRUCT_WRAPPER(I2C3, I2C3Regs, I2C_TypeDef);
+        using I2C3Regs = IoStruct<I2C3_BASE, I2C_TypeDef>;
     #endif
     }
         using I2c1 = Private::I2cBase<Private::I2C1Regs, I2C1_EV_IRQn, I2C1_ER_IRQn, Clock::I2c1Clock, Private::I2C1SclPins, Private::I2C1SdaPins, Dma1Stream6Channel3, Dma1Stream7Channel3>;

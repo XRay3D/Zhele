@@ -13,47 +13,8 @@
 namespace Zhele::Usb
 {
 #if defined (USB)
-    #define USB_DEVICE_TEMPLATE_ARGS template< \
-        typename _Regs, \
-        IRQn_Type _IRQNumber, \
-        typename _ClockCtrl, \
-        uint16_t _UsbVersion, \
-        DeviceAndInterfaceClass _Class, \
-        uint8_t _SubClass, \
-        uint8_t _Protocol, \
-        uint16_t _VendorId, \
-        uint16_t _ProductId, \
-        uint16_t _DeviceReleaseNumber, \
-        auto _Manufacturer, \
-        auto _Product, \
-        auto _Serial, \
-        typename _Ep0, \
-        typename... _Configurations>
-    #define USB_DEVICE_TEMPLATE_QUALIFIER DeviceBase<_Regs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>
-#elif defined (USB_OTG_FS)
-    #define USB_DEVICE_TEMPLATE_ARGS template< \
-        typename _Regs, \
-        typename _DeviceRegs, \
-        IRQn_Type _IRQNumber, \
-        typename _ClockCtrl, \
-        uint16_t _UsbVersion, \
-        DeviceAndInterfaceClass _Class, \
-        uint8_t _SubClass, \
-        uint8_t _Protocol, \
-        uint16_t _VendorId, \
-        uint16_t _ProductId, \
-        uint16_t _DeviceReleaseNumber, \
-        auto _Manufacturer, \
-        auto _Product, \
-        auto _Serial, \
-        typename _Ep0, \
-        typename... _Configurations>
-    #define USB_DEVICE_TEMPLATE_QUALIFIER DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>
-#endif
-
-#if defined (USB)
-    USB_DEVICE_TEMPLATE_ARGS
-    void USB_DEVICE_TEMPLATE_QUALIFIER::Enable()
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    void DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::Enable()
     {
         _ClockCtrl::Enable();
         _epBufferManager.Init();
@@ -67,8 +28,8 @@ namespace Zhele::Usb
         NVIC_EnableIRQ(_IRQNumber);
     }
 
-    USB_DEVICE_TEMPLATE_ARGS
-    void USB_DEVICE_TEMPLATE_QUALIFIER::Reset()
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    void DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::Reset()
     {
         _Ep0::Reset();
         
@@ -80,8 +41,8 @@ namespace Zhele::Usb
         _Regs()->DADDR = USB_DADDR_EF;
     }
 
-    USB_DEVICE_TEMPLATE_ARGS
-    void USB_DEVICE_TEMPLATE_QUALIFIER::CommonHandler()
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    void DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::CommonHandler()
     {
         NVIC_ClearPendingIRQ(_IRQNumber);
 
@@ -96,8 +57,8 @@ namespace Zhele::Usb
         }
     }
 
-    USB_DEVICE_TEMPLATE_ARGS
-    void USB_DEVICE_TEMPLATE_QUALIFIER::Handler()
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    void DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::Handler()
     {
         if(_Ep0::Reg::Get() & USB_EP_CTR_RX)
         {
@@ -119,8 +80,8 @@ namespace Zhele::Usb
         }
     }
 
-    USB_DEVICE_TEMPLATE_ARGS
-    void USB_DEVICE_TEMPLATE_QUALIFIER::SetAddress(uint16_t address)
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    void DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::SetAddress(uint16_t address)
     {
         _tempAddressStorage = address;
         _Ep0::SendZLP([](){
@@ -129,13 +90,12 @@ namespace Zhele::Usb
         });
     }
 #elif defined (USB_OTG_FS)
-    USB_DEVICE_TEMPLATE_ARGS
-    void USB_DEVICE_TEMPLATE_QUALIFIER::Enable()
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    void DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::Enable()
     {
         _ClockCtrl::Enable();
         
         _epBufferManager.Init();
-
 
         while (!(_Regs()->GRSTCTL & USB_OTG_GRSTCTL_AHBIDL)) continue;
 
@@ -178,8 +138,8 @@ namespace Zhele::Usb
         while (_Regs()->GRSTCTL & USB_OTG_GRSTCTL_RXFFLSH);
     }  
 
-    USB_DEVICE_TEMPLATE_ARGS
-    void USB_DEVICE_TEMPLATE_QUALIFIER::Reset()
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    void DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::Reset()
     {
         for (auto i = 0; i < 3; ++i)
             _Regs()->DIEPTXF[i] = 0;
@@ -199,8 +159,8 @@ namespace Zhele::Usb
         FlushRx<_Regs>();
     }
 
-    USB_DEVICE_TEMPLATE_ARGS
-    void USB_DEVICE_TEMPLATE_QUALIFIER::CommonHandler()
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    void DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::CommonHandler()
     {
         if (_Regs()->GINTSTS & USB_OTG_GINTSTS_USBRST) {
             _Regs()->GINTSTS = USB_OTG_GINTSTS_USBRST;
@@ -255,8 +215,8 @@ namespace Zhele::Usb
         }
     }
 
-    USB_DEVICE_TEMPLATE_ARGS
-    void USB_DEVICE_TEMPLATE_QUALIFIER::Handler()
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    void DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::Handler()
     {
         if (_Ep0::GetOutInterrupts() & USB_OTG_DOEPINT_STUP) {
             HandleSetupRequest(reinterpret_cast<SetupPacket*>(_Ep0::RxBuffer));
@@ -273,22 +233,22 @@ namespace Zhele::Usb
         _Ep0::HandleTx();
     }
 
-    USB_DEVICE_TEMPLATE_ARGS
-    void USB_DEVICE_TEMPLATE_QUALIFIER::SetAddress(uint16_t address)
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    void DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::SetAddress(uint16_t address)
     {        
         _DeviceRegs()->DCFG |= static_cast<uint32_t>(address) << USB_OTG_DCFG_DAD_Pos;
         _Ep0::SendZLP();
     }
 
 #endif
-    USB_DEVICE_TEMPLATE_ARGS
-    bool USB_DEVICE_TEMPLATE_QUALIFIER::IsDeviceConfigured()
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    bool DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::IsDeviceConfigured()
     {
         return _isDeviceConfigured;
     }
 
-    USB_DEVICE_TEMPLATE_ARGS
-    consteval DeviceDescriptor USB_DEVICE_TEMPLATE_QUALIFIER::BuildDeviceDescriptor()
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    consteval DeviceDescriptor DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::BuildDeviceDescriptor()
     {
         return DeviceDescriptor {
             .UsbVersion = _UsbVersion,
@@ -306,8 +266,8 @@ namespace Zhele::Usb
         };
     }
 
-    USB_DEVICE_TEMPLATE_ARGS
-    consteval unsigned USB_DEVICE_TEMPLATE_QUALIFIER::ConfigurationDescriptorSize()
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    consteval unsigned DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::ConfigurationDescriptorSize()
     {
         uint16_t size = 0;
 
@@ -318,9 +278,8 @@ namespace Zhele::Usb
         return size;
     }
 
-
-    USB_DEVICE_TEMPLATE_ARGS
-    consteval auto USB_DEVICE_TEMPLATE_QUALIFIER::BuildConfigurationDescriptor()
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    consteval auto DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::BuildConfigurationDescriptor()
     {
         constexpr auto size = ConfigurationDescriptorSize();
 
@@ -335,8 +294,8 @@ namespace Zhele::Usb
         return result;
     }
 
-    USB_DEVICE_TEMPLATE_ARGS
-    inline consteval auto USB_DEVICE_TEMPLATE_QUALIFIER::BuildStringDescriptor(auto str)
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    inline consteval auto DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::BuildStringDescriptor(auto str)
     {
         std::array<uint16_t, str.Size / 2 + 1> result {
             ((2 + str.Size) << 8) | static_cast<uint8_t>(DescriptorType::String)
@@ -349,8 +308,8 @@ namespace Zhele::Usb
         return result;
     }
 
-    USB_DEVICE_TEMPLATE_ARGS
-    void USB_DEVICE_TEMPLATE_QUALIFIER::HandleSetupRequest(SetupPacket* setupRequest)
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    void DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::HandleSetupRequest(SetupPacket* setupRequest)
     {
         if (setupRequest->RequestType.Recipient == 1) {
             _ifHandlers.HandleSetupRequest(setupRequest->Index & 0xff);
@@ -437,18 +396,19 @@ namespace Zhele::Usb
     }
 
 #if defined (USB)
-    IO_STRUCT_WRAPPER(USB, UsbRegs, USB_TypeDef);
+    using UsbRegs = IoStruct<USB_BASE, USB_TypeDef>;
+    using UsbDeviceRegs = void;
 #elif defined (USB_OTG_FS)
-    IO_STRUCT_WRAPPER(USB_OTG_FS, UsbRegs, USB_OTG_GlobalTypeDef);
-    IO_STRUCT_WRAPPER(USB_OTG_FS_PERIPH_BASE + USB_OTG_DEVICE_BASE, UsbDeviceRegs, USB_OTG_DeviceTypeDef);
+    using UsbRegs = IoStruct<USB_OTG_FS_PERIPH_BASE, USB_OTG_GlobalTypeDef>;
+    using UsbDeviceRegs = IoStruct<USB_OTG_FS_PERIPH_BASE + USB_OTG_DEVICE_BASE, USB_OTG_DeviceTypeDef>;
 #endif
 
 #if defined (USB_LP_IRQn)
-    #define USB_IRQ USB_LP_IRQn
+    inline constexpr IRQn_Type UsbIrq = USB_LP_IRQn;
 #elif defined (USB)
-    #define USB_IRQ USB_IRQn
+    inline constexpr IRQn_Type UsbIrq = USB_IRQn;
 #elif defined (USB_OTG_FS)
-    #define USB_IRQ OTG_FS_IRQn
+    inline constexpr IRQn_Type UsbIrq = OTG_FS_IRQn;
 #endif
 
 #if defined (USB)
@@ -469,11 +429,7 @@ namespace Zhele::Usb
         auto _Serial,
         typename _Ep0,
         typename... _Configurations>
-#if defined (USB)
-    using DeviceWithStrings = DeviceBase<UsbRegs, USB_IRQ, UsbClock, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>;
-#elif defined (USB_OTG_FS)
-    using DeviceWithStrings = DeviceBase<UsbRegs, UsbDeviceRegs, USB_IRQ, UsbClock, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>;
-#endif
+    using DeviceWithStrings = DeviceBase<UsbRegs, UsbDeviceRegs, UsbIrq, UsbClock, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>;
     template<
         uint16_t _UsbVersion,
         DeviceAndInterfaceClass _Class,
@@ -484,17 +440,13 @@ namespace Zhele::Usb
         uint16_t _DeviceReleaseNumber,
         typename _Ep0,
         typename... _Configurations>
+    using Device = DeviceBase<UsbRegs, UsbDeviceRegs, UsbIrq, UsbClock, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, template_utils::EmptyFixedString16, template_utils::EmptyFixedString16, template_utils::EmptyFixedString16, _Ep0, _Configurations...>;
 #if defined (USB)
-    using Device = DeviceBase<UsbRegs, USB_IRQ, UsbClock, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, template_utils::EmptyFixedString16, template_utils::EmptyFixedString16, template_utils::EmptyFixedString16, _Ep0, _Configurations...>;
-#elif defined (USB_OTG_FS)
-    using Device = DeviceBase<UsbRegs, UsbDeviceRegs, USB_IRQ, UsbClock, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, template_utils::EmptyFixedString16, template_utils::EmptyFixedString16, template_utils::EmptyFixedString16, _Ep0, _Configurations...>;
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    uint8_t DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::_tempAddressStorage = 0x00;
 #endif
-#if defined (USB)
-    USB_DEVICE_TEMPLATE_ARGS
-    uint8_t USB_DEVICE_TEMPLATE_QUALIFIER::_tempAddressStorage = 0x00;
-#endif
-    USB_DEVICE_TEMPLATE_ARGS
-    volatile bool USB_DEVICE_TEMPLATE_QUALIFIER::_isDeviceConfigured = false;
+    template<typename _Regs, typename _DeviceRegs, IRQn_Type _IRQNumber, typename _ClockCtrl, uint16_t _UsbVersion, DeviceAndInterfaceClass _Class, uint8_t _SubClass, uint8_t _Protocol, uint16_t _VendorId, uint16_t _ProductId, uint16_t _DeviceReleaseNumber, auto _Manufacturer, auto _Product, auto _Serial, typename _Ep0, typename... _Configurations>
+    volatile bool DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>::_isDeviceConfigured = false;
 }
 
 #endif //! ZHELE_PLATFORM_STM32_COMMON_USB_IMPL_DEVICE_H

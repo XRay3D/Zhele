@@ -114,9 +114,9 @@ namespace Zhele
             static constexpr std::array<uint8_t, 2> alt_functions{1, 1};
         };
 
-        IO_STRUCT_WRAPPER(USART1, Usart1Regs, USART_TypeDef);
+        using Usart1Regs = IoStruct<USART1_BASE, USART_TypeDef>;
     #if defined(USART2)
-        IO_STRUCT_WRAPPER(USART2, Usart2Regs, USART_TypeDef);
+        using Usart2Regs = IoStruct<USART2_BASE, USART_TypeDef>;
     #endif
     }
 

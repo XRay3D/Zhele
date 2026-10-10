@@ -35,20 +35,7 @@ namespace Zhele::Usb
         uint8_t Protocol = 0; ///< Interface protocol
         uint8_t StringIndex = 0; ///< Interface string ID
 
-        constexpr auto GetBytes() const
-        {
-            return std::array<uint8_t, 9> {
-                Length,
-                static_cast<uint8_t>(Type),
-                Number,
-                AlternateSetting,
-                EndpointsCount,
-                static_cast<uint8_t>(Class),
-                SubClass,
-                Protocol,
-                StringIndex
-            };
-        }
+        constexpr auto GetBytes() const { return DescriptorBytes(*this); }
     };
 #pragma pack(pop)
 

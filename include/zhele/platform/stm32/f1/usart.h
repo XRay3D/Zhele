@@ -87,7 +87,6 @@ namespace Zhele
             SelectTxRxPins<txPinIndex, rxPinIndex>();
          }
 
-
         struct Usart1TxPins
         {
             using io_pins = IO::PinList<IO::Pa9, IO::Pb6>;
@@ -121,10 +120,10 @@ namespace Zhele
             static constexpr std::array<uint8_t, 3> alt_functions{0, 1, 3};
         };
 
-        IO_STRUCT_WRAPPER(USART1, Usart1Regs, USART_TypeDef);
-        IO_STRUCT_WRAPPER(USART2, Usart2Regs, USART_TypeDef);
+        using Usart1Regs = IoStruct<USART1_BASE, USART_TypeDef>;
+        using Usart2Regs = IoStruct<USART2_BASE, USART_TypeDef>;
     #if defined(USART3)
-        IO_STRUCT_WRAPPER(USART3, Usart3Regs, USART_TypeDef);
+        using Usart3Regs = IoStruct<USART3_BASE, USART_TypeDef>;
     #endif
     }
     using Usart1 = Private::Usart<Private::Usart1Regs, USART1_IRQn, Clock::Usart1Clock, Private::Usart1TxPins, Private::Usart1RxPins, Dma1Channel4, Dma1Channel5>;

@@ -11,32 +11,21 @@
 
 namespace Zhele::Private
 {
-    #define SPI_TEMPLATE_ARGS template< \
-        typename _Regs, \
-        typename _Clock, \
-        typename _MosiPins, \
-        typename _MisoPins, \
-        typename _ClockPins, \
-        typename _SsPins, \
-        typename _DmaTx, \
-        typename _DmaRx>
 
-    #define SPI_TEMPLATE_QUALIFIER Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>
-
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::Enable()
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::Enable()
     {
-        _Regs()->CR1 |= SPI_CR1_SPE;
+        _Regs::template SetBits<^^SPI_TypeDef::CR1, SPI_CR1_SPE>();
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::Disable()
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::Disable()
     {
-        _Regs()->CR1 &= ~SPI_CR1_SPE;
+        _Regs::template ClearBits<^^SPI_TypeDef::CR1, SPI_CR1_SPE>();
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::Init(SPI_TEMPLATE_QUALIFIER::ClockDivider divider, SPI_TEMPLATE_QUALIFIER::Mode mode)
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::Init(Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::ClockDivider divider, Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::Mode mode)
     {
         _Clock::Enable();
         _Regs()->CR1 = static_cast<unsigned>(divider) | mode;
@@ -48,32 +37,32 @@ namespace Zhele::Private
         Enable();
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::SetDivider(SPI_TEMPLATE_QUALIFIER::ClockDivider divider)
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::SetDivider(Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::ClockDivider divider)
     {
         _Regs()->CR1 = (_Regs()->CR1 & ~SPI_CR1_BR) | divider;
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::SetClockPolarity(SPI_TEMPLATE_QUALIFIER::ClockPolarity clockPolarity)
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::SetClockPolarity(Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::ClockPolarity clockPolarity)
     {
         _Regs()->CR1 = (_Regs()->CR1 & ~SPI_CR1_CPOL) | clockPolarity;
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::SetClockPhase(SPI_TEMPLATE_QUALIFIER::ClockPhase clockPhase)
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::SetClockPhase(Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::ClockPhase clockPhase)
     {
         _Regs()->CR1 = (_Regs()->CR1 & ~SPI_CR1_CPHA) | clockPhase;
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::SetBitOrder(SPI_TEMPLATE_QUALIFIER::BitOrder bitOrder)
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::SetBitOrder(Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::BitOrder bitOrder)
     {
         _Regs()->CR1 = (_Regs()->CR1 & ~SPI_CR1_LSBFIRST) | bitOrder;
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::SetDataSize(SPI_TEMPLATE_QUALIFIER::DataSize dataSize)
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::SetDataSize(Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::DataSize dataSize)
     {
         #if defined (SPI_CR1_DFF)
             _Regs()->CR1 = (_Regs()->CR1 & ~SPI_CR1_DFF_Msk) | dataSize;
@@ -82,38 +71,38 @@ namespace Zhele::Private
             #if defined(SPI_CR2_FRXTH)
                 if(dataSize <= DataSize8)
                 {
-                    _Regs()->CR2 |= SPI_CR2_FRXTH;
+                    _Regs::template SetBits<^^SPI_TypeDef::CR2, SPI_CR2_FRXTH>();
                 }
             #endif
         #endif
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::SetSlaveControl(SPI_TEMPLATE_QUALIFIER::SlaveControl slaveControl)
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::SetSlaveControl(Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::SlaveControl slaveControl)
     {
         _Regs()->CR1 = (_Regs()->CR1 & ~SPI_CR1_SSM) | slaveControl;
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::SetSS()
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::SetSS()
     {
-        _Regs()->CR1 |= SPI_CR1_SSI;
+        _Regs::template SetBits<^^SPI_TypeDef::CR1, SPI_CR1_SSI>();
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::ClearSS()
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::ClearSS()
     {
-        _Regs()->CR1 &= ~SPI_CR1_SSI;
+        _Regs::template ClearBits<^^SPI_TypeDef::CR1, SPI_CR1_SSI>();
     }
 
-    SPI_TEMPLATE_ARGS
-    bool SPI_TEMPLATE_QUALIFIER::Busy()
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    bool Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::Busy()
     {
         return (_Regs()->SR & SPI_SR_BSY) > 0;
     }
 
-    SPI_TEMPLATE_ARGS
-    uint16_t SPI_TEMPLATE_QUALIFIER::Send(uint16_t value)
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    uint16_t Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::Send(uint16_t value)
     {
         while ((_Regs()->SR & SPI_SR_TXE) == 0);
 
@@ -145,8 +134,8 @@ namespace Zhele::Private
         }
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::SendAsync(void* transmitBuffer, void* receiveBuffer, size_t bufferSize, TransferCallback callback)
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::SendAsync(void* transmitBuffer, void* receiveBuffer, size_t bufferSize, TransferCallback callback)
     {
         _DmaRx::ClearTransferComplete();
         _Regs()->CR2 |= (SPI_CR2_RXDMAEN | SPI_CR2_TXDMAEN);
@@ -164,17 +153,17 @@ namespace Zhele::Private
         _DmaTx::Transfer(_DmaTx::Mem2Periph | _DmaRx::MemIncrement | dataSize, transmitBuffer, &_Regs()->DR, bufferSize);
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::Write(uint16_t data)
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::Write(uint16_t data)
     {
         Send(data);
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::WriteAsync(const void* data, uint16_t size, TransferCallback callback)
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::WriteAsync(const void* data, uint16_t size, TransferCallback callback)
     {
         _DmaTx::ClearTransferComplete();
-        _Regs()->CR2 |= SPI_CR2_TXDMAEN;
+        _Regs::template SetBits<^^SPI_TypeDef::CR2, SPI_CR2_TXDMAEN>();
         typename _DmaTx::Mode dataSize = 
         #if defined(SPI_CR1_DFF)
             (_Regs()->CR1 & SPI_CR1_DFF) > 0
@@ -188,11 +177,11 @@ namespace Zhele::Private
         _DmaTx::Transfer(_DmaTx::Mem2Periph | _DmaTx::MemIncrement | dataSize, data, &_Regs()->DR, size);
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::WriteAsyncNoIncrement(const void* data, uint16_t size, TransferCallback callback)
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::WriteAsyncNoIncrement(const void* data, uint16_t size, TransferCallback callback)
     {
         _DmaTx::ClearTransferComplete();
-        _Regs()->CR2 |= SPI_CR2_TXDMAEN;
+        _Regs::template SetBits<^^SPI_TypeDef::CR2, SPI_CR2_TXDMAEN>();
         auto dataSize = 
         #if defined(SPI_CR1_DFF)
             (_Regs()->CR1 & SPI_CR1_DFF) > 0
@@ -206,14 +195,14 @@ namespace Zhele::Private
         _DmaTx::Transfer(_DmaTx::Mem2Periph | dataSize, data, &_Regs()->DR, size);
     }
 
-    SPI_TEMPLATE_ARGS
-    uint16_t SPI_TEMPLATE_QUALIFIER::Read()
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    uint16_t Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::Read()
     {
         return Send(0xffff);
     }
 
-    SPI_TEMPLATE_ARGS
-    void SPI_TEMPLATE_QUALIFIER::ReadAsync(void* receiveBuffer, size_t bufferSize, TransferCallback callback)
+    template<typename _Regs, typename _Clock, typename _MosiPins, typename _MisoPins, typename _ClockPins, typename _SsPins, typename _DmaTx, typename _DmaRx>
+    void Spi<_Regs, _Clock, _MosiPins, _MisoPins, _ClockPins, _SsPins, _DmaTx, _DmaRx>::ReadAsync(void* receiveBuffer, size_t bufferSize, TransferCallback callback)
     {
         _DmaRx::ClearTransferComplete();
         _Regs()->CR2 |= (SPI_CR2_RXDMAEN | SPI_CR2_TXDMAEN);

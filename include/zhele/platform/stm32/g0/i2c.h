@@ -23,9 +23,9 @@ namespace Zhele
 {
     namespace Private
     {
-        I2C_TEMPLATE_ARGS
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
         template<unsigned sclPinNumber, unsigned sdaPinNumber>
-        void I2C_TEMPLATE_QUALIFIER::SelectPins()
+        void I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::SelectPins()
         {
             using SclPin = typename _SclPins::io_pins::template Pin<sclPinNumber>;
             SclPin::Port::Enable();
@@ -45,8 +45,8 @@ namespace Zhele
             SdaPin::SetPullMode(SdaPin::PullMode::PullUp);
         }
 
-        I2C_TEMPLATE_ARGS
-        void I2C_TEMPLATE_QUALIFIER::SelectPins(uint8_t sclPinNumber, uint8_t sdaPinNumber)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        void I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::SelectPins(uint8_t sclPinNumber, uint8_t sdaPinNumber)
         {
             using SclPins = typename _SclPins::io_pins;
             using SdaPins = typename _SdaPins::io_pins;
@@ -68,9 +68,9 @@ namespace Zhele
             SdaPins::SetPullMode(SdaPins::PullMode::PullUp, maskSda);
         }
         
-        I2C_TEMPLATE_ARGS
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
         template<typename SclPin, typename SdaPin>
-        void I2C_TEMPLATE_QUALIFIER::SelectPins()
+        void I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::SelectPins()
         {
             const int sclPinIndex = _SclPins::io_pins:: template IndexOf<SclPin>;
             const int sdaPinIndex = _SdaPins::io_pins:: template IndexOf<SdaPin>;
@@ -103,8 +103,8 @@ namespace Zhele
             static constexpr std::array<uint8_t, 3> alt_functions{6, 6, 6};
         };
 
-        IO_STRUCT_WRAPPER(I2C1, I2c1Regs, I2C_TypeDef);
-        IO_STRUCT_WRAPPER(I2C2, I2c2Regs, I2C_TypeDef);
+        using I2c1Regs = IoStruct<I2C1_BASE, I2C_TypeDef>;
+        using I2c2Regs = IoStruct<I2C2_BASE, I2C_TypeDef>;
     }
 
 // TODO:: Implement DMAMUX for use DMA

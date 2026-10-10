@@ -542,8 +542,8 @@ namespace Zhele
         template<typename _Regs, typename _CommonRegs, typename _ClockCtrl, IRQn_Type _IRQNumber, typename _DmaChannel>
         AdcCommon::AdcError Adc<_Regs, _CommonRegs, _ClockCtrl, _IRQNumber, _DmaChannel>::_error = AdcCommon::AdcError::NoError;
 
-        IO_STRUCT_WRAPPER(ADC1, Adc1Regs, ADC_TypeDef);
-        IO_STRUCT_WRAPPER(ADC12_COMMON, Adc1CommonRegs, ADC_Common_TypeDef);
+        using Adc1Regs = IoStruct<ADC1_BASE, ADC_TypeDef>;
+        using Adc1CommonRegs = IoStruct<ADC12_COMMON_BASE, ADC_Common_TypeDef>;
     }
 
     /**

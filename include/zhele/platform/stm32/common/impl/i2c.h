@@ -14,29 +14,10 @@ namespace Zhele
 {
     namespace Private
     {
-        #define I2C_TEMPLATE_ARGS template< \
-            typename _Regs, \
-            IRQn_Type _EventIrqNumber, \
-            IRQn_Type _ErrorIrqNumber, \
-            typename _ClockCtrl, \
-            typename _SclPins, \
-            typename _SdaPins, \
-            typename _DmaTx, \
-            typename _DmaRx>
 
-        #define I2C_TEMPLATE_QUALIFIER I2cBase<\
-                _Regs, \
-                _EventIrqNumber, \
-                _ErrorIrqNumber, \
-                _ClockCtrl, \
-                _SclPins, \
-                _SdaPins, \
-                _DmaTx, \
-                _DmaRx>
-
-        I2C_TEMPLATE_ARGS
-        typename I2C_TEMPLATE_QUALIFIER::AsyncTransferData I2C_TEMPLATE_QUALIFIER::_transferData;
-    #if defined (I2C_TYPE_1)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        typename I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::AsyncTransferData I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::_transferData;
+    #if defined (I2C_ISR_BUSY)
     static inline uint32_t CalcTiming (uint32_t sourceClock, uint32_t sclClock)
     {
         uint32_t tClk = 4000000000u / sourceClock;	// 4*nsec
@@ -67,16 +48,16 @@ namespace Zhele
         return (scll << I2C_TIMINGR_SCLL_Pos) | (sclh << I2C_TIMINGR_SCLH_Pos) | (scldel << I2C_TIMINGR_SCLDEL_Pos) | (presc << I2C_TIMINGR_PRESC_Pos);
     }
 
-    I2C_TEMPLATE_ARGS
-    void I2C_TEMPLATE_QUALIFIER::Init(uint32_t i2cClockSpeed)
+    template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+    void I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::Init(uint32_t i2cClockSpeed)
     {
         _ClockCtrl::Enable();
         
-        _Regs()->CR1 &= ~I2C_CR1_PE;
+        _Regs::template ClearBits<^^I2C_TypeDef::CR1, I2C_CR1_PE>();
         while (_Regs()->CR1 & I2C_CR1_PE) {};
 
         _Regs()->TIMINGR = CalcTiming(_ClockCtrl::ClockFreq(), i2cClockSpeed);
-        _Regs()->CR1 |= I2C_CR1_PE;
+        _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_PE>();
 
         while ((_Regs()->CR1 & I2C_CR1_PE) == 0) {};
 
@@ -84,8 +65,8 @@ namespace Zhele
         _Regs()->OAR2 = 0;
     }
 
-    I2C_TEMPLATE_ARGS
-    I2cStatus I2C_TEMPLATE_QUALIFIER::WriteU8(uint16_t devAddr, uint16_t regAddr, uint8_t data, I2cOpts opts)
+    template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+    I2cStatus I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::WriteU8(uint16_t devAddr, uint16_t regAddr, uint8_t data, I2cOpts opts)
     {
         if(!WaitWhileBusy())
             return GetErorFromEvent(GetLastEvent());
@@ -107,8 +88,8 @@ namespace Zhele
         return I2cStatus::Success;
     }
 
-    I2C_TEMPLATE_ARGS
-    I2cStatus I2C_TEMPLATE_QUALIFIER::Write(uint16_t devAddr, uint16_t regAddr, const uint8_t* data, uint16_t size, I2cOpts opts)
+    template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+    I2cStatus I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::Write(uint16_t devAddr, uint16_t regAddr, const uint8_t* data, uint16_t size, I2cOpts opts)
     {
         if(!WaitWhileBusy())
             return GetErorFromEvent(GetLastEvent());
@@ -156,8 +137,8 @@ namespace Zhele
         return I2cStatus::Success;
     }
 
-    I2C_TEMPLATE_ARGS
-    I2cStatus I2C_TEMPLATE_QUALIFIER::WriteAsync(uint16_t devAddr, uint16_t regAddr, const uint8_t* data, uint16_t size, I2cOpts opts, I2cCallback callback)
+    template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+    I2cStatus I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::WriteAsync(uint16_t devAddr, uint16_t regAddr, const uint8_t* data, uint16_t size, I2cOpts opts, I2cCallback callback)
     {
         if(!WaitWhileBusy())
             return I2cStatus::Busy;
@@ -177,7 +158,7 @@ namespace Zhele
 
         SetTransferSize(size > 255 ? 255 : size, size <= 255);
         _DmaTx::ClearTransferComplete();
-        _Regs()->CR1 |= I2C_CR1_TXDMAEN;
+        _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_TXDMAEN>();
         _DmaTx::SetTransferCallback([](void* buffer, unsigned bytesTransmit, bool success)
         {
             if (!success)
@@ -212,7 +193,7 @@ namespace Zhele
             }
             else
             {
-                _Regs()->CR1 &= ~I2C_CR1_TXDMAEN;
+                _Regs::template ClearBits<^^I2C_TypeDef::CR1, I2C_CR1_TXDMAEN>();
                 if(_transferData.Callback != nullptr)
                     _transferData.Callback(I2cStatus::Success);
             }
@@ -223,8 +204,8 @@ namespace Zhele
         return I2cStatus::Success;
     }
 
-    I2C_TEMPLATE_ARGS
-    ReadResult I2C_TEMPLATE_QUALIFIER::ReadU8(uint16_t devAddr, uint16_t regAddr, I2cOpts opts)
+    template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+    ReadResult I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::ReadU8(uint16_t devAddr, uint16_t regAddr, I2cOpts opts)
     {
         if(!WaitWhileBusy())
             return ReadResult {0, I2cStatus::Busy};
@@ -254,8 +235,8 @@ namespace Zhele
         return ReadResult{readed, I2cStatus::Success};
     }
 
-    I2C_TEMPLATE_ARGS
-    I2cStatus I2C_TEMPLATE_QUALIFIER::Read(uint16_t devAddr, uint16_t regAddr, uint8_t* data, uint16_t size, I2cOpts opts)
+    template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+    I2cStatus I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::Read(uint16_t devAddr, uint16_t regAddr, uint8_t* data, uint16_t size, I2cOpts opts)
     {
         if(!WaitWhileBusy())
             return I2cStatus::Busy;
@@ -310,8 +291,8 @@ namespace Zhele
         return I2cStatus::Success;
     }
 
-    I2C_TEMPLATE_ARGS
-    I2cStatus I2C_TEMPLATE_QUALIFIER::EnableAsyncRead(uint16_t devAddr, uint16_t regAddr, uint8_t* data, uint16_t size, I2cOpts opts, I2cCallback callback)
+    template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+    I2cStatus I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::EnableAsyncRead(uint16_t devAddr, uint16_t regAddr, uint8_t* data, uint16_t size, I2cOpts opts, I2cCallback callback)
     {
         if(!WaitWhileBusy())
             return I2cStatus::Busy;
@@ -338,7 +319,7 @@ namespace Zhele
         _transferData.Callback = callback;
 
         _DmaRx::ClearTransferComplete();
-        _Regs()->CR1 |= I2C_CR1_RXDMAEN;
+        _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_RXDMAEN>();
 
         _DmaRx::SetTransferCallback([](void* buffer, unsigned bytesReceived, bool success)
         {
@@ -374,7 +355,7 @@ namespace Zhele
             }
             else
             {
-                _Regs()->CR1 &= ~I2C_CR1_RXDMAEN;
+                _Regs::template ClearBits<^^I2C_TypeDef::CR1, I2C_CR1_RXDMAEN>();
                 if(_transferData.Callback != nullptr)
                     _transferData.Callback(I2cStatus::Success);
             }
@@ -385,8 +366,8 @@ namespace Zhele
         return I2cStatus::Success;
     }
 
-    I2C_TEMPLATE_ARGS
-    bool I2C_TEMPLATE_QUALIFIER::WriteDevAddrForWrite(uint16_t devAddr,I2cOpts opts)
+    template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+    bool I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::WriteDevAddrForWrite(uint16_t devAddr,I2cOpts opts)
     {
         _Regs()->CR2 = (devAddr << 1)
             | (HasAnyFlag(opts, I2cOpts::RegAddr16Bit)
@@ -402,8 +383,8 @@ namespace Zhele
         return WaitEvent(TxInterrupt);
     }
 
-    I2C_TEMPLATE_ARGS
-    bool I2C_TEMPLATE_QUALIFIER::WriteDevAddrForRead(uint16_t devAddr, I2cOpts opts, uint8_t bytesToRead, bool reload)
+    template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+    bool I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::WriteDevAddrForRead(uint16_t devAddr, I2cOpts opts, uint8_t bytesToRead, bool reload)
     {
         _Regs()->CR2 = (devAddr << 1)
             | I2C_CR2_RD_WRN
@@ -416,8 +397,8 @@ namespace Zhele
         return WaitEvent(RxNotEmpty);
     }
 
-    I2C_TEMPLATE_ARGS
-    bool I2C_TEMPLATE_QUALIFIER::WriteRegAddr(uint16_t regAddr, I2cOpts opts)
+    template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+    bool I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::WriteRegAddr(uint16_t regAddr, I2cOpts opts)
     {
         if(HasAnyFlag(opts, I2cOpts::RegAddr16Bit))
         {
@@ -436,27 +417,27 @@ namespace Zhele
         return true;
     }
 
-    I2C_TEMPLATE_ARGS
-    bool I2C_TEMPLATE_QUALIFIER::Busy()
+    template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+    bool I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::Busy()
     {
         return (_Regs()->ISR & I2C_ISR_BUSY) > 0;
     }
 
-    I2C_TEMPLATE_ARGS
-    uint32_t I2C_TEMPLATE_QUALIFIER::GetLastEvent()
+    template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+    uint32_t I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::GetLastEvent()
     {
         return _Regs()->ISR;   
     }
 
-    I2C_TEMPLATE_ARGS
-    void I2C_TEMPLATE_QUALIFIER::SetTransferSize(uint8_t size, bool isLast)
+    template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+    void I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::SetTransferSize(uint8_t size, bool isLast)
     {
         _Regs()->CR2 = (_Regs()->CR2 & ~(I2C_CR2_NBYTES | I2C_CR2_RELOAD))
             | (size << I2C_CR2_NBYTES_Pos)
             | (isLast ? 0 : I2C_CR2_RELOAD);
     }
     #endif
-    #if defined (I2C_TYPE_2)
+    #if defined (I2C_SR2_BUSY)
         template<typename _Regs>
         static void CalcTiming(uint32_t sourceClock, uint32_t i2cClockSpeed, bool dutyCycle2)
         {
@@ -490,7 +471,6 @@ namespace Zhele
                     result |= 0x4000;
                 }
 
-
                 if ((result & I2C_CCR_CCR) == 0)
                 {
                     result |= static_cast<uint16_t>(0x0001);
@@ -501,8 +481,8 @@ namespace Zhele
             _Regs()->CCR = tmpreg;
         }
 
-        I2C_TEMPLATE_ARGS
-        void I2C_TEMPLATE_QUALIFIER::Init(uint32_t i2cClockSpeed, bool dutyCycle2)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        void I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::Init(uint32_t i2cClockSpeed, bool dutyCycle2)
         {
             _ClockCtrl::Enable();
             
@@ -528,8 +508,8 @@ namespace Zhele
             }
         }
 
-        I2C_TEMPLATE_ARGS
-        I2cStatus I2C_TEMPLATE_QUALIFIER::WriteU8(uint16_t devAddr, uint16_t regAddr, uint8_t data, I2cOpts opts)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        I2cStatus I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::WriteU8(uint16_t devAddr, uint16_t regAddr, uint8_t data, I2cOpts opts)
         {
             _Regs()->SR1 = 0;
             _Regs()->SR2 = 0;
@@ -553,14 +533,14 @@ namespace Zhele
             if(!WaitEvent(Events::ByteTransferFinished | Events::TxEmpty | Events::MasterSlave | Events::BusBusy | Events::TransmitterReceiver))
                 return FailTransfer();
 
-            _Regs()->CR1 &= ~I2C_CR1_ACK;
-            _Regs()->CR1 |= I2C_CR1_STOP;
+            _Regs::template ClearBits<^^I2C_TypeDef::CR1, I2C_CR1_ACK>();
+            _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_STOP>();
 
             return I2cStatus::Success;
         }
 
-        I2C_TEMPLATE_ARGS
-        I2cStatus I2C_TEMPLATE_QUALIFIER::Write(uint16_t devAddr, uint16_t regAddr, const uint8_t *data, uint16_t size, I2cOpts opts)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        I2cStatus I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::Write(uint16_t devAddr, uint16_t regAddr, const uint8_t *data, uint16_t size, I2cOpts opts)
         {
             _Regs()->SR1 = 0;
             _Regs()->SR2 = 0;
@@ -568,7 +548,7 @@ namespace Zhele
             if(!WaitWhileBusy())
                 return GetErorFromEvent(GetLastEvent());
 
-            _Regs()->CR1 |= I2C_CR1_ACK;
+            _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_ACK>();
             
             if(!Start())
                 return FailTransfer();
@@ -590,14 +570,14 @@ namespace Zhele
                     return FailTransfer();
             }
             
-            _Regs()->CR1 &= ~I2C_CR1_ACK;
-            _Regs()->CR1 |= I2C_CR1_STOP;
+            _Regs::template ClearBits<^^I2C_TypeDef::CR1, I2C_CR1_ACK>();
+            _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_STOP>();
 
             return I2cStatus::Success;
         }
 
-        I2C_TEMPLATE_ARGS
-        I2cStatus I2C_TEMPLATE_QUALIFIER::WriteAsync(uint16_t devAddr, uint16_t regAddr, const uint8_t *data, uint16_t size, I2cOpts opts, I2cCallback callback)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        I2cStatus I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::WriteAsync(uint16_t devAddr, uint16_t regAddr, const uint8_t *data, uint16_t size, I2cOpts opts, I2cCallback callback)
         {
             _Regs()->SR1 = 0;
             _Regs()->SR2 = 0;
@@ -605,7 +585,7 @@ namespace Zhele
             if(!WaitWhileBusy())
                 return GetErorFromEvent(GetLastEvent());
 
-            _Regs()->CR1 |= I2C_CR1_ACK;
+            _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_ACK>();
             
             if(!Start())
                 return FailTransfer();
@@ -622,15 +602,15 @@ namespace Zhele
             _transferData.Callback = callback;
 
             _DmaTx::ClearTransferComplete();
-            _Regs()->CR2 |= I2C_CR2_DMAEN;
+            _Regs::template SetBits<^^I2C_TypeDef::CR2, I2C_CR2_DMAEN>();
 
             _DmaTx::SetTransferCallback([](void* buffer, unsigned size, bool success)
             {
-                _Regs()->CR2 &= ~I2C_CR2_DMAEN;
+                _Regs::template ClearBits<^^I2C_TypeDef::CR2, I2C_CR2_DMAEN>();
 
                 if(!WaitEvent(Events::ByteTransferFinished))
                 {
-                    _Regs()->CR1 |= I2C_CR1_STOP;
+                    _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_STOP>();
                     if (_transferData.Callback != nullptr)
                     {
                         _transferData.Callback(GetErorFromEvent(GetLastEvent()));
@@ -638,8 +618,8 @@ namespace Zhele
                     return;
                 }
 
-                _Regs()->CR1 &= ~I2C_CR1_ACK;
-                _Regs()->CR1 |= I2C_CR1_STOP;
+                _Regs::template ClearBits<^^I2C_TypeDef::CR1, I2C_CR1_ACK>();
+                _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_STOP>();
 
                 if (_transferData.Callback != nullptr)
                 {
@@ -652,8 +632,8 @@ namespace Zhele
             return I2cStatus::Success;
         }
 
-        I2C_TEMPLATE_ARGS
-        ReadResult I2C_TEMPLATE_QUALIFIER::ReadU8(uint16_t devAddr, uint16_t regAddr, I2cOpts opts)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        ReadResult I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::ReadU8(uint16_t devAddr, uint16_t regAddr, I2cOpts opts)
         {
             if(!WaitWhileBusy())
                 return ReadResult {0, GetErorFromEvent(GetLastEvent())};
@@ -682,8 +662,8 @@ namespace Zhele
             return ReadResult {readedValue, I2cStatus::Success};
         }
 
-        I2C_TEMPLATE_ARGS
-        I2cStatus I2C_TEMPLATE_QUALIFIER::Read(uint16_t devAddr, uint16_t regAddr, uint8_t *data, uint16_t size, I2cOpts opts)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        I2cStatus I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::Read(uint16_t devAddr, uint16_t regAddr, uint8_t *data, uint16_t size, I2cOpts opts)
         {            
             if(!WaitWhileBusy())
                 return GetErorFromEvent(GetLastEvent());
@@ -703,7 +683,7 @@ namespace Zhele
             if(!Start())
                 return FailTransfer();
 
-            _Regs()->CR1 |= I2C_CR1_ACK;
+            _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_ACK>();
 
             if(!WriteDevAddr(devAddr, true, opts))
                 return FailTransfer();
@@ -716,20 +696,20 @@ namespace Zhele
                 data[i] = static_cast<uint8_t>(_Regs()->DR);
             }
 
-            _Regs()->CR1 &= ~I2C_CR1_ACK;
+            _Regs::template ClearBits<^^I2C_TypeDef::CR1, I2C_CR1_ACK>();
 
             if(!WaitEvent(Events::RxNotEmpty | Events::MasterSlave | Events::BusBusy))
                     return FailTransfer();
 
             data[size - 1] = static_cast<uint8_t>(_Regs()->DR);
 
-            _Regs()->CR1 |= I2C_CR1_STOP;
+            _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_STOP>();
 
             return I2cStatus::Success;
         }
 
-        I2C_TEMPLATE_ARGS
-        I2cStatus I2C_TEMPLATE_QUALIFIER::EnableAsyncRead(uint16_t devAddr, uint16_t regAddr, uint8_t *data, uint16_t size, I2cOpts opts, I2cCallback callback)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        I2cStatus I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::EnableAsyncRead(uint16_t devAddr, uint16_t regAddr, uint8_t *data, uint16_t size, I2cOpts opts, I2cCallback callback)
         {            
             if(!WaitWhileBusy())
                 return GetErorFromEvent(GetLastEvent());
@@ -749,7 +729,7 @@ namespace Zhele
             if(!Start())
                 return FailTransfer();
 
-            _Regs()->CR1 |= I2C_CR1_ACK;
+            _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_ACK>();
 
             if(!WriteDevAddr(devAddr, true, opts))
                 return FailTransfer();
@@ -757,16 +737,16 @@ namespace Zhele
             _transferData.Callback = callback;
 
             _DmaRx::ClearTransferComplete();
-            _Regs()->CR2 |= I2C_CR2_DMAEN;
+            _Regs::template SetBits<^^I2C_TypeDef::CR2, I2C_CR2_DMAEN>();
 
             _DmaRx::SetTransferCallback([](void* buffer, unsigned size, bool success)
             {
-                _Regs()->CR2 &= ~I2C_CR2_DMAEN;
-                _Regs()->CR1 &= ~I2C_CR1_ACK;
+                _Regs::template ClearBits<^^I2C_TypeDef::CR2, I2C_CR2_DMAEN>();
+                _Regs::template ClearBits<^^I2C_TypeDef::CR1, I2C_CR1_ACK>();
 
                 if(!WaitEvent(Events::RxNotEmpty | Events::MasterSlave | Events::BusBusy))
                 {
-                    _Regs()->CR1 |= I2C_CR1_STOP;
+                    _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_STOP>();
                     if (_transferData.Callback != nullptr)
                     {
                         _transferData.Callback(GetErorFromEvent(GetLastEvent()));
@@ -776,7 +756,7 @@ namespace Zhele
 
                 static_cast<uint8_t*>(buffer)[size] = static_cast<uint8_t>(_Regs()->DR);
 
-                _Regs()->CR1 |= I2C_CR1_STOP;
+                _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_STOP>();
 
                 if (_transferData.Callback != nullptr)
                 {
@@ -789,8 +769,8 @@ namespace Zhele
             return I2cStatus::Success;
         }
 
-        I2C_TEMPLATE_ARGS
-        bool I2C_TEMPLATE_QUALIFIER::WriteDevAddr(uint16_t devAddr, bool read, I2cOpts opts)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        bool I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::WriteDevAddr(uint16_t devAddr, bool read, I2cOpts opts)
         {
             _Regs()->DR = (devAddr << 1) | (read ? 1 : 0);
             return WaitEvent(read
@@ -798,8 +778,8 @@ namespace Zhele
                 : Events::AddressSent | Events::TxEmpty | Events::MasterSlave | Events::BusBusy | Events::TransmitterReceiver);
         }
 
-        I2C_TEMPLATE_ARGS
-        bool I2C_TEMPLATE_QUALIFIER::WriteRegAddr(uint16_t regAddr, I2cOpts opts)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        bool I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::WriteRegAddr(uint16_t regAddr, I2cOpts opts)
         {
             if(HasAnyFlag(opts, I2cOpts::RegAddr16Bit))
             {
@@ -818,45 +798,45 @@ namespace Zhele
             return true;
         }
 
-        I2C_TEMPLATE_ARGS
-        bool I2C_TEMPLATE_QUALIFIER::Start()
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        bool I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::Start()
         {
             _Regs()->SR1 = 0;
             _Regs()->SR2 = 0;
-            _Regs()->CR1 |= I2C_CR1_START;
+            _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_START>();
             return WaitEvent(Events::MasterSlave | Events::BusBusy | Events::StartBit);
         }
 
-        I2C_TEMPLATE_ARGS
-        I2cStatus I2C_TEMPLATE_QUALIFIER::FailTransfer()
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        I2cStatus I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::FailTransfer()
         {
             const I2cStatus status = GetErorFromEvent(GetLastEvent());
-            _Regs()->CR1 |= I2C_CR1_STOP;
+            _Regs::template SetBits<^^I2C_TypeDef::CR1, I2C_CR1_STOP>();
             return status;
         }
 
-        I2C_TEMPLATE_ARGS
-        bool I2C_TEMPLATE_QUALIFIER::Busy()
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        bool I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::Busy()
         {
             return (_Regs()->SR2 & I2C_SR2_BUSY) > 0;
         }
 
-        I2C_TEMPLATE_ARGS
-        uint32_t I2C_TEMPLATE_QUALIFIER::GetLastEvent()
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        uint32_t I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::GetLastEvent()
         {
             return (_Regs()->SR1 | _Regs()->SR2 << 16) & 0x00ffffff;
         }
     #endif
-        I2C_TEMPLATE_ARGS
-        bool I2C_TEMPLATE_QUALIFIER::WaitWhileBusy()
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        bool I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::WaitWhileBusy()
         {
             for(uint32_t i = _timeout; i > 0 && Busy(); --i);
 
             return !Busy();
         }
 
-        I2C_TEMPLATE_ARGS
-        bool I2C_TEMPLATE_QUALIFIER::WaitEvent(uint32_t i2c_event)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        bool I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::WaitEvent(uint32_t i2c_event)
         {
             bool result = false;
             auto timer = _timeout;
@@ -870,8 +850,8 @@ namespace Zhele
             return result;
         }
 
-        I2C_TEMPLATE_ARGS
-        I2cStatus I2C_TEMPLATE_QUALIFIER::GetErorFromEvent(uint32_t lastevent)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        I2cStatus I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::GetErorFromEvent(uint32_t lastevent)
         {
             if(lastevent & Timeout)
             {

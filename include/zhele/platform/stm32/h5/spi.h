@@ -711,12 +711,12 @@ namespace Zhele
             static constexpr std::array<uint8_t, 5> alt_functions{10, 6, 6, 6, 6};
         };
 
-        IO_STRUCT_WRAPPER(SPI1, Spi1Regs, SPI_TypeDef);
+        using Spi1Regs = IoStruct<SPI1_BASE, SPI_TypeDef>;
     #if defined (SPI2)
-        IO_STRUCT_WRAPPER(SPI2, Spi2Regs, SPI_TypeDef);
+        using Spi2Regs = IoStruct<SPI2_BASE, SPI_TypeDef>;
     #endif
     #if defined (SPI3)
-        IO_STRUCT_WRAPPER(SPI3, Spi3Regs, SPI_TypeDef);
+        using Spi3Regs = IoStruct<SPI3_BASE, SPI_TypeDef>;
     #endif
     }
 

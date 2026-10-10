@@ -550,25 +550,25 @@ namespace Zhele
 
     namespace Private
     {
-        IO_STRUCT_WRAPPER(GPDMA1, GpDma1, DMA_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA1_Channel0, GpDma1Channel0Regs, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA1_Channel1, GpDma1Channel1Regs, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA1_Channel2, GpDma1Channel2Regs, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA1_Channel3, GpDma1Channel3Regs, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA1_Channel4, GpDma1Channel4Regs, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA1_Channel5, GpDma1Channel5Regs, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA1_Channel6, GpDma1Channel6Regs, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA1_Channel7, GpDma1Channel7Regs, DMA_Channel_TypeDef);
+        using GpDma1 = IoStruct<GPDMA1_BASE, DMA_TypeDef>;
+        using GpDma1Channel0Regs = IoStruct<GPDMA1_Channel0_BASE, DMA_Channel_TypeDef>;
+        using GpDma1Channel1Regs = IoStruct<GPDMA1_Channel1_BASE, DMA_Channel_TypeDef>;
+        using GpDma1Channel2Regs = IoStruct<GPDMA1_Channel2_BASE, DMA_Channel_TypeDef>;
+        using GpDma1Channel3Regs = IoStruct<GPDMA1_Channel3_BASE, DMA_Channel_TypeDef>;
+        using GpDma1Channel4Regs = IoStruct<GPDMA1_Channel4_BASE, DMA_Channel_TypeDef>;
+        using GpDma1Channel5Regs = IoStruct<GPDMA1_Channel5_BASE, DMA_Channel_TypeDef>;
+        using GpDma1Channel6Regs = IoStruct<GPDMA1_Channel6_BASE, DMA_Channel_TypeDef>;
+        using GpDma1Channel7Regs = IoStruct<GPDMA1_Channel7_BASE, DMA_Channel_TypeDef>;
 
-        IO_STRUCT_WRAPPER(GPDMA2, GpDma2, DMA_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA2_Channel0, GpDma2Channel0Regs, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA2_Channel1, GpDma2Channel1Regs, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA2_Channel2, GpDma2Channel2Regs, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA2_Channel3, GpDma2Channel3Regs, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA2_Channel4, GpDma2Channel4Regs, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA2_Channel5, GpDma2Channel5Regs, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA2_Channel6, GpDma2Channel6Regs, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(GPDMA2_Channel7, GpDma2Channel7Regs, DMA_Channel_TypeDef);
+        using GpDma2 = IoStruct<GPDMA2_BASE, DMA_TypeDef>;
+        using GpDma2Channel0Regs = IoStruct<GPDMA2_Channel0_BASE, DMA_Channel_TypeDef>;
+        using GpDma2Channel1Regs = IoStruct<GPDMA2_Channel1_BASE, DMA_Channel_TypeDef>;
+        using GpDma2Channel2Regs = IoStruct<GPDMA2_Channel2_BASE, DMA_Channel_TypeDef>;
+        using GpDma2Channel3Regs = IoStruct<GPDMA2_Channel3_BASE, DMA_Channel_TypeDef>;
+        using GpDma2Channel4Regs = IoStruct<GPDMA2_Channel4_BASE, DMA_Channel_TypeDef>;
+        using GpDma2Channel5Regs = IoStruct<GPDMA2_Channel5_BASE, DMA_Channel_TypeDef>;
+        using GpDma2Channel6Regs = IoStruct<GPDMA2_Channel6_BASE, DMA_Channel_TypeDef>;
+        using GpDma2Channel7Regs = IoStruct<GPDMA2_Channel7_BASE, DMA_Channel_TypeDef>;
     }
 
     using Dma1 = DmaModule<Private::GpDma1, Clock::GpDma1Clock, 8>;

@@ -42,15 +42,15 @@
 
 namespace Zhele::Clock
 {
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->CR, HsiPrescaler, RCC_CR_HSIDIV);
+    using HsiPrescaler = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CR>, RCC_CR_HSIDIV_Msk>;
 
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->PLL1CFGR, Pll1Source, RCC_PLL1CFGR_PLL1SRC);
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->PLL1CFGR, Pll1InputRange, RCC_PLL1CFGR_PLL1RGE);
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->PLL1CFGR, PllM, RCC_PLL1CFGR_PLL1M);
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->PLL1DIVR, PllN, RCC_PLL1DIVR_PLL1N);
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->PLL1DIVR, PllP, RCC_PLL1DIVR_PLL1P);
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->PLL1DIVR, PllQ, RCC_PLL1DIVR_PLL1Q);
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->PLL1DIVR, PllR, RCC_PLL1DIVR_PLL1R);
+    using Pll1Source = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::PLL1CFGR>, RCC_PLL1CFGR_PLL1SRC_Msk>;
+    using Pll1InputRange = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::PLL1CFGR>, RCC_PLL1CFGR_PLL1RGE_Msk>;
+    using PllM = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::PLL1CFGR>, RCC_PLL1CFGR_PLL1M_Msk>;
+    using PllN = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::PLL1DIVR>, RCC_PLL1DIVR_PLL1N_Msk>;
+    using PllP = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::PLL1DIVR>, RCC_PLL1DIVR_PLL1P_Msk>;
+    using PllQ = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::PLL1DIVR>, RCC_PLL1DIVR_PLL1Q_Msk>;
+    using PllR = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::PLL1DIVR>, RCC_PLL1DIVR_PLL1R_Msk>;
 
     /**
      * @brief HSI divider (HSIDIV), applied between the 64 MHz RC and hsi_ck
@@ -326,9 +326,9 @@ namespace Zhele::Clock
         PerCk = 0b100   ///< per_ck (HSI/CSI/HSE, selected by CKPERSEL)
     };
 
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->CCIPR3, Spi1KernelClockSelect, RCC_CCIPR3_SPI1SEL);
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->CCIPR3, Spi2KernelClockSelect, RCC_CCIPR3_SPI2SEL);
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->CCIPR3, Spi3KernelClockSelect, RCC_CCIPR3_SPI3SEL);
+    using Spi1KernelClockSelect = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CCIPR3>, RCC_CCIPR3_SPI1SEL_Msk>;
+    using Spi2KernelClockSelect = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CCIPR3>, RCC_CCIPR3_SPI2SEL_Msk>;
+    using Spi3KernelClockSelect = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CCIPR3>, RCC_CCIPR3_SPI3SEL_Msk>;
 
     /**
      * @brief Select the kernel clock of one SPI
@@ -356,7 +356,7 @@ namespace Zhele::Clock
         Hse = 0b10   ///< hse_ck
     };
 
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->CCIPR5, PeripheralClockSelect, RCC_CCIPR5_CKERPSEL);
+    using PeripheralClockSelect = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CCIPR5>, RCC_CCIPR5_CKERPSEL_Msk>;
 
     /**
      * @brief Select the source of per_ck
@@ -371,9 +371,7 @@ namespace Zhele::Clock
         PeripheralClockSelect::Set(static_cast<uint32_t>(source));
     }
 
-    const static unsigned AhbPrescalerBitFieldOffset = RCC_CFGR2_HPRE_Pos;
-    const static unsigned AhbPrescalerBitFieldLength = GetBitFieldLength<(RCC_CFGR2_HPRE_Msk >> RCC_CFGR2_HPRE_Pos)>;
-    IO_BITFIELD_WRAPPER(RCC->CFGR2, AhbPrescalerBitField, uint32_t, AhbPrescalerBitFieldOffset, AhbPrescalerBitFieldLength);
+    using AhbPrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR2>, RCC_CFGR2_HPRE_Msk>;
 
     /**
      * @brief Implements AHB clock (rcc_hclk)
@@ -398,10 +396,8 @@ namespace Zhele::Clock
 
         static ClockFrequenceT ClockFreq()
         {
-            static constexpr uint8_t clockPrescShift[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
-
             ClockFrequenceT clock = SysClock::ClockFreq();
-            uint8_t shiftBits = clockPrescShift[AhbPrescalerBitField::Get()];
+            uint8_t shiftBits = AhbPrescalerShift(AhbPrescalerBitField::Get());
             clock >>= shiftBits;
             return clock;
         }
@@ -418,9 +414,9 @@ namespace Zhele::Clock
         }
     };
 
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->CFGR2, Apb1PrescalerBitField, RCC_CFGR2_PPRE1);
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->CFGR2, Apb2PrescalerBitField, RCC_CFGR2_PPRE2);
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->CFGR2, Apb3PrescalerBitField, RCC_CFGR2_PPRE3);
+    using Apb1PrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR2>, RCC_CFGR2_PPRE1_Msk>;
+    using Apb2PrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR2>, RCC_CFGR2_PPRE2_Msk>;
+    using Apb3PrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR2>, RCC_CFGR2_PPRE3_Msk>;
 
     /**
      * @brief Implements an APB bus clock
@@ -444,10 +440,8 @@ namespace Zhele::Clock
 
         static ClockFrequenceT ClockFreq()
         {
-            static constexpr uint8_t clockPrescShift[] = {0, 0, 0, 0, 1, 2, 3, 4};
-
             ClockFrequenceT clock = AhbClock::ClockFreq();
-            uint8_t shiftBits = clockPrescShift[_PrescalerBitField::Get()];
+            uint8_t shiftBits = ApbPrescalerShift(_PrescalerBitField::Get());
             clock >>= shiftBits;
             return clock;
         }
@@ -470,19 +464,19 @@ namespace Zhele::Clock
     /// Most generic code says just "ApbClock" and means the low-speed bus
     using ApbClock = Apb1Clock;
 
-    IO_REG_WRAPPER(RCC->AHB1ENR, Ahb1ClockEnableReg, uint32_t);
-    IO_REG_WRAPPER(RCC->AHB2ENR, Ahb2ClockEnableReg, uint32_t);
-    IO_REG_WRAPPER(RCC->APB1LENR, PeriphClockEnable1L, uint32_t);
-    IO_REG_WRAPPER(RCC->APB1HENR, PeriphClockEnable1H, uint32_t);
-    IO_REG_WRAPPER(RCC->APB2ENR, PeriphClockEnable2, uint32_t);
-    IO_REG_WRAPPER(RCC->APB3ENR, PeriphClockEnable3, uint32_t);
+    using Ahb1ClockEnableReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::AHB1ENR>;
+    using Ahb2ClockEnableReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::AHB2ENR>;
+    using PeriphClockEnable1L = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB1LENR>;
+    using PeriphClockEnable1H = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB1HENR>;
+    using PeriphClockEnable2 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB2ENR>;
+    using PeriphClockEnable3 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB3ENR>;
 
-    IO_REG_WRAPPER(RCC->AHB1RSTR, Ahb1ResetReg, uint32_t);
-    IO_REG_WRAPPER(RCC->AHB2RSTR, Ahb2ResetReg, uint32_t);
-    IO_REG_WRAPPER(RCC->APB1LRSTR, ApbResetReg1L, uint32_t);
-    IO_REG_WRAPPER(RCC->APB1HRSTR, ApbResetReg1H, uint32_t);
-    IO_REG_WRAPPER(RCC->APB2RSTR, ApbResetReg2, uint32_t);
-    IO_REG_WRAPPER(RCC->APB3RSTR, ApbResetReg3, uint32_t);
+    using Ahb1ResetReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::AHB1RSTR>;
+    using Ahb2ResetReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::AHB2RSTR>;
+    using ApbResetReg1L = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB1LRSTR>;
+    using ApbResetReg1H = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB1HRSTR>;
+    using ApbResetReg2 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB2RSTR>;
+    using ApbResetReg3 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB3RSTR>;
 
     // GPIO ports live on AHB2 on H5
     using PortaClock = ClockControl<Ahb2ClockEnableReg, RCC_AHB2ENR_GPIOAEN, AhbClock>;

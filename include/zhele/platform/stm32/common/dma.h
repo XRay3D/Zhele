@@ -15,29 +15,26 @@
 
 #include <zhele/clock.h>
 
-#include <stddef.h>
-
-#define COMMA ,
-
-#if defined (DMA_CCR_EN)
-    #define ONLY_FOR_CCR(TEXT) TEXT
-#else
-    #define ONLY_FOR_CCR(TEXT)
-#endif
-#if defined (DMA_SxCR_EN)
-    #define ONLY_FOR_SXCR(TEXT) TEXT
-#else
-    #define ONLY_FOR_SXCR(TEXT)
-#endif
-
-#if defined (DMA_SxCR_EN) || defined (DMA_CSELR_C1S)
-    #define ONLY_IF_STREAM_SUPPORTED(TEXT) TEXT
-#else
-    #define ONLY_IF_STREAM_SUPPORTED(TEXT)
-#endif
+#include <cstddef>
+#include <span>
 
 namespace Zhele
 {
+    /// Stream-based DMA (F4/L4) or channel-select DMA (L4 CSELR) takes a request/channel number
+    inline constexpr bool dmaStreamSupported =
+    #if defined (DMA_SxCR_EN) || defined (DMA_CSELR_C1S)
+        true;
+    #else
+        false;
+    #endif
+    /// Stream-based DMA registers (CR/NDTR/PAR/M0AR) instead of channel registers (CCR/CNDTR/CPAR/CMAR)
+    inline constexpr bool dmaHasStreams =
+    #if defined (DMA_SxCR_EN)
+        true;
+    #else
+        false;
+    #endif
+
     class DmaBase
     {
     public:
@@ -108,7 +105,6 @@ namespace Zhele
      * @brief DMA mode wrapper for support logic operations (AND, OR and more)
      */
 
-
     /**
      * @brief DMA channel data
      */
@@ -178,8 +174,26 @@ namespace Zhele
          * @par Returns
          *	Nothing
          */
-        static void Transfer(Mode mode, const void* buffer, volatile void* periph, uint32_t bufferSize
-        ONLY_IF_STREAM_SUPPORTED(COMMA uint8_t channel = 0));
+        static void Transfer(Mode mode, const void* buffer, volatile void* periph, uint32_t bufferSize);
+
+        /**
+         * @brief Start transfer with explicit stream request/channel number (stream DMA only)
+         */
+        static void Transfer(Mode mode, const void* buffer, volatile void* periph, uint32_t bufferSize, uint8_t channel)
+            requires (dmaStreamSupported);
+
+        /**
+         * @brief Start transfer of a buffer; the element count comes from the span
+         *
+         * @param [in] mode Channel mode (sizes must match sizeof(T))
+         * @param [in] buffer Memory buffer
+         * @param [in] periph Peripheral address (or second memory buffer in Mem2Mem case)
+         */
+        template<typename T>
+        static void Transfer(Mode mode, std::span<T> buffer, volatile void* periph)
+        {
+            Transfer(mode, buffer.data(), periph, buffer.size());
+        }
 
         /**
          * @brief Set transfer callback function
@@ -329,6 +343,28 @@ namespace Zhele
          *	Nothing
          */
         static void IrqHandler();
+
+    private:
+        [[gnu::always_inline]] static void TransferImpl(Mode mode, const void* buffer, volatile void* periph, uint32_t bufferSize, uint8_t channel);
+
+        static constexpr uint32_t EnableBit =
+        #if defined (DMA_CCR_EN)
+            DMA_CCR_EN;
+        #else
+            DMA_SxCR_EN;
+        #endif
+        /// Channel/stream register members: CCR/CNDTR/CPAR/CMAR or CR/NDTR/PAR/M0AR
+    #if defined (DMA_SxCR_EN)
+        static constexpr std::meta::info ControlMember = ^^DMA_Stream_TypeDef::CR;
+        static constexpr std::meta::info CountMember = ^^DMA_Stream_TypeDef::NDTR;
+        static constexpr std::meta::info PeriphAddrMember = ^^DMA_Stream_TypeDef::PAR;
+        static constexpr std::meta::info MemAddrMember = ^^DMA_Stream_TypeDef::M0AR;
+    #else
+        static constexpr std::meta::info ControlMember = ^^DMA_Channel_TypeDef::CCR;
+        static constexpr std::meta::info CountMember = ^^DMA_Channel_TypeDef::CNDTR;
+        static constexpr std::meta::info PeriphAddrMember = ^^DMA_Channel_TypeDef::CPAR;
+        static constexpr std::meta::info MemAddrMember = ^^DMA_Channel_TypeDef::CMAR;
+    #endif
     };
 
     /**

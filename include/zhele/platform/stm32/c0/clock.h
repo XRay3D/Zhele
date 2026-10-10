@@ -42,7 +42,7 @@ namespace Zhele::Clock
     // --- HSI48 / HSISYS -----------------------------------------------------------------
     // HSI_VALUE (from CMSIS) is the undivided HSI48 frequency (48 MHz). The actual SYSCLK
     // source HSISYS is HSI48 / HSIDIV, where HSIDIV encodes 2^n (n in [0..7] => /1../128).
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->CR, HsiDivBitField, RCC_CR_HSIDIV);
+    using HsiDivBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CR>, RCC_CR_HSIDIV_Msk>;
 
     inline unsigned HsiClock::GetDivider()
     {
@@ -69,9 +69,7 @@ namespace Zhele::Clock
     }
 
     // --- AHB / APB buses ----------------------------------------------------------------
-    const static unsigned AhbPrescalerBitFieldOffset = RCC_CFGR_HPRE_Pos;
-    const static unsigned AhbPrescalerBitFieldLength = GetBitFieldLength<(RCC_CFGR_HPRE_Msk >> RCC_CFGR_HPRE_Pos)>;
-    IO_BITFIELD_WRAPPER(RCC->CFGR, AhbPrescalerBitField, uint32_t, AhbPrescalerBitFieldOffset, AhbPrescalerBitFieldLength);
+    using AhbPrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_HPRE_Msk>;
 
     class AhbClock : public BusClock<SysClock, AhbPrescalerBitField>
     {
@@ -80,23 +78,21 @@ namespace Zhele::Clock
         // AHB prescaler values
         enum Prescaler
         {
-            Div1 = 0b0000 >> AhbPrescalerBitFieldOffset, ///< No divide (prescaler = 1)
-            Div2 = 0b1000 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 2
-            Div4 = 0b1001 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 4
-            Div8 = 0b1010 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 8
-            Div16 = 0b1011 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 16
-            Div64 = 0b1100 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 64
-            Div128 = 0b1101 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 128
-            Div256 = 0b1110 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 256
-            Div512 = 0b1111 >> AhbPrescalerBitFieldOffset ///< Prescaler = 512
+            Div1 = 0b0000 >> AhbPrescalerBitField::Offset, ///< No divide (prescaler = 1)
+            Div2 = 0b1000 >> AhbPrescalerBitField::Offset, ///< Prescaler = 2
+            Div4 = 0b1001 >> AhbPrescalerBitField::Offset, ///< Prescaler = 4
+            Div8 = 0b1010 >> AhbPrescalerBitField::Offset, ///< Prescaler = 8
+            Div16 = 0b1011 >> AhbPrescalerBitField::Offset, ///< Prescaler = 16
+            Div64 = 0b1100 >> AhbPrescalerBitField::Offset, ///< Prescaler = 64
+            Div128 = 0b1101 >> AhbPrescalerBitField::Offset, ///< Prescaler = 128
+            Div256 = 0b1110 >> AhbPrescalerBitField::Offset, ///< Prescaler = 256
+            Div512 = 0b1111 >> AhbPrescalerBitField::Offset ///< Prescaler = 512
         };
 
         static ClockFrequenceT ClockFreq()
         {
-            static constexpr uint8_t clockPrescShift[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
-
             ClockFrequenceT clock = SysClock::ClockFreq();
-            uint8_t shiftBits = clockPrescShift[AhbPrescalerBitField::Get()];
+            uint8_t shiftBits = AhbPrescalerShift(AhbPrescalerBitField::Get());
             clock >>= shiftBits;
             return clock;
         }
@@ -107,7 +103,7 @@ namespace Zhele::Clock
         }
     };
 
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->CFGR, ApbPrescalerBitField, RCC_CFGR_PPRE);
+    using ApbPrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_PPRE_Msk>;
 
     /**
      * @brief Implements APB clock
@@ -130,10 +126,8 @@ namespace Zhele::Clock
 
         static ClockFrequenceT ClockFreq()
         {
-            static constexpr uint8_t clockPrescShift[] = {0, 0, 0, 0, 1, 2, 3, 4};
-
             ClockFrequenceT clock = AhbClock::ClockFreq();
-            uint8_t shiftBits = clockPrescShift[ApbPrescalerBitField::Get()];
+            uint8_t shiftBits = ApbPrescalerShift(ApbPrescalerBitField::Get());
             clock >>= shiftBits;
             return clock;
         }
@@ -148,14 +142,14 @@ namespace Zhele::Clock
     using Apb2Clock = ApbClock;
 
     // --- Peripheral clock enable / reset registers --------------------------------------
-    IO_REG_WRAPPER(RCC->AHBENR, AhbClockEnableReg, uint32_t);
-    IO_REG_WRAPPER(RCC->APBENR1, PeriphClockEnable1, uint32_t);
-    IO_REG_WRAPPER(RCC->APBENR2, PeriphClockEnable2, uint32_t);
-    IO_REG_WRAPPER(RCC->IOPENR, IOPeriphClockEnable, uint32_t);
+    using AhbClockEnableReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::AHBENR>;
+    using PeriphClockEnable1 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APBENR1>;
+    using PeriphClockEnable2 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APBENR2>;
+    using IOPeriphClockEnable = PeriphReg<RCC_BASE, ^^RCC_TypeDef::IOPENR>;
 
-    IO_REG_WRAPPER(RCC->AHBRSTR, AhbResetReg, uint32_t);
-    IO_REG_WRAPPER(RCC->APBRSTR1, ApbResetReg1, uint32_t);
-    IO_REG_WRAPPER(RCC->APBRSTR2, ApbResetReg2, uint32_t);
+    using AhbResetReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::AHBRSTR>;
+    using ApbResetReg1 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APBRSTR1>;
+    using ApbResetReg2 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APBRSTR2>;
 
     // --- GPIO port clocks (guarded so the same file fits every C0 part) -----------------
 #if defined (RCC_IOPENR_GPIOAEN)

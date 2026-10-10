@@ -13,26 +13,17 @@
 #include <zhele/common/template_utils/enum.h>
 #include "ioreg.h"
 
+#include <meta>
+#include <span>
+#include <string_view>
+
 #include <zhele/clock.h>
 #include <zhele/dma.h>
 #include <zhele/iopins.h>
 #include <zhele/pinlist.h>
 
-
 namespace Zhele
 {
-#if(USART_ISR_PE)
-    #define USART_TYPE_1
-    #define STATUS_REG ISR
-    #define TRANSMIT_DATA_REG TDR
-    #define RECEIVE_DATA_REG RDR
-#endif
-#if(USART_SR_PE)
-    #define USART_TYPE_2
-    #define STATUS_REG SR
-    #define TRANSMIT_DATA_REG DR
-    #define RECEIVE_DATA_REG DR
-#endif
     class UsartBase
     {
     public:
@@ -89,26 +80,31 @@ namespace Zhele
 
             constexpr UsartMode(UsartMode::_CR1 cr1, UsartMode::_CR2 cr2, UsartMode::_CR3 cr3) : CR1(cr1), CR2(cr2), CR3(cr3) {}
 
-            constexpr UsartMode operator | (UsartMode::_CR1 flag)
+            /// Flag types this mode is made of (one enum per control register)
+            template<typename T>
+            static constexpr bool IsFlag = std::is_same_v<T, _CR1> || std::is_same_v<T, _CR2> || std::is_same_v<T, _CR3>;
+
+            /**
+             * @brief OR a flag into the register it belongs to. The register is found by
+             * reflecting over the members of this struct, so adding a register needs no new operator.
+             */
+            template<typename Flag>
+                requires IsFlag<Flag>
+            constexpr UsartMode operator | (Flag flag) const
             {
-                return UsartMode{static_cast<UsartMode::_CR1>(CR1 | flag), CR2, CR3};
+                UsartMode result = *this;
+                template for (constexpr std::meta::info member : std::define_static_array(
+                    std::meta::nonstatic_data_members_of(^^UsartMode, std::meta::access_context::current())))
+                {
+                    if constexpr (std::is_same_v<typename [:std::meta::type_of(member):], Flag>)
+                        result.[:member:] = static_cast<Flag>(result.[:member:] | flag);
+                }
+                return result;
             }
 
-            constexpr UsartMode operator | (UsartMode::_CR2 flag)
-            {
-                return UsartMode{CR1, static_cast<UsartMode::_CR2>(CR2 | flag), CR3};
-            }
-
-            constexpr UsartMode operator | (UsartMode::_CR3 flag)
-            {
-                return UsartMode{CR1, CR2, static_cast<UsartMode::_CR3>(CR3 | flag)};
-            }
-
+            // Mentions Enum<> so this overload subsumes the generic enum operator| and wins
             template<typename L, typename R>
-                requires (Enum<L> && Enum<R>
-                    && (std::is_same_v<L, _CR1> || std::is_same_v<L, _CR2> || std::is_same_v<L, _CR3>)
-                    && (std::is_same_v<R, _CR1> || std::is_same_v<R, _CR2> || std::is_same_v<R, _CR3>)
-                    && !std::is_same_v<L, R>)
+                requires (Enum<L> && Enum<R> && IsFlag<L> && IsFlag<R> && !std::is_same_v<L, R>)
             friend constexpr UsartMode operator | (L left, R right)
             {
                 return UsartMode{left} | right;
@@ -172,13 +168,13 @@ namespace Zhele
         enum Error
         {
             NoError = 0,
-        #if defined (USART_TYPE_1)
+        #if defined (USART_ISR_PE)
             OverrunError = USART_ISR_ORE,
             NoiseError = USART_ISR_NE,
             FramingError = USART_ISR_FE,
             ParityError = USART_ISR_PE
         #endif
-        #if defined (USART_TYPE_2)
+        #if defined (USART_SR_PE)
             OverrunError = USART_SR_ORE,
             NoiseError = USART_SR_NE,
             FramingError = USART_SR_FE,
@@ -288,6 +284,14 @@ namespace Zhele
              * 	Nothing
              */
             static void EnableAsyncRead(void* receiveBuffer, size_t bufferSize, TransferCallback callback = nullptr);
+
+            /**
+             * @brief Enable async read (by DMA) into a buffer
+             */
+            static void EnableAsyncRead(std::span<uint8_t> receiveBuffer, TransferCallback callback = nullptr)
+            {
+                EnableAsyncRead(receiveBuffer.data(), receiveBuffer.size(), callback);
+            }
            
 
             /**
@@ -321,6 +325,22 @@ namespace Zhele
              * 	Nothing
              */
             static void Write(const void* data, size_t size);
+
+            /**
+             * @brief Write bytes to USART (blocking)
+             */
+            static void Write(std::span<const uint8_t> data)
+            {
+                Write(data.data(), data.size());
+            }
+
+            /**
+             * @brief Write a string literal / string view to USART (blocking, no terminator)
+             */
+            static void Write(std::string_view text)
+            {
+                Write(text.data(), text.size());
+            }
             
             /**
              * @brief Write data to USART async (via DMA)
@@ -333,6 +353,14 @@ namespace Zhele
              * 	Nothing
              */
             static void WriteAsync(const void* data, size_t size, TransferCallback callback = nullptr);
+
+            /**
+             * @brief Write bytes to USART async (via DMA)
+             */
+            static void WriteAsync(std::span<const uint8_t> data, TransferCallback callback = nullptr)
+            {
+                WriteAsync(data.data(), data.size(), callback);
+            }
 
             /**
              * @brief Synch write byte
@@ -450,6 +478,18 @@ namespace Zhele
              */
             template<typename TxPin, typename RxPin = typename IO::NullPin>
             static void SelectTxRxPins();
+
+        private:
+            /// v2 (ISR/TDR/RDR) or v1 (SR/DR) register members
+        #if defined (USART_ISR_PE)
+            static constexpr std::meta::info StatusMember = ^^USART_TypeDef::ISR;
+            static constexpr std::meta::info TxDataMember = ^^USART_TypeDef::TDR;
+            static constexpr std::meta::info RxDataMember = ^^USART_TypeDef::RDR;
+        #else
+            static constexpr std::meta::info StatusMember = ^^USART_TypeDef::SR;
+            static constexpr std::meta::info TxDataMember = ^^USART_TypeDef::DR;
+            static constexpr std::meta::info RxDataMember = ^^USART_TypeDef::DR;
+        #endif
         };
     }
 }

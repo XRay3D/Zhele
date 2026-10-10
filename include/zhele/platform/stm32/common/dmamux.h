@@ -31,10 +31,10 @@ namespace Zhele
         static constexpr uint32_t RequestGeneratorOffset = 0x100;
         static constexpr uint32_t RequestGeneratorStatusOffset = 0x140;
 
-        IO_STRUCT_WRAPPER((reinterpret_cast<std::byte*>(_BaseRegs::Get()) + ChannelsOffset), ChannelRegs, DMAMUX_Channel_TypeDef);
-        IO_STRUCT_WRAPPER((reinterpret_cast<std::byte*>(_BaseRegs::Get()) + ChannelStatusOffset), ChannelStatusReg, DMAMUX_ChannelStatus_TypeDef);
-        IO_STRUCT_WRAPPER((reinterpret_cast<std::byte*>(_BaseRegs::Get()) + RequestGeneratorOffset), RequestGeneratorRegs, DMAMUX_RequestGen_TypeDef);
-        IO_STRUCT_WRAPPER((reinterpret_cast<std::byte*>(_BaseRegs::Get()) + RequestGeneratorStatusOffset), RequestGeneratorStatusReg, DMAMUX_RequestGenStatus_TypeDef);
+        using ChannelRegs = IoStruct<_BaseRegs::Address + ChannelsOffset, DMAMUX_Channel_TypeDef>;
+        using ChannelStatusReg = IoStruct<_BaseRegs::Address + ChannelStatusOffset, DMAMUX_ChannelStatus_TypeDef>;
+        using RequestGeneratorRegs = IoStruct<_BaseRegs::Address + RequestGeneratorOffset, DMAMUX_RequestGen_TypeDef>;
+        using RequestGeneratorStatusReg = IoStruct<_BaseRegs::Address + RequestGeneratorStatusOffset, DMAMUX_RequestGenStatus_TypeDef>;
 
     public:
         using RequestInput = _RequestInput;
@@ -48,9 +48,10 @@ namespace Zhele
         template<unsigned _ChannelNumber>
         class Channel
         {
-            DECLARE_IO_BITFIELD_WRAPPER(ChannelRegs::Get()[_ChannelNumber].CCR, SyncInputBitfield, DMAMUX_CxCR_SYNC_ID)
-            DECLARE_IO_BITFIELD_WRAPPER(ChannelRegs::Get()[_ChannelNumber].CCR, SyncPolarityBitfield, DMAMUX_CxCR_SPOL)
-            DECLARE_IO_BITFIELD_WRAPPER(ChannelRegs::Get()[_ChannelNumber].CCR, RequestPolarityBitfield, DMAMUX_CxCR_DMAREQ_ID)
+            using ChannelControlReg = PeriphReg<ChannelRegs::Address + _ChannelNumber * sizeof(DMAMUX_Channel_TypeDef), ^^DMAMUX_Channel_TypeDef::CCR>;
+            using SyncInputBitfield = MaskedBitField<ChannelControlReg, DMAMUX_CxCR_SYNC_ID_Msk>;
+            using SyncPolarityBitfield = MaskedBitField<ChannelControlReg, DMAMUX_CxCR_SPOL_Msk>;
+            using RequestPolarityBitfield = MaskedBitField<ChannelControlReg, DMAMUX_CxCR_DMAREQ_ID_Msk>;
         public:
             /// @brief Synchronization polarity choise
             enum class SyncPolarity

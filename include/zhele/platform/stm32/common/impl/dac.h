@@ -11,18 +11,16 @@
 
 namespace Zhele::Private
 {
-    #define DAC_TEMPLATE_ARGS template <typename _Regs, typename _ClockCtrl, uint8_t _Channel>
-    #define DAC_TEMPLATE_QUALIFIER DacBase<_Regs, _ClockCtrl, _Channel>
 
-    DAC_TEMPLATE_ARGS
-    void DAC_TEMPLATE_QUALIFIER::Init()
+    template <typename _Regs, typename _ClockCtrl, uint8_t _Channel>
+    void DacBase<_Regs, _ClockCtrl, _Channel>::Init()
     {
         _ClockCtrl::Enable();
     }
 
-    DAC_TEMPLATE_ARGS
+    template <typename _Regs, typename _ClockCtrl, uint8_t _Channel>
     template <typename Trigger>
-    void DAC_TEMPLATE_QUALIFIER::Init(Trigger trigger)
+    void DacBase<_Regs, _ClockCtrl, _Channel>::Init(Trigger trigger)
     {
         _ClockCtrl::Enable();
         _Regs()->CR |= (DAC_CR_TEN1
@@ -30,20 +28,20 @@ namespace Zhele::Private
                 ) << (_Channel * ChannelOffset);
     }
 
-    DAC_TEMPLATE_ARGS
-    void DAC_TEMPLATE_QUALIFIER::Enable()
+    template <typename _Regs, typename _ClockCtrl, uint8_t _Channel>
+    void DacBase<_Regs, _ClockCtrl, _Channel>::Enable()
     {
         _Regs()->CR |= DAC_CR_EN1 << (_Channel * ChannelOffset);
     }
 
-    DAC_TEMPLATE_ARGS
-    void DAC_TEMPLATE_QUALIFIER::Disable()
+    template <typename _Regs, typename _ClockCtrl, uint8_t _Channel>
+    void DacBase<_Regs, _ClockCtrl, _Channel>::Disable()
     {
         _Regs()->CR &= ~(DAC_CR_EN1 << (_Channel * ChannelOffset));
     }
 
-    DAC_TEMPLATE_ARGS
-    void DAC_TEMPLATE_QUALIFIER::EnableBuffer()
+    template <typename _Regs, typename _ClockCtrl, uint8_t _Channel>
+    void DacBase<_Regs, _ClockCtrl, _Channel>::EnableBuffer()
     {
     #if defined (DAC_MCR_MODE1)
         _Regs()->MCR &= ~(DAC_MCR_MODE1_Msk << (_Channel * ChannelOffset));
@@ -52,8 +50,8 @@ namespace Zhele::Private
     #endif
     }
 
-    DAC_TEMPLATE_ARGS
-    void DAC_TEMPLATE_QUALIFIER::DisableBuffer()
+    template <typename _Regs, typename _ClockCtrl, uint8_t _Channel>
+    void DacBase<_Regs, _ClockCtrl, _Channel>::DisableBuffer()
     {
     #if defined (DAC_MCR_MODE1)
         _Regs()->MCR = (_Regs()->MCR & ~(DAC_MCR_MODE1_Msk << (_Channel * ChannelOffset)))
@@ -63,8 +61,8 @@ namespace Zhele::Private
     #endif
     }
 
-    DAC_TEMPLATE_ARGS
-    void DAC_TEMPLATE_QUALIFIER::EnableNoiseWaveGeneration(WaveAmplitude amplitude)
+    template <typename _Regs, typename _ClockCtrl, uint8_t _Channel>
+    void DacBase<_Regs, _ClockCtrl, _Channel>::EnableNoiseWaveGeneration(WaveAmplitude amplitude)
     {
         _Regs()->CR = (_Regs()->CR & ~((DAC_CR_WAVE1_Msk | DAC_CR_MAMP1_Msk) << (_Channel * ChannelOffset)))
             | (((static_cast<uint32_t>(WaveGeneration::Noise) << DAC_CR_WAVE1_Pos)
@@ -72,8 +70,8 @@ namespace Zhele::Private
                 ) << (_Channel * ChannelOffset));
     }
 
-    DAC_TEMPLATE_ARGS
-    void DAC_TEMPLATE_QUALIFIER::EnableTriangleWaveGeneration(WaveAmplitude amplitude)
+    template <typename _Regs, typename _ClockCtrl, uint8_t _Channel>
+    void DacBase<_Regs, _ClockCtrl, _Channel>::EnableTriangleWaveGeneration(WaveAmplitude amplitude)
     {
         _Regs()->CR = (_Regs()->CR & ~((DAC_CR_WAVE1_Msk | DAC_CR_MAMP1_Msk) << (_Channel * ChannelOffset)))
             | (((static_cast<uint32_t>(WaveGeneration::Triangle) << DAC_CR_WAVE1_Pos)
@@ -81,14 +79,14 @@ namespace Zhele::Private
                 ) << (_Channel * ChannelOffset));
     }
 
-    DAC_TEMPLATE_ARGS
-    void DAC_TEMPLATE_QUALIFIER::DisableWaveGeneration()
+    template <typename _Regs, typename _ClockCtrl, uint8_t _Channel>
+    void DacBase<_Regs, _ClockCtrl, _Channel>::DisableWaveGeneration()
     {
         _Regs()->CR &= ~(DAC_CR_WAVE1_Msk << (_Channel * ChannelOffset));
     }
 
-    DAC_TEMPLATE_ARGS
-    void DAC_TEMPLATE_QUALIFIER::WriteU8(uint8_t data)
+    template <typename _Regs, typename _ClockCtrl, uint8_t _Channel>
+    void DacBase<_Regs, _ClockCtrl, _Channel>::WriteU8(uint8_t data)
     {
         if constexpr (_Channel == 0)
             _Regs()->DHR8R1 = data;
@@ -96,8 +94,8 @@ namespace Zhele::Private
             _Regs()->DHR8R2 = data;
     }
 
-    DAC_TEMPLATE_ARGS
-    void DAC_TEMPLATE_QUALIFIER::Write(uint16_t data)
+    template <typename _Regs, typename _ClockCtrl, uint8_t _Channel>
+    void DacBase<_Regs, _ClockCtrl, _Channel>::Write(uint16_t data)
     {
         if constexpr (_Channel == 0)
             _Regs()->DHR12R1 = data;
@@ -105,8 +103,8 @@ namespace Zhele::Private
             _Regs()->DHR12R2 = data;
     }
 
-    DAC_TEMPLATE_ARGS
-    void DAC_TEMPLATE_QUALIFIER::WriteLeftAligned(uint16_t data)
+    template <typename _Regs, typename _ClockCtrl, uint8_t _Channel>
+    void DacBase<_Regs, _ClockCtrl, _Channel>::WriteLeftAligned(uint16_t data)
     {
         if constexpr (_Channel == 0)
             _Regs()->DHR12L1 = data;
@@ -114,8 +112,8 @@ namespace Zhele::Private
             _Regs()->DHR12L2 = data;
     }
 
-    DAC_TEMPLATE_ARGS
-    void DAC_TEMPLATE_QUALIFIER::CauseSoftwareTrigger()
+    template <typename _Regs, typename _ClockCtrl, uint8_t _Channel>
+    void DacBase<_Regs, _ClockCtrl, _Channel>::CauseSoftwareTrigger()
     {
         _Regs()->SWTRIGR = 1 << _Channel;
     }

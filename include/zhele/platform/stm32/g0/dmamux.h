@@ -105,7 +105,7 @@ namespace Zhele
 
     namespace Private
     {
-        IO_STRUCT_WRAPPER(DMAMUX1, Dmamux1, DMAMUX_Channel_TypeDef);
+        using Dmamux1 = IoStruct<DMAMUX1_BASE, DMAMUX_Channel_TypeDef>;
     }
 
     using DmaMux1 = DmaMux<Private::Dmamux1, DmamuxSyncInput, DmamuxRequestInput>;

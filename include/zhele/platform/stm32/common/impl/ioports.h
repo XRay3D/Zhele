@@ -11,167 +11,165 @@
 
 namespace Zhele::IO::Private
 {
-    #define PORTIMPL_TEMPLATE_ARGS template<typename _Regs, typename _ClkEnReg, int ID>
-    #define PORTIMPL_TEMPLATE_QUALIFIER PortImplementation<_Regs, _ClkEnReg, ID>
 
-    PORTIMPL_TEMPLATE_ARGS
-    void PORTIMPL_TEMPLATE_QUALIFIER::Write(PORTIMPL_TEMPLATE_QUALIFIER::DataType value)
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::Write(PortImplementation<_Regs, _ClkEnReg, ID>::DataType value)
     {
         _Regs()->ODR = value;
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    template<typename PORTIMPL_TEMPLATE_QUALIFIER::DataType value>
-    void PORTIMPL_TEMPLATE_QUALIFIER::Write()
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    template<typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType value>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::Write()
     {
         _Regs()->ODR = value;
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    typename PORTIMPL_TEMPLATE_QUALIFIER::DataType PORTIMPL_TEMPLATE_QUALIFIER::Read()
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType PortImplementation<_Regs, _ClkEnReg, ID>::Read()
     {
         return _Regs()->ODR;
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    void PORTIMPL_TEMPLATE_QUALIFIER::Clear(PORTIMPL_TEMPLATE_QUALIFIER::DataType value)
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::Clear(PortImplementation<_Regs, _ClkEnReg, ID>::DataType value)
     {
         _Regs()->BSRR = value << 16;
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    template<typename PORTIMPL_TEMPLATE_QUALIFIER::DataType value>
-    void PORTIMPL_TEMPLATE_QUALIFIER::Clear()
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    template<typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType value>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::Clear()
     {
         _Regs()->BSRR = value << 16;
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    void PORTIMPL_TEMPLATE_QUALIFIER::Set(PORTIMPL_TEMPLATE_QUALIFIER::DataType value)
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::Set(PortImplementation<_Regs, _ClkEnReg, ID>::DataType value)
     {
         _Regs()->BSRR = value;
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    template<typename PORTIMPL_TEMPLATE_QUALIFIER::DataType value>
-    void PORTIMPL_TEMPLATE_QUALIFIER::Set()
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    template<typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType value>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::Set()
     {
         _Regs()->BSRR = value;
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    void PORTIMPL_TEMPLATE_QUALIFIER::ClearAndSet(PORTIMPL_TEMPLATE_QUALIFIER::DataType clearMask, PORTIMPL_TEMPLATE_QUALIFIER::DataType setMask)
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::ClearAndSet(PortImplementation<_Regs, _ClkEnReg, ID>::DataType clearMask, PortImplementation<_Regs, _ClkEnReg, ID>::DataType setMask)
     {
         _Regs()->BSRR = clearMask << 16 | setMask;
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    template<typename PORTIMPL_TEMPLATE_QUALIFIER::DataType clearMask, typename PORTIMPL_TEMPLATE_QUALIFIER::DataType setMask>
-    void PORTIMPL_TEMPLATE_QUALIFIER::ClearAndSet()
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    template<typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType clearMask, typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType setMask>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::ClearAndSet()
     {
         _Regs()->BSRR = clearMask << 16 | setMask;
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    void PORTIMPL_TEMPLATE_QUALIFIER::Toggle(PORTIMPL_TEMPLATE_QUALIFIER::DataType value)
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::Toggle(PortImplementation<_Regs, _ClkEnReg, ID>::DataType value)
     {
         _Regs()->BSRR = value << 16 | (~_Regs()->ODR & value);
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    template<typename PORTIMPL_TEMPLATE_QUALIFIER::DataType value>
-    void PORTIMPL_TEMPLATE_QUALIFIER::Toggle()
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    template<typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType value>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::Toggle()
     {
         _Regs()->BSRR = value << 16 | (_Regs()->ODR ^ value);
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    typename PORTIMPL_TEMPLATE_QUALIFIER::DataType PORTIMPL_TEMPLATE_QUALIFIER::PinRead()
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType PortImplementation<_Regs, _ClkEnReg, ID>::PinRead()
     {
         return _Regs()->IDR;
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    void PORTIMPL_TEMPLATE_QUALIFIER::SetConfiguration(PORTIMPL_TEMPLATE_QUALIFIER::Configuration configuration, PORTIMPL_TEMPLATE_QUALIFIER::DataType mask)
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::SetConfiguration(PortImplementation<_Regs, _ClkEnReg, ID>::Configuration configuration, PortImplementation<_Regs, _ClkEnReg, ID>::DataType mask)
     {
         _Regs()->MODER = UnpackConfig2bits(mask, _Regs()->MODER, configuration);
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    template<typename PORTIMPL_TEMPLATE_QUALIFIER::Configuration configuration, typename PORTIMPL_TEMPLATE_QUALIFIER::DataType mask>
-    void PORTIMPL_TEMPLATE_QUALIFIER::SetConfiguration()
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    template<typename PortImplementation<_Regs, _ClkEnReg, ID>::Configuration configuration, typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType mask>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::SetConfiguration()
     {
         _Regs()->MODER = UnpackConfig2bits(mask, _Regs()->MODER, configuration);
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    void PORTIMPL_TEMPLATE_QUALIFIER::SetDriverType(PORTIMPL_TEMPLATE_QUALIFIER::DriverType driver, typename PORTIMPL_TEMPLATE_QUALIFIER::DataType mask)
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::SetDriverType(PortImplementation<_Regs, _ClkEnReg, ID>::DriverType driver, typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType mask)
     {
         _Regs()->OTYPER = (_Regs()->OTYPER & ~mask) | mask * driver;
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    template <typename PORTIMPL_TEMPLATE_QUALIFIER::DriverType driver, typename PORTIMPL_TEMPLATE_QUALIFIER::DataType mask>
-    void PORTIMPL_TEMPLATE_QUALIFIER::SetDriverType()
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    template <typename PortImplementation<_Regs, _ClkEnReg, ID>::DriverType driver, typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType mask>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::SetDriverType()
     {
         _Regs()->OTYPER = (_Regs()->OTYPER & ~mask) | mask * driver;
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    void PORTIMPL_TEMPLATE_QUALIFIER::SetPullMode(PORTIMPL_TEMPLATE_QUALIFIER::PullMode mode, typename PORTIMPL_TEMPLATE_QUALIFIER::DataType mask)
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::SetPullMode(PortImplementation<_Regs, _ClkEnReg, ID>::PullMode mode, typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType mask)
     {
         _Regs()->PUPDR = UnpackConfig2bits(mask, _Regs()->PUPDR, mode);
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    template <typename PORTIMPL_TEMPLATE_QUALIFIER::PullMode mode, typename PORTIMPL_TEMPLATE_QUALIFIER::DataType mask>
-    void PORTIMPL_TEMPLATE_QUALIFIER::SetPullMode()
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    template <typename PortImplementation<_Regs, _ClkEnReg, ID>::PullMode mode, typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType mask>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::SetPullMode()
     {
         _Regs()->PUPDR = UnpackConfig2bits(mask, _Regs()->PUPDR, mode);
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    void PORTIMPL_TEMPLATE_QUALIFIER::SetSpeed(PORTIMPL_TEMPLATE_QUALIFIER::Speed speed, typename PORTIMPL_TEMPLATE_QUALIFIER::DataType mask)
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::SetSpeed(PortImplementation<_Regs, _ClkEnReg, ID>::Speed speed, typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType mask)
     {
         _Regs()->OSPEEDR = UnpackConfig2bits(mask, _Regs()->OSPEEDR, speed);
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    template<typename PORTIMPL_TEMPLATE_QUALIFIER::Speed speed, typename PORTIMPL_TEMPLATE_QUALIFIER::DataType mask>
-    void PORTIMPL_TEMPLATE_QUALIFIER::SetSpeed()
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    template<typename PortImplementation<_Regs, _ClkEnReg, ID>::Speed speed, typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType mask>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::SetSpeed()
     {
         _Regs()->OSPEEDR = UnpackConfig2bits(mask, _Regs()->OSPEEDR, speed);
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    void PORTIMPL_TEMPLATE_QUALIFIER::AltFuncNumber(uint8_t number, typename PORTIMPL_TEMPLATE_QUALIFIER::DataType mask)
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::AltFuncNumber(uint8_t number, typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType mask)
     {
         _Regs()->AFR[0] = UnpackConfig4Bit(mask & 0xff, _Regs()->AFR[0], number);
         _Regs()->AFR[1] = UnpackConfig4Bit((mask >> 8) & 0xff, _Regs()->AFR[1], number);
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    template<uint8_t number, typename PORTIMPL_TEMPLATE_QUALIFIER::DataType mask>
-    void PORTIMPL_TEMPLATE_QUALIFIER::AltFuncNumber()
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    template<uint8_t number, typename PortImplementation<_Regs, _ClkEnReg, ID>::DataType mask>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::AltFuncNumber()
     {
         _Regs()->AFR[0] = UnpackConfig4Bit(mask & 0xff, _Regs()->AFR[0], number);
         _Regs()->AFR[1] = UnpackConfig4Bit((mask >> 8) & 0xff, _Regs()->AFR[1], number);
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    void PORTIMPL_TEMPLATE_QUALIFIER::Enable()
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::Enable()
     {
         _ClkEnReg::Enable();
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    void PORTIMPL_TEMPLATE_QUALIFIER::Disable()
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    void PortImplementation<_Regs, _ClkEnReg, ID>::Disable()
     {
         _ClkEnReg::Disable();
     }
 
-    PORTIMPL_TEMPLATE_ARGS
-    constexpr inline unsigned PORTIMPL_TEMPLATE_QUALIFIER::UnpackConfig2bits(unsigned mask, unsigned value, unsigned configuration)
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    constexpr inline unsigned PortImplementation<_Regs, _ClkEnReg, ID>::UnpackConfig2bits(unsigned mask, unsigned value, unsigned configuration)
     {
         mask = (mask & 0xff00)     << 8 | (mask & 0x00ff);
         mask = (mask & 0x00f000f0) << 4 | (mask & 0x000f000f);
@@ -180,8 +178,8 @@ namespace Zhele::IO::Private
         return (value & ~(mask * 0x03)) | mask * configuration;
     }
     
-    PORTIMPL_TEMPLATE_ARGS
-    constexpr inline unsigned PORTIMPL_TEMPLATE_QUALIFIER::UnpackConfig4Bit(unsigned mask, unsigned value, unsigned configuration)
+    template<typename _Regs, typename _ClkEnReg, int ID>
+    constexpr inline unsigned PortImplementation<_Regs, _ClkEnReg, ID>::UnpackConfig4Bit(unsigned mask, unsigned value, unsigned configuration)
     {
         mask = (mask & 0xf0) << 12 | (mask & 0x0f);
         mask = (mask & 0x000C000C) << 6 | (mask & 0x00030003);

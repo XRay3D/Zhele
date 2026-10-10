@@ -10,6 +10,7 @@
 #define ZHELE_PLATFORM_STM32_COMMON_FLASH_H
 
 #include <cstdint>
+#include <span>
 
 namespace Zhele
 {
@@ -143,6 +144,22 @@ namespace Zhele
          * @retval false Write failed
         */
         static bool WriteFlash(void* dst, const void* src, unsigned size);
+
+        /**
+         * @brief Write a byte range to flash at the given address
+         */
+        static bool WriteFlash(void* dst, std::span<const uint8_t> src)
+        {
+            return WriteFlash(dst, src.data(), src.size());
+        }
+
+        /**
+         * @brief Write a byte range into a page at the given offset
+         */
+        static bool WritePage(unsigned page, std::span<const uint8_t> src, unsigned offset = 0)
+        {
+            return WritePage(page, src.data(), src.size(), offset);
+        }
 
     private:
         /**

@@ -20,11 +20,11 @@ namespace Zhele
 {
     namespace Private
     {
-        IO_STRUCT_WRAPPER(DMA1, Dma1, DMA_TypeDef);
+        using Dma1 = IoStruct<DMA1_BASE, DMA_TypeDef>;
 
-        IO_STRUCT_WRAPPER(DMA1_Channel1, Dma1Channel1, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(DMA1_Channel2, Dma1Channel2, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(DMA1_Channel3, Dma1Channel3, DMA_Channel_TypeDef);
+        using Dma1Channel1 = IoStruct<DMA1_Channel1_BASE, DMA_Channel_TypeDef>;
+        using Dma1Channel2 = IoStruct<DMA1_Channel2_BASE, DMA_Channel_TypeDef>;
+        using Dma1Channel3 = IoStruct<DMA1_Channel3_BASE, DMA_Channel_TypeDef>;
     }
 
     using Dma1 = DmaModule<Private::Dma1, Clock::Dma1Clock, 3>;

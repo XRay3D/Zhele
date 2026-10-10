@@ -77,17 +77,7 @@ namespace Zhele::Usb
          * 
          * @returns Bytes of descriptor
         */
-        constexpr auto GetBytes() const
-        {
-            return std::array<uint8_t, 7> {
-                Length,
-                static_cast<uint8_t>(Type),
-                Address,
-                Attributes,
-                static_cast<uint8_t>(MaxPacketSize & 0xff), static_cast<uint8_t>((MaxPacketSize >> 8) & 0xff),
-                Interval
-            };
-        }
+        constexpr auto GetBytes() const { return DescriptorBytes(*this); }
     };
     #pragma pack(pop)
 
@@ -382,7 +372,7 @@ namespace Zhele::Usb
     template<typename _Endpoint, uint32_t _BufferAddress, uint32_t _CountRegAddress>
     class EndpointWriter
     {
-        using BufferCountReg = RegisterWrapper<_CountRegAddress, uint16_t>;
+        using BufferCountReg = IoReg<_CountRegAddress, uint16_t>;
     public:
         /**
          * @brief Send data
@@ -565,7 +555,7 @@ namespace Zhele::Usb
         using Base = Endpoint<_Base, _Reg>;
     public:
         static constexpr uint32_t Buffer = _BufferAddress;
-        using BufferCount = RegisterWrapper<_CountRegAddress, uint16_t>;
+        using BufferCount = IoReg<_CountRegAddress, uint16_t>;
         /**
          * @brief CTR Handler
          */
@@ -593,7 +583,7 @@ namespace Zhele::Usb
         using TxModule = EndpointWithTxSupport<_Base, _Reg, _BufferAddress, _CountRegAddress>;
     public:
         static constexpr uint32_t Buffer = _BufferAddress;
-        using BufferCount = RegisterWrapper<_CountRegAddress, uint16_t>;
+        using BufferCount = IoReg<_CountRegAddress, uint16_t>;
 
         /**
          * @brief CTR Handler
@@ -624,9 +614,9 @@ namespace Zhele::Usb
     public:
         using Reg = _Reg;
         static constexpr uint32_t TxBuffer = _TxBufferAddress;
-        using TxBufferCount = RegisterWrapper<_TxCountRegAddress, uint16_t>;
+        using TxBufferCount = IoReg<_TxCountRegAddress, uint16_t>;
         static constexpr uint32_t RxBuffer = _RxBufferAddress;
-        using RxBufferCount = RegisterWrapper<_RxCountRegAddress, uint16_t>;
+        using RxBufferCount = IoReg<_RxCountRegAddress, uint16_t>;
 
         /**
          * @brief CTR handler
@@ -665,9 +655,9 @@ namespace Zhele::Usb
     // For direct access to Buffers/CountRegs mark next fields as public
         using Reg = _Reg;
         static constexpr uint32_t Buffer0 = _Buffer0Address;
-        using Buffer0Count = RegisterWrapper<_Count0RegAddress, uint16_t>;
+        using Buffer0Count = IoReg<_Count0RegAddress, uint16_t>;
         static constexpr uint32_t Buffer1 = _Buffer1Address;
-        using Buffer1Count = RegisterWrapper<_Count1RegAddress, uint16_t>;
+        using Buffer1Count = IoReg<_Count1RegAddress, uint16_t>;
 
     public:
         /**
@@ -738,9 +728,9 @@ namespace Zhele::Usb
     // For direct access to Buffers/CountRegs mark next fields as public
         using Reg = _Reg;
         static constexpr uint32_t Buffer0 = _Buffer0Address;
-        using Buffer0Count = RegisterWrapper<_Count0RegAddress, uint16_t>;
+        using Buffer0Count = IoReg<_Count0RegAddress, uint16_t>;
         static constexpr uint32_t Buffer1 = _Buffer1Address;
-        using Buffer1Count = RegisterWrapper<_Count1RegAddress, uint16_t>;
+        using Buffer1Count = IoReg<_Count1RegAddress, uint16_t>;
 
         static const bool SendZlp = !(requires {_Base::DisableZlp;}); 
     public:
@@ -1121,7 +1111,6 @@ namespace Zhele::Usb
     private:
         static OutTransferCallback _dataTransferCallback;
     };
-
 
     template<typename _Base, typename _Regs, uint32_t _FifoAddress>
     OutTransferCallback OutEndpoint<_Base, _Regs, _FifoAddress>::_dataTransferCallback = nullptr;

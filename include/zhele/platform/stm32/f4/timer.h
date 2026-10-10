@@ -119,10 +119,10 @@ namespace Zhele::Timers
         template<> struct Tim4ChPins<2>{ struct Pins { using io_pins = IO::PinList<Pb8, Pd14>; static constexpr std::array<uint8_t, 2> alt_functions{2, 2}; }; };
         template<> struct Tim4ChPins<3>{ struct Pins { using io_pins = IO::PinList<Pb9, Pd15>; static constexpr std::array<uint8_t, 2> alt_functions{2, 2}; }; };
         
-        IO_STRUCT_WRAPPER(TIM1, Tim1Regs, TIM_TypeDef);
-        IO_STRUCT_WRAPPER(TIM2, Tim2Regs, TIM_TypeDef);
-        IO_STRUCT_WRAPPER(TIM3, Tim3Regs, TIM_TypeDef);
-        IO_STRUCT_WRAPPER(TIM4, Tim4Regs, TIM_TypeDef);
+        using Tim1Regs = IoStruct<TIM1_BASE, TIM_TypeDef>;
+        using Tim2Regs = IoStruct<TIM2_BASE, TIM_TypeDef>;
+        using Tim3Regs = IoStruct<TIM3_BASE, TIM_TypeDef>;
+        using Tim4Regs = IoStruct<TIM4_BASE, TIM_TypeDef>;
     }
 
     using Timer2 = Private::GPTimer<Private::Tim2Regs, Clock::Tim2Clock, TIM2_IRQn, Private::Tim2ChPins>;

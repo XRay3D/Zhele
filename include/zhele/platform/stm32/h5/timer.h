@@ -121,18 +121,18 @@ namespace Zhele::Timers
         template<> struct Tim3ChPins<2>{ struct Pins { using io_pins = IO::PinList<Pa8, Pb0, Pb6, Pc8>; static constexpr std::array<uint8_t, 4> alt_functions{2, 2, 2, 2}; }; };
         template<> struct Tim3ChPins<3>{ struct Pins { using io_pins = IO::PinList<Pa12, Pb1, Pb15, Pc9>; static constexpr std::array<uint8_t, 4> alt_functions{2, 2, 14, 2}; }; };
 
-        IO_STRUCT_WRAPPER(TIM1, Tim1Regs, TIM_TypeDef);
+        using Tim1Regs = IoStruct<TIM1_BASE, TIM_TypeDef>;
     #if defined (TIM2)
-        IO_STRUCT_WRAPPER(TIM2, Tim2Regs, TIM_TypeDef);
+        using Tim2Regs = IoStruct<TIM2_BASE, TIM_TypeDef>;
     #endif
     #if defined (TIM3)
-        IO_STRUCT_WRAPPER(TIM3, Tim3Regs, TIM_TypeDef);
+        using Tim3Regs = IoStruct<TIM3_BASE, TIM_TypeDef>;
     #endif
     #if defined (TIM6)
-        IO_STRUCT_WRAPPER(TIM6, Tim6Regs, TIM_TypeDef);
+        using Tim6Regs = IoStruct<TIM6_BASE, TIM_TypeDef>;
     #endif
     #if defined (TIM7)
-        IO_STRUCT_WRAPPER(TIM7, Tim7Regs, TIM_TypeDef);
+        using Tim7Regs = IoStruct<TIM7_BASE, TIM_TypeDef>;
     #endif
     }
 

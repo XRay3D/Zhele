@@ -176,7 +176,11 @@ namespace Zhele
             static void CauseSoftwareTrigger();
         };
 #if defined (DAC1)
-        IO_STRUCT_WRAPPER(DAC1, Dac1Regs, DAC_TypeDef);
+    #if defined (DAC1_BASE)
+        using Dac1Regs = IoStruct<DAC1_BASE, DAC_TypeDef>;
+    #else
+        using Dac1Regs = IoStruct<DAC_BASE, DAC_TypeDef>; // F4 names the single DAC block DAC
+    #endif
 #endif
 
     } // namespace Private

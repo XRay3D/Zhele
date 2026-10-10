@@ -119,22 +119,22 @@ namespace Zhele::Timers
         // pins explicitly via the register API meanwhile (mirrors the g0 TIM4 stub).
         template<unsigned ChannelNumber> struct Tim2ChPins;
 
-        IO_STRUCT_WRAPPER(TIM1, Tim1Regs, TIM_TypeDef);
+        using Tim1Regs = IoStruct<TIM1_BASE, TIM_TypeDef>;
     #if defined (TIM2)
-        IO_STRUCT_WRAPPER(TIM2, Tim2Regs, TIM_TypeDef);
+        using Tim2Regs = IoStruct<TIM2_BASE, TIM_TypeDef>;
     #endif
-        IO_STRUCT_WRAPPER(TIM3, Tim3Regs, TIM_TypeDef);
+        using Tim3Regs = IoStruct<TIM3_BASE, TIM_TypeDef>;
     #if defined (TIM14)
-        IO_STRUCT_WRAPPER(TIM14, Tim14Regs, TIM_TypeDef);
+        using Tim14Regs = IoStruct<TIM14_BASE, TIM_TypeDef>;
     #endif
     #if defined (TIM15)
-        IO_STRUCT_WRAPPER(TIM15, Tim15Regs, TIM_TypeDef);
+        using Tim15Regs = IoStruct<TIM15_BASE, TIM_TypeDef>;
     #endif
     #if defined (TIM16)
-        IO_STRUCT_WRAPPER(TIM16, Tim16Regs, TIM_TypeDef);
+        using Tim16Regs = IoStruct<TIM16_BASE, TIM_TypeDef>;
     #endif
     #if defined (TIM17)
-        IO_STRUCT_WRAPPER(TIM17, Tim17Regs, TIM_TypeDef);
+        using Tim17Regs = IoStruct<TIM17_BASE, TIM_TypeDef>;
     #endif
     }
 

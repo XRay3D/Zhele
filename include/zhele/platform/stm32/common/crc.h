@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <type_traits>
+#include <span>
 
 namespace Zhele::Private
 {
@@ -107,6 +108,14 @@ namespace Zhele::Private
          * @returns CRC32
         */
         static uint32_t CalculateCrc32(const uint8_t* data, unsigned size);
+
+        /**
+         * @brief Calculates CRC32 checksum of a byte range
+         */
+        static uint32_t CalculateCrc32(std::span<const uint8_t> data)
+        {
+            return CalculateCrc32(data.data(), data.size());
+        }
 
         /**
          * @brief Store data to independet register

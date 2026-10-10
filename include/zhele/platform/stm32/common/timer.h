@@ -10,7 +10,6 @@
 #define ZHELE_PLATFORM_STM32_COMMON_TIMER_H
 
 #include <zhele/common/template_utils/enum.h>
-#include <zhele/common/template_utils/type_list.h>
 #include "ioreg.h"
 
 #include <zhele/clock.h>
@@ -56,7 +55,6 @@ namespace Zhele::Timers
                 Break = TIM_DIER_BIE,	///< Break
             };
 
-
             /// All timer`s DMA requests
             enum class DmaRequest
             {
@@ -67,7 +65,6 @@ namespace Zhele::Timers
                 CC4 = TIM_DIER_CC4DE,	///< Capture compare (4 channel) DMA request enable
                 Trigger = TIM_DIER_UDE,	///< Trigger DMA request enable
             };
-
 
             /// Timer counter mode
             enum class CounterMode
@@ -333,11 +330,11 @@ namespace Zhele::Timers
         template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
         class GPTimer : public BaseTimer<_Regs, _ClockEnReg, _IRQNumber>
         {
-            IO_BITFIELD_WRAPPER(_Regs()->CCMR1, Channel1Mode, uint32_t, 0, 8);
-            IO_BITFIELD_WRAPPER(_Regs()->CCMR1, Channel2Mode, uint32_t, 8, 8);
-            IO_BITFIELD_WRAPPER(_Regs()->CCMR2, Channel3Mode, uint32_t, 0, 8);
-            IO_BITFIELD_WRAPPER(_Regs()->CCMR2, Channel4Mode, uint32_t, 8, 8);
-            using ModeList = template_utils::type_list<Channel1Mode, Channel2Mode, Channel3Mode, Channel4Mode>;
+            /// CCMR1 holds channels 0/1, CCMR2 channels 2/3; 8 bits per channel
+            template<unsigned _Channel>
+            using ChannelMode = IoBitField<
+                typename _Regs::template Reg<_Channel < 2 ? ^^TIM_TypeDef::CCMR1 : ^^TIM_TypeDef::CCMR2>,
+                (_Channel % 2) * 8, 8, uint32_t>;
             using Base = BaseTimer<_Regs, _ClockEnReg, _IRQNumber>;
 
             /**
@@ -349,7 +346,7 @@ namespace Zhele::Timers
             class ChannelBase
             {
             protected:
-                using ModeBitField = template_utils::type_unbox<ModeList::template get<_ChannelNumber>()>;
+                using ModeBitField = ChannelMode<_ChannelNumber>;
 
             public:
                 static_assert(_ChannelNumber < 4);

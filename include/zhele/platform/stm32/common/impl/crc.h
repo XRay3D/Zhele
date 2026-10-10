@@ -99,7 +99,6 @@ namespace Zhele::Private
             CRC->DR = __RBIT(data_aligned[i]);
         }
 
-
         uint32_t result = __RBIT(CRC->DR);
         unsigned bits_remain = (size % sizeof(uint32_t)) * std::numeric_limits<uint8_t>::digits;
         if (bits_remain) {

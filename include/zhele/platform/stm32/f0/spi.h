@@ -19,8 +19,6 @@
 #include <cstdint>
 #include <type_traits>
 
-#define COMMA ,
-
 namespace Zhele
 {
     namespace Private
@@ -129,9 +127,9 @@ namespace Zhele
             SelectPins<mosiPinIndex, misoPinIndex, clockPinIndex, ssPinIndex>();
         }
 
-        IO_STRUCT_WRAPPER(SPI1, Spi1Regs, SPI_TypeDef);
+        using Spi1Regs = IoStruct<SPI1_BASE, SPI_TypeDef>;
     #if defined(SPI2)
-		IO_STRUCT_WRAPPER(SPI2, Spi2Regs, SPI_TypeDef);
+		using Spi2Regs = IoStruct<SPI2_BASE, SPI_TypeDef>;
     #endif
 
         struct Spi1SsPins

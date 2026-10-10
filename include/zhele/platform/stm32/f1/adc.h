@@ -60,7 +60,7 @@ namespace Zhele
             Zhele::IO::Pc4,
             Zhele::IO::Pc5>;
 
-        IO_STRUCT_WRAPPER(ADC1, Adc1Regs, ADC_TypeDef);
+        using Adc1Regs = IoStruct<ADC1_BASE, ADC_TypeDef>;
     }
 
     using Adc1 = Private::Adc<Private::Adc1Regs, Clock::Adc1Clock, Private::Adc1Pins, Dma1Channel1>;

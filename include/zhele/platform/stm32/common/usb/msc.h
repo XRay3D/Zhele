@@ -417,7 +417,6 @@ namespace Zhele::Usb
     template<uint32_t _LbaSize, uint32_t _LbaCount>
     uint8_t DefaultScsiLun<_LbaSize, _LbaCount>::_buffer[_LbaCount * _LbaSize];;
 
-
     /**
      * @brief Implements SCSI BBB interface
      * 

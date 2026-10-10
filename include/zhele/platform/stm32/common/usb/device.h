@@ -77,9 +77,7 @@ namespace Zhele::Usb
      */
     template<
         typename _Regs,
-#if defined (USB_OTG_FS)
         typename _DeviceRegs,
-#endif
         IRQn_Type _IRQNumber,
         typename _ClockCtrl, 
         uint16_t _UsbVersion,
@@ -124,11 +122,7 @@ namespace Zhele::Usb
         */
         static consteval auto BuildStringDescriptor(auto str);
 
-#if defined (USB)
-        using This = DeviceBase<_Regs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>;
-#elif defined (USB_OTG_FS)
         using This = DeviceBase<_Regs, _DeviceRegs, _IRQNumber, _ClockCtrl, _UsbVersion, _Class, _SubClass, _Protocol, _VendorId, _ProductId, _DeviceReleaseNumber, _Manufacturer, _Product, _Serial, _Ep0, _Configurations...>;
-#endif
         static constexpr auto _configurations = template_utils::type_list<_Configurations...>{};
         static constexpr auto _interfaces = (template_utils::type_list<>{} + ... + _Configurations::Interfaces); 
         static constexpr auto _endpoints = (template_utils::type_list<>{} + ... + _Configurations::Endpoints);

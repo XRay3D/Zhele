@@ -12,45 +12,48 @@
 #ifndef ZHELE_PLATFORM_STM32_L4_AFIO_BIND_H
 #define ZHELE_PLATFORM_STM32_L4_AFIO_BIND_H
 
-#include <zhele/common/template_utils/type_list.h>
-
-#include <array>
 #include <cstdint>
 
 namespace Zhele::Private
 {
-    // USART
-    class Usart1Regs; class Usart2Regs; class Usart3Regs; class Uart4Regs; class Uart5Regs; class Usart6Regs;
-    // SPI
-    class Spi1Regs; class Spi2Regs; class Spi3Regs;
-    // I2C
-    class I2C1Regs; class I2C2Regs; class I2C3Regs; 
-    // USB
-    class UsbRegs;
-
-    using Regs = Zhele::template_utils::type_list<
-        Usart1Regs, Usart2Regs, Usart3Regs, Uart4Regs, Uart5Regs, Usart6Regs, // Usart
-        Spi1Regs, Spi2Regs, Spi3Regs, // SPI
-        I2C1Regs, I2C2Regs, I2C3Regs, // I2C
-        UsbRegs // USB_FS
-    >;
-
-    inline constexpr std::array<uint8_t, 13> alt_functions{
-        7, 7, 7, 8, 8, 8, // Usart
-        5, 5, 6, // SPI
-        4, 4, 4, // I2C
-        10 // USB_FS
-    };
-
-    template <typename _Regs>
-    struct AltFuncHelper
+    /**
+     * @brief Alternate function number of a peripheral, by its register block address.
+     * The binding is fixed in hardware, so it is resolved at compile time.
+     */
+    constexpr uint8_t AltFunctionOf(uintptr_t base)
     {
-        static constexpr uint8_t value = alt_functions[Regs::template search<_Regs>()];
-    };
+        switch (base)
+        {
+            case USART1_BASE: case USART2_BASE: return 7;
+        #if defined (USART3_BASE)
+            case USART3_BASE: return 7;
+        #endif
+        #if defined (UART4_BASE)
+            case UART4_BASE: return 8;
+        #endif
+        #if defined (UART5_BASE)
+            case UART5_BASE: return 8;
+        #endif
+        #if defined (USART6_BASE)
+            case USART6_BASE: return 8;
+        #endif
+            case SPI1_BASE: case SPI2_BASE: return 5;
+        #if defined (SPI3_BASE)
+            case SPI3_BASE: return 6;
+        #endif
+            case I2C1_BASE: case I2C2_BASE: return 4;
+        #if defined (I2C3_BASE)
+            case I2C3_BASE: return 4;
+        #endif
+        #if defined (USB_OTG_FS_PERIPH_BASE)
+            case USB_OTG_FS_PERIPH_BASE: return 10;
+        #endif
+        }
+        return 0;
+    }
 
     template<typename Regs>
-    const static uint8_t GetAltFunctionNumber = AltFuncHelper<Regs>::value;
+    inline constexpr uint8_t GetAltFunctionNumber = AltFunctionOf(Regs::Address);
 } // namespace Private
-
 
 #endif // !ZHELE_PLATFORM_STM32_L4_AFIO_BIND_H

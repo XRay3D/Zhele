@@ -9,28 +9,20 @@
 #ifndef ZHELE_PLATFORM_STM32_COMMON_IMPL_ADC_H
 #define ZHELE_PLATFORM_STM32_COMMON_IMPL_ADC_H
 
-#if defined (ADC_CR_ADEN)
-#define ADC_TYPE_1
-#endif
-#if defined (ADC_CR2_ADON)
-#define ADC_TYPE_2
-#endif
 
 #include <zhele/delay.h>
 
 namespace Zhele::Private
 {
-    #define ADC_TEMPLATE_ARGS template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
-    #define ADC_TEMPLATE_QUALIFIER AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>
     
-    ADC_TEMPLATE_ARGS
-    template<ADC_TEMPLATE_QUALIFIER::ClockSource clockSource>
-    void ADC_TEMPLATE_QUALIFIER::SelectClockSource()
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    template<AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::ClockSource clockSource>
+    void AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::SelectClockSource()
     {
     }
 
-    ADC_TEMPLATE_ARGS
-    bool ADC_TEMPLATE_QUALIFIER::VerifyReady(unsigned readyMask)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    bool AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::VerifyReady(unsigned readyMask)
     {
         uint32_t timeout = AdcTimeoutCycles * 4;
         while ((_Regs()->SR & readyMask) && --timeout)
@@ -39,22 +31,22 @@ namespace Zhele::Private
         return timeout != 0;
     }
 
-    ADC_TEMPLATE_ARGS
-    unsigned ADC_TEMPLATE_QUALIFIER::ClockFreq()
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    unsigned AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::ClockFreq()
     {
         return _ClockCtrl::ClockFreq();
     }
 
-    ADC_TEMPLATE_ARGS
-    unsigned ADC_TEMPLATE_QUALIFIER::AdcPeriodUs10(uint8_t channel)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    unsigned AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::AdcPeriodUs10(uint8_t channel)
     {
         unsigned adcTickUs4 = (4000000000u / ClockFreq());
         unsigned adcTickUs10 = adcTickUs4 * 2 + adcTickUs4 / 2;
         return (adcTickUs10 * ConvertionTimeCycles(channel) + adcTickUs10 / 2);
     }
 
-    ADC_TEMPLATE_ARGS
-    unsigned ADC_TEMPLATE_QUALIFIER::SampleTimeToReg(unsigned sampleTime)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    unsigned AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::SampleTimeToReg(unsigned sampleTime)
     {
         if (sampleTime > 239)
             return 7;
@@ -73,38 +65,35 @@ namespace Zhele::Private
         return 0;
     }
 
-    ADC_TEMPLATE_ARGS
-    void ADC_TEMPLATE_QUALIFIER::SetReference(Reference)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    void AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::SetReference(Reference)
     {
         // Not supported
     }
 
-    ADC_TEMPLATE_ARGS
-    template<ADC_TEMPLATE_QUALIFIER::AdcDivider divider>
-    void ADC_TEMPLATE_QUALIFIER::SetDivider()
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    template<AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::AdcDivider divider>
+    void AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::SetDivider()
     {
         _ClockCtrl::template SetPrescaler<divider>();
     }
 
-    ADC_TEMPLATE_ARGS
-    uint16_t ADC_TEMPLATE_QUALIFIER::ReadInjected(uint8_t channel)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    uint16_t AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::ReadInjected(uint8_t channel)
     {
         StartInjected(channel);
         return ReadInjected();
     }
 
-    ADC_TEMPLATE_ARGS
-    void ADC_TEMPLATE_QUALIFIER::SetRegularCallback(AdcCallbackType callback)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    void AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::SetRegularCallback(AdcCallbackType callback)
     {
         _adcData.regularCallback = callback;
     }
 
-#if defined (ADC_TYPE_1)
-    
-#endif
-#if defined (ADC_TYPE_2)
-    ADC_TEMPLATE_ARGS
-    unsigned ADC_TEMPLATE_QUALIFIER::ConvertionTimeCycles(uint8_t channel)
+#if defined (ADC_CR2_ADON)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    unsigned AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::ConvertionTimeCycles(uint8_t channel)
     {
         unsigned sampleTimeBits;
         if (channel <= 9)
@@ -124,8 +113,8 @@ namespace Zhele::Private
         return ResolutionBits + sampleTimes[sampleTimeBits] + 1;
     }
 
-    ADC_TEMPLATE_ARGS
-    void ADC_TEMPLATE_QUALIFIER::SetSampleTime(uint8_t channel, unsigned sampleTime)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    void AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::SetSampleTime(uint8_t channel, unsigned sampleTime)
     {
         if (channel > 18)
             return;
@@ -145,9 +134,9 @@ namespace Zhele::Private
         }
     }
 
-    ADC_TEMPLATE_ARGS
-    template<ADC_TEMPLATE_QUALIFIER::AdcDivider divider, ADC_TEMPLATE_QUALIFIER::ClockSource clockSource>
-    void ADC_TEMPLATE_QUALIFIER::Init(ADC_TEMPLATE_QUALIFIER::Reference reference)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    template<AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::AdcDivider divider, AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::ClockSource clockSource>
+    void AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::Init(AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::Reference reference)
     {
         _ClockCtrl::Enable();
         SelectClockSource<clockSource>();
@@ -160,14 +149,14 @@ namespace Zhele::Private
         
         _Regs()->CR1 = ADC_CR1_EOSIE | ADC_CR1_JEOSIE;
         _Regs()->CR2 = ADC_CR2_ADON | ADC_CR2_EXTSEL | ADC_CR2_EXTTRIG;
-        _Regs()->CR2 |= ADC_CR2_RSTCAL;
+        _Regs::template SetBits<^^ADC_TypeDef::CR2, ADC_CR2_RSTCAL>();
         while (_Regs()->CR2 & ADC_CR2_RSTCAL)
         {
         }
 
         Zhele::delay_ms<100>(); // need delay at least one ADC cycle
 
-        _Regs()->CR2 |= ADC_CR2_CAL;
+        _Regs::template SetBits<^^ADC_TypeDef::CR2, ADC_CR2_CAL>();
         while (_Regs()->CR2 & ADC_CR2_CAL)
         {
         }
@@ -176,24 +165,24 @@ namespace Zhele::Private
         NVIC_EnableIRQ(ADC1_IRQn);
     }
 
-    ADC_TEMPLATE_ARGS
-    uint8_t ADC_TEMPLATE_QUALIFIER::SetResolution(uint8_t bits)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    uint8_t AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::SetResolution(uint8_t bits)
     {
         (void)bits;
         return ResolutionBits;
     }
 
-    ADC_TEMPLATE_ARGS
-    void ADC_TEMPLATE_QUALIFIER::Disable()
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    void AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::Disable()
     {
         _Regs()->CR1 = 0;
         _Regs()->CR2 = 0;
         _ClockCtrl::Disable();
     }
 
-    ADC_TEMPLATE_ARGS
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
     template <typename InjectedTrigger, typename TriggerMode>
-    void ADC_TEMPLATE_QUALIFIER::SetInjectedTrigger(InjectedTrigger trigger, TriggerMode mode)
+    void AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::SetInjectedTrigger(InjectedTrigger trigger, TriggerMode mode)
     {
         _Regs()->CR2 = (_Regs()->CR2 & ~(ADC_CR2_JEXTSEL | ADC_CR2_JEXTTRIG)) | ((trigger & 0x07) << ADC_CR2_JEXTSEL_Pos) | (mode << ADC_CR2_JEXTTRIG_Pos);
     }
@@ -203,7 +192,7 @@ namespace Zhele::Private
     {
         if (channel == AdcCommon::TempSensorChannel)
         {
-            _Regs()->CR2 |= ADC_CR2_TSVREFE;
+            _Regs::template SetBits<^^ADC_TypeDef::CR2, ADC_CR2_TSVREFE>();
         }
         else
         {
@@ -224,8 +213,8 @@ namespace Zhele::Private
         return jsqr;
     }
 
-    ADC_TEMPLATE_ARGS
-    bool ADC_TEMPLATE_QUALIFIER::StartInjected(const uint8_t *channels, uint16_t *data, uint8_t count, AdcCallbackType callback)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    bool AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::StartInjected(const uint8_t *channels, uint16_t *data, uint8_t count, AdcCallbackType callback)
     {
         if (count == 0 || count > 4)
         {
@@ -239,7 +228,7 @@ namespace Zhele::Private
             return false;
         }
 
-        _Regs()->CR1 |= ADC_CR1_JDISCEN;
+        _Regs::template SetBits<^^ADC_TypeDef::CR1, ADC_CR1_JDISCEN>();
 
         _adcData.injectedCallback = callback;
         _adcData.injectedData = data;
@@ -250,21 +239,21 @@ namespace Zhele::Private
         _Regs()->JSQR = GetJsqr(channels, count, _Regs()->JSQR);
         if (callback)
         {
-            _Regs()->CR1 |= ADC_CR1_JEOCIE;
+            _Regs::template SetBits<^^ADC_TypeDef::CR1, ADC_CR1_JEOCIE>();
         }
         else
         {
-            _Regs()->CR1 &= ~ADC_CR1_JEOCIE;
+            _Regs::template ClearBits<^^ADC_TypeDef::CR1, ADC_CR1_JEOCIE>();
         }
 
         _Regs()->CR2 |= ADC_CR2_JEXTTRIG | ADC_CR2_JEXTSEL;
-        _Regs()->CR2 |= ADC_CR2_JSWSTART;
+        _Regs::template SetBits<^^ADC_TypeDef::CR2, ADC_CR2_JSWSTART>();
 
         return true;
     }
 
-    ADC_TEMPLATE_ARGS
-    bool ADC_TEMPLATE_QUALIFIER::ReadInjected(const uint8_t *channels, uint16_t *data, uint8_t count)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    bool AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::ReadInjected(const uint8_t *channels, uint16_t *data, uint8_t count)
     {
         bool result = false, alreadyStarted = false;
         if (_Regs()->SR & ADC_SR_JSTRT)
@@ -307,8 +296,8 @@ namespace Zhele::Private
         return result;
     }
 
-    ADC_TEMPLATE_ARGS
-    void ADC_TEMPLATE_QUALIFIER::DmaHandler(void *data, size_t size, bool success)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    void AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::DmaHandler(void *data, size_t size, bool success)
     {
         _DmaChannel::Disable();
         _Regs()->CR2 &= ~(ADC_CR2_DMA | ADC_CR2_CONT);
@@ -323,8 +312,8 @@ namespace Zhele::Private
             _adcData.error = AdcError::TransferError;
     }
 
-    ADC_TEMPLATE_ARGS
-    void ADC_TEMPLATE_QUALIFIER::IrqHandler()
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    void AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::IrqHandler()
     {
         unsigned sr = _Regs()->SR;
 
@@ -352,8 +341,8 @@ namespace Zhele::Private
         NVIC_ClearPendingIRQ(ADC1_IRQn);
     }
 
-    ADC_TEMPLATE_ARGS
-    bool ADC_TEMPLATE_QUALIFIER::StartInjected(uint8_t channel)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    bool AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::StartInjected(uint8_t channel)
     {
         if (channel > ChannelCount)
         {
@@ -367,19 +356,19 @@ namespace Zhele::Private
             return false;
         }
 
-        _Regs()->CR1 |= ADC_CR1_DISCEN;
+        _Regs::template SetBits<^^ADC_TypeDef::CR1, ADC_CR1_DISCEN>();
         _Regs()->SR = ~(ADC_SR_JEOC);
         _Regs()->JSQR = (unsigned)channel;
 
         EnableChannel<Pins, _Regs>(channel);
 
         _Regs()->CR2 |= ADC_CR2_JEXTTRIG | ADC_CR2_JEXTSEL;
-        _Regs()->CR2 |= ADC_CR2_JSWSTART;
+        _Regs::template SetBits<^^ADC_TypeDef::CR2, ADC_CR2_JSWSTART>();
         return true;
     }
 
-    ADC_TEMPLATE_ARGS
-    uint16_t ADC_TEMPLATE_QUALIFIER::ReadInjected()
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    uint16_t AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::ReadInjected()
     {
         unsigned status, timeout = AdcTimeoutCycles;
         uint16_t result = 0xffff;
@@ -402,104 +391,30 @@ namespace Zhele::Private
         return result;
     }
 
-    ADC_TEMPLATE_ARGS
-    bool ADC_TEMPLATE_QUALIFIER::InjectedReady()
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    bool AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::InjectedReady()
     {
         return (_Regs()->SR & (ADC_SR_JEOC)) == (ADC_SR_JEOC);
     }
 
-    ADC_TEMPLATE_ARGS
-    void ADC_TEMPLATE_QUALIFIER::StopInjected()
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    void AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::StopInjected()
     {
         _Regs()->SR &= ~(ADC_SR_JSTRT | ADC_SR_JEOC);
         _Regs()->JSQR = 0;
     }
 
-    ADC_TEMPLATE_ARGS
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
     template<typename RegularTrigger, typename TriggerMode>
-    void ADC_TEMPLATE_QUALIFIER::SetRegularTrigger(RegularTrigger trigger, TriggerMode mode)
+    void AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::SetRegularTrigger(RegularTrigger trigger, TriggerMode mode)
     {
         _Regs()->CR2 = (_Regs()->CR2 & ~(ADC_CR2_EXTSEL | ADC_CR2_EXTTRIG)) | ((trigger & 0x0f) << ADC_CR2_EXTSEL_Pos) | (mode << ADC_CR2_EXTTRIG_Pos);
     }
 
-    ADC_TEMPLATE_ARGS
-    bool ADC_TEMPLATE_QUALIFIER::StartRegular(std::initializer_list<uint8_t> channels, uint16_t *dataBuffer, uint16_t scanCount, uint8_t discontinuous)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    bool AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::StartRegular(std::span<const uint8_t> channels, uint16_t *dataBuffer, uint16_t scanCount, uint8_t discontinuous)
     {
-        if (scanCount == 0 || channels.size() == 0)
-        {
-            _adcData.error = AdcError::ArgumentError;
-            return false;
-        }
-
-        if (channels.size() > MaxRegular)
-        {
-            _adcData.error = AdcError::ArgumentError;
-            return false;
-        }
-
-        if (!VerifyReady(ADC_SR_STRT))
-        {
-            _adcData.error = AdcError::NotReady;
-            return false;
-        }
-
-        _Regs()->SR &= ~(ADC_SR_STRT | ADC_SR_EOC);
-
-        _Regs()->SQR1 = ((channels.size() - 1) << 20);
-        _Regs()->SQR3 = 0;
-        _Regs()->SQR2 = 0;
-        
-        unsigned i = 0;
-        for (uint8_t channel : channels)
-        {
-            Pins::SetConfiguration(Pins::Configuration::Analog, 1u << channel);
-            if (i < 6)
-            {
-                _Regs()->SQR3 |= (channel & 0x1f) << 5 * (i);
-            }
-            else if (i < 12)
-            {
-                _Regs()->SQR2 |= (channel & 0x1f) << 5 * (i - 6);
-            }
-            else
-            {
-                _Regs()->SQR1 |= (channel & 0x1f) << 5 * (i - 12);
-            }
-            i++;
-        }
-
-        _DmaChannel::SetTransferCallback(DmaHandler);
-        _DmaChannel::Transfer(DmaBase::Periph2Mem | DmaBase::MemIncrement | DmaBase::PriorityHigh | DmaBase::PSize16Bits | DmaBase::MSize16Bits,
-                            dataBuffer, &_Regs()->DR, channels.size() * scanCount);
-
-        _adcData.error = AdcError::NoError;
-        
-        uint32_t controlReg = _Regs()->CR1;
-        controlReg &= ~(ADC_CR1_DISCEN | ADC_CR1_DISCNUM | ADC_CR1_SCAN);
-        if(discontinuous > 0)
-        {
-            controlReg |= ADC_CR1_DISCEN;
-            controlReg |= (discontinuous - 1) << ADC_CR1_DISCNUM_Pos;
-        }
-        if(channels.size() > 1)
-            controlReg |= ADC_CR1_SCAN;
-
-        _Regs()->CR1 |= controlReg;
-
-        controlReg = _Regs()->CR2;
-        controlReg |= ADC_CR2_DMA;
-        if (scanCount > 1)
-            controlReg |= ADC_CR2_CONT;
-        _Regs()->CR2 = controlReg;
-
-        _Regs()->CR2 |= ADC_CR2_SWSTART;
-
-        return true;
-    }
-
-    ADC_TEMPLATE_ARGS
-    bool ADC_TEMPLATE_QUALIFIER::StartRegular(const uint8_t *channels, uint8_t channelsCount, uint16_t *dataBuffer, uint16_t scanCount, uint8_t discontinuous)
-    {
+        const size_t channelsCount = channels.size();
         if (scanCount == 0 || channelsCount == 0)
         {
             _adcData.error = AdcError::ArgumentError;
@@ -518,7 +433,7 @@ namespace Zhele::Private
             return false;
         }
 
-        _Regs()->SR &= ADC_SR_STRT | ADC_SR_EOC;
+        _Regs()->SR &= ~(ADC_SR_STRT | ADC_SR_EOC);
 
         _Regs()->SQR1 = ((channelsCount - 1) << 20);
         _Regs()->SQR3 = 0;
@@ -526,7 +441,7 @@ namespace Zhele::Private
 
         for (unsigned i = 0; i < channelsCount; i++)
         {
-            Pins::SetConfiguration(1u << channels[i], Pins::Configuration::Analog);
+            Pins::SetConfiguration(Pins::Configuration::Analog, 1u << channels[i]);
             if (i < 6)
             {
                 _Regs()->SQR3 |= (channels[i] & 0x1f) << 5 * (i);
@@ -559,33 +474,32 @@ namespace Zhele::Private
 
         _Regs()->CR1 |= controlReg;
 
-
         controlReg = _Regs()->CR2;
         controlReg |= ADC_CR2_DMA;
         if (scanCount > 1)
             controlReg |= ADC_CR2_CONT;
         _Regs()->CR2 = controlReg;
 
-        _Regs()->CR2 |= ADC_CR2_SWSTART;
+        _Regs::template SetBits<^^ADC_TypeDef::CR2, ADC_CR2_SWSTART>();
 
         return true;
     }
 
-    ADC_TEMPLATE_ARGS
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
     template <typename... _Pins>
-    bool ADC_TEMPLATE_QUALIFIER::StartRegular(uint16_t *dataBuffer, uint16_t scanCount)
+    bool AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::StartRegular(uint16_t *dataBuffer, uint16_t scanCount)
     {
         return StartRegular({Pins::template PinIndex<_Pins>::Value...}, dataBuffer, scanCount);
     }
 
-    ADC_TEMPLATE_ARGS
-    bool ADC_TEMPLATE_QUALIFIER::RegularReady()
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    bool AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::RegularReady()
     {
         return _DmaChannel::Ready();
     }
 
-    ADC_TEMPLATE_ARGS
-    void ADC_TEMPLATE_QUALIFIER::StopRegular()
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    void AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::StopRegular()
     {
         _DmaChannel::Disable();
         _Regs()->SR &= ~(ADC_SR_STRT | ADC_SR_EOC);
@@ -595,30 +509,30 @@ namespace Zhele::Private
     }
 #endif
 
-    ADC_TEMPLATE_ARGS
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
     template <typename _Pin>
-    uint16_t ADC_TEMPLATE_QUALIFIER::ReadInjected()
+    uint16_t AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::ReadInjected()
     {
         const int index = Pins::template PinIndex<_Pin>::value;
         static_assert(index >= 0);
         return ReadInjected(index);
     }
 
-    ADC_TEMPLATE_ARGS
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
     template <typename _Pin>
-    constexpr unsigned ADC_TEMPLATE_QUALIFIER::ChannelNum()
+    constexpr unsigned AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::ChannelNum()
     {
         return Pins::template PinIndex<_Pin>::Value;
     }
 
-    ADC_TEMPLATE_ARGS
-    ADC_TEMPLATE_QUALIFIER::AdcError ADC_TEMPLATE_QUALIFIER::GetError()
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::AdcError AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::GetError()
     {
         return _adcData.error;
     }
 
-    ADC_TEMPLATE_ARGS
-    int16_t ADC_TEMPLATE_QUALIFIER::ReadTemperature()
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    int16_t AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::ReadTemperature()
     {
         SetSampleTime(TempSensorChannel, 250);
         uint16_t rawValue = ReadInjected(TempSensorChannel);
@@ -628,11 +542,11 @@ namespace Zhele::Private
         return value;
     }
 
-    ADC_TEMPLATE_ARGS
-    AdcData ADC_TEMPLATE_QUALIFIER::_adcData;
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    AdcData AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::_adcData;
 
-    ADC_TEMPLATE_ARGS
-    unsigned ADC_TEMPLATE_QUALIFIER::ToVolts(uint16_t value)
+    template <typename _Regs, typename _ClockCtrl, typename _InputPins, typename _DmaChannel>
+    unsigned AdcBase<_Regs, _ClockCtrl, _InputPins, _DmaChannel>::ToVolts(uint16_t value)
     {
         if(_adcData.vRef == 0)
         {

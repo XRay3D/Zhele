@@ -11,16 +11,25 @@
 
 #include <zhele/clock.h>
 #include <zhele/ioports.h>
+#include "../ioreg.h"
 
 namespace Zhele
 {
+    namespace Private
+    {
+        using ExtiRegs = IoStruct<EXTI_BASE, EXTI_TypeDef>;
+        using ExtiRisingReg = ExtiRegs::Reg<^^EXTI_TypeDef::RTSR>;
+        using ExtiFallingReg = ExtiRegs::Reg<^^EXTI_TypeDef::FTSR>;
+        using ExtiMaskReg = ExtiRegs::Reg<^^EXTI_TypeDef::IMR>;
+    }
+
     template<uint8_t _Line, IRQn_Type _IRQn>
     template <typename Exti<_Line, _IRQn>::Trigger trigger, typename port>
     void Exti<_Line, _IRQn>::Init()
     {
         EnableClock();
-        EXTI->RTSR = (EXTI->RTSR & ~(1 << _Line)) | ((trigger & 1) << _Line);
-        EXTI->FTSR = (EXTI->FTSR & ~(1 << _Line)) | (((trigger >> 1) & 1) << _Line);
+        Private::ExtiRisingReg::WriteBit<_Line>(trigger & Rising);
+        Private::ExtiFallingReg::WriteBit<_Line>(trigger & Falling);
         SelectPort<port>();
     }
 
@@ -28,8 +37,8 @@ namespace Zhele
     void Exti<_Line, _IRQn>::Init(Trigger trigger, char portId)
     {
         EnableClock();
-        EXTI->RTSR = (EXTI->RTSR & ~(1 << _Line)) | ((trigger & 1) << _Line);
-        EXTI->FTSR = (EXTI->FTSR & ~(1 << _Line)) | (((trigger >> 1) & 1) << _Line);
+        Private::ExtiRisingReg::WriteBit<_Line>(trigger & Rising);
+        Private::ExtiFallingReg::WriteBit<_Line>(trigger & Falling);
         SelectPort(portId);
     }
 
@@ -52,14 +61,14 @@ namespace Zhele
     template<uint8_t _Line, IRQn_Type _IRQn>
     void Exti<_Line, _IRQn>::EnableInterrupt()
     {
-        EXTI->IMR = (EXTI->IMR & ~(1 << _Line)) | (1 << _Line);
+        Private::ExtiMaskReg::SetBit<_Line>();
         NVIC_EnableIRQ(_IRQn);
     }
 
     template<uint8_t _Line, IRQn_Type _IRQn>
     void Exti<_Line, _IRQn>::DisableInterrupt()
     {
-        EXTI->IMR &= (~(1 << _Line));
+        Private::ExtiMaskReg::ClearBit<_Line>();
         NVIC_DisableIRQ(_IRQn);
     }
 

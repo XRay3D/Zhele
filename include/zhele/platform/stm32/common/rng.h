@@ -10,6 +10,7 @@
 #define ZHELE_PLATFORM_STM32_COMMON_RNG_H
 
 #include <zhele/clock.h>
+#include <span>
 
 #include <cstdint>
 #include <cstddef>
@@ -55,6 +56,14 @@ namespace Zhele {
          * @retval false Generate fails (timeout)
          */
         static inline bool NextBytes(uint8_t* data, size_t size);
+
+        /**
+         * @brief Fill a byte range with random data
+         */
+        static bool NextBytes(std::span<uint8_t> data)
+        {
+            return NextBytes(data.data(), data.size());
+        }
 
         /**
          * @brief Returns RNG module OK status

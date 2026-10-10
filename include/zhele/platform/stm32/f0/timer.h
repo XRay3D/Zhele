@@ -103,7 +103,6 @@ namespace Zhele::Timers
             SelectPins<Pins::template IndexOf<Pin>>();
         }
 
-
         template<unsigned ChannelNumber> struct Tim3ChPins;
         template<> struct Tim3ChPins<0>{ struct Pins { using io_pins = IO::PinList<Pa6, Pb4>; static constexpr std::array<uint8_t, 2> alt_functions{1, 1}; }; };
         template<> struct Tim3ChPins<1>{ struct Pins { using io_pins = IO::PinList<Pa7, Pb5>; static constexpr std::array<uint8_t, 2> alt_functions{1, 1}; }; };
@@ -111,13 +110,13 @@ namespace Zhele::Timers
         template<> struct Tim3ChPins<3>{ struct Pins { using io_pins = IO::PinList<Pb1, Pb11>; static constexpr std::array<uint8_t, 2> alt_functions{1, 1}; }; };
         
     #if defined (TIM1)
-        IO_STRUCT_WRAPPER(TIM1, Tim1Regs, TIM_TypeDef);
+        using Tim1Regs = IoStruct<TIM1_BASE, TIM_TypeDef>;
     #endif
     #if defined (TIM2)
-        IO_STRUCT_WRAPPER(TIM2, Tim2Regs, TIM_TypeDef);
+        using Tim2Regs = IoStruct<TIM2_BASE, TIM_TypeDef>;
     #endif
     #if defined (TIM3)
-        IO_STRUCT_WRAPPER(TIM3, Tim3Regs, TIM_TypeDef);
+        using Tim3Regs = IoStruct<TIM3_BASE, TIM_TypeDef>;
     #endif
     }
 

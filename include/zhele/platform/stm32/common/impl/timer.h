@@ -12,296 +12,289 @@
 namespace Zhele::Timers::Private
 {
 
-    #define BASETIMER_TEMPLATE_ARGS template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
-    #define BASETIMER_TEMPLATE_QUALIFIER BaseTimer<_Regs, _ClockEnReg, _IRQNumber>
-
-    BASETIMER_TEMPLATE_ARGS
-    unsigned BASETIMER_TEMPLATE_QUALIFIER::GetClockFreq()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    unsigned BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::GetClockFreq()
     {
         return _ClockEnReg::ClockFreq();
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::Enable()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::Enable()
     {
         _ClockEnReg::Enable();
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::Disable()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::Disable()
     {
         _ClockEnReg::Disable();
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::SetCounterMode(CounterMode counterMode)
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::SetCounterMode(CounterMode counterMode)
     {
         _Regs()->CR1 = (_Regs()->CR1 & ~TIM_CR1_CMS_Msk) | static_cast<uint16_t>(counterMode);
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::SetCounterValue(BASETIMER_TEMPLATE_QUALIFIER::Counter counter)
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::SetCounterValue(BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::Counter counter)
     {
         _Regs()->CNT = counter;
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    typename BASETIMER_TEMPLATE_QUALIFIER::Counter BASETIMER_TEMPLATE_QUALIFIER::GetCounterValue()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    typename BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::Counter BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::GetCounterValue()
     {
         return _Regs()->CNT;
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::ResetCounterValue()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::ResetCounterValue()
     {
         _Regs()->CNT = 0;
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::SetPrescaler(BASETIMER_TEMPLATE_QUALIFIER::Prescaler prescaler)
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::SetPrescaler(BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::Prescaler prescaler)
     {
         _Regs()->PSC = prescaler;
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    typename BASETIMER_TEMPLATE_QUALIFIER::Counter BASETIMER_TEMPLATE_QUALIFIER::GetPrescaler()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    typename BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::Counter BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::GetPrescaler()
     {
         return _Regs()->PSC;
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::SetPeriod(BASETIMER_TEMPLATE_QUALIFIER::Counter period)
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::SetPeriod(BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::Counter period)
     {
         _Regs()->ARR = period;
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::SetPeriodAndUpdate(BASETIMER_TEMPLATE_QUALIFIER::Counter value)
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::SetPeriodAndUpdate(BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::Counter value)
     {
         _Regs()->ARR = value;
-        _Regs()->EGR |= TIM_EGR_UG;
+        _Regs()->EGR = TIM_EGR_UG;
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    typename BASETIMER_TEMPLATE_QUALIFIER::Counter BASETIMER_TEMPLATE_QUALIFIER::GetPeriod()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    typename BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::Counter BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::GetPeriod()
     {
         return _Regs()->ARR;
     }
 
-
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::EnableOnePulseMode()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::EnableOnePulseMode()
     {
-        _Regs()->CR1 |= TIM_CR1_OPM;
+        _Regs::template SetBits<^^TIM_TypeDef::CR1, TIM_CR1_OPM>();
     }    
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::DisableOnePulseMode()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::DisableOnePulseMode()
     {
-        _Regs()->CR1 &= ~TIM_CR1_OPM;
+        _Regs::template ClearBits<^^TIM_TypeDef::CR1, TIM_CR1_OPM>();
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::Stop()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::Stop()
     {
-        _Regs()->CR1 &= (~TIM_CR1_CEN);
+        _Regs::template ClearBits<^^TIM_TypeDef::CR1, TIM_CR1_CEN>();
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::Start()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::Start()
     {
-        _Regs()->CR1 |= TIM_CR1_CEN;
+        _Regs::template SetBits<^^TIM_TypeDef::CR1, TIM_CR1_CEN>();
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::EnableInterrupt(Interrupt interruptMask)
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::EnableInterrupt(Interrupt interruptMask)
     {
         _Regs()->DIER |= static_cast<uint16_t>(interruptMask);
         NVIC_EnableIRQ(_IRQNumber);
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::DisableInterrupt(Interrupt interruptMask)
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::DisableInterrupt(Interrupt interruptMask)
     {
         _Regs()->DIER &= ~(static_cast<uint16_t>(interruptMask));
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    bool BASETIMER_TEMPLATE_QUALIFIER::IsInterrupt()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    bool BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::IsInterrupt()
     {
         return (_Regs()->SR & TIM_SR_UIF) != 0;
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::ClearInterruptFlag()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::ClearInterruptFlag()
     {
         _Regs()->SR = 0;
         NVIC_ClearPendingIRQ(_IRQNumber);
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::SetMasterMode(BASETIMER_TEMPLATE_QUALIFIER::MasterMode mode)
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::SetMasterMode(BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::MasterMode mode)
     {
         _Regs()->CR2 |= static_cast<uint32_t>(mode);
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::DmaRequestEnable()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::DmaRequestEnable()
     {
-        _Regs()->DIER |= TIM_DIER_UDE;
+        _Regs::template SetBits<^^TIM_TypeDef::DIER, TIM_DIER_UDE>();
     }
 
-    BASETIMER_TEMPLATE_ARGS
-    void BASETIMER_TEMPLATE_QUALIFIER::DmaRequestDisable()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber>
+    void BaseTimer<_Regs, _ClockEnReg, _IRQNumber>::DmaRequestDisable()
     {
-        _Regs()->DIER &= ~TIM_DIER_UDE;
+        _Regs::template ClearBits<^^TIM_TypeDef::DIER, TIM_DIER_UDE>();
     }
 
-    #define GPTIMER_TEMPLATE_ARGS template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
-    #define GPTIMER_TEMPLATE_QUALIFIER GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>
-
-    GPTIMER_TEMPLATE_ARGS
-    void GPTIMER_TEMPLATE_QUALIFIER::SlaveMode::EnableSlaveMode(Mode mode)
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::SlaveMode::EnableSlaveMode(Mode mode)
     {
         _Regs()->SMCR = (_Regs()->SMCR & ~TIM_SMCR_SMS_Msk) | static_cast<uint16_t>(mode);
     }
 
-    GPTIMER_TEMPLATE_ARGS
-    void GPTIMER_TEMPLATE_QUALIFIER::SlaveMode::DisableSlaveMode()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::SlaveMode::DisableSlaveMode()
     {
         _Regs()->SMCR &= ~TIM_SMCR_SMS_Msk;
     }
 
-    GPTIMER_TEMPLATE_ARGS
-    void GPTIMER_TEMPLATE_QUALIFIER::SlaveMode::SelectTrigger(Trigger trigger)
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::SlaveMode::SelectTrigger(Trigger trigger)
     {
         _Regs()->SMCR = (_Regs()->SMCR & ~TIM_SMCR_TS_Msk) | static_cast<uint16_t>(trigger);
     }
 
-    GPTIMER_TEMPLATE_ARGS
-    void GPTIMER_TEMPLATE_QUALIFIER::SlaveMode::SetTriggerPrescaler(ExternalTriggerPrescaler prescaler)
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::SlaveMode::SetTriggerPrescaler(ExternalTriggerPrescaler prescaler)
     {
         _Regs()->SMCR = (_Regs()->SMCR & ~TIM_SMCR_ETPS_Msk) | static_cast<uint16_t>(prescaler);
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::ChannelBase<_ChannelNumber>::EnableInterrupt()
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::ChannelBase<_ChannelNumber>::EnableInterrupt()
     {
         _Regs()->DIER |= (TIM_DIER_CC1IE << _ChannelNumber);
         NVIC_EnableIRQ(_IRQNumber);
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::ChannelBase<_ChannelNumber>::DisableInterrupt()
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::ChannelBase<_ChannelNumber>::DisableInterrupt()
     {
         _Regs()->DIER &= ~(TIM_DIER_CC1IE << _ChannelNumber);
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    bool GPTIMER_TEMPLATE_QUALIFIER::ChannelBase<_ChannelNumber>::IsInterrupt()
+    bool GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::ChannelBase<_ChannelNumber>::IsInterrupt()
     {
         return _Regs()->SR & (TIM_SR_CC1IF << _ChannelNumber);
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::ChannelBase<_ChannelNumber>::ClearInterruptFlag()
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::ChannelBase<_ChannelNumber>::ClearInterruptFlag()
     {
         _Regs()->SR = ~(TIM_SR_CC1IF << _ChannelNumber);
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::ChannelBase<_ChannelNumber>::EnableDmaRequest()
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::ChannelBase<_ChannelNumber>::EnableDmaRequest()
     {
         _Regs()->DIER |= (TIM_DIER_CC1DE << _ChannelNumber);
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::ChannelBase<_ChannelNumber>::DisableDmaRequest()
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::ChannelBase<_ChannelNumber>::DisableDmaRequest()
     {
         _Regs()->DIER &= ~(TIM_DIER_CC1DE << _ChannelNumber);
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::ChannelBase<_ChannelNumber>::Enable()
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::ChannelBase<_ChannelNumber>::Enable()
     {
         _Regs()->CCER |= (TIM_CCER_CC1E << (_ChannelNumber * 4));
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::ChannelBase<_ChannelNumber>::Disable()
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::ChannelBase<_ChannelNumber>::Disable()
     {
         _Regs()->CCER &= ~(TIM_CCER_CC1E << (_ChannelNumber * 4));
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::InputCapture<_ChannelNumber>::SetCapturePolarity(CapturePolarity polarity)
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::InputCapture<_ChannelNumber>::SetCapturePolarity(CapturePolarity polarity)
     {
         _Regs()->CCER = (_Regs()->CCER & ~((TIM_CCER_CC1E | TIM_CCER_CC1P | TIM_CCER_CC1NP) << (_ChannelNumber * 4))) | (polarity << (_ChannelNumber * 4));
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::InputCapture<_ChannelNumber>::SetCaptureMode(CaptureMode mode)
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::InputCapture<_ChannelNumber>::SetCaptureMode(CaptureMode mode)
     {
         Channel::ModeBitField::Set(mode);
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    typename GPTIMER_TEMPLATE_QUALIFIER::Base::Counter GPTIMER_TEMPLATE_QUALIFIER::InputCapture<_ChannelNumber>::GetValue()
+    typename GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::Base::Counter GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::InputCapture<_ChannelNumber>::GetValue()
     {
         return (&_Regs()->CCR1)[_ChannelNumber];
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::OutputCompare<_ChannelNumber>::SetPulse(typename Base::Counter pulse)
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::OutputCompare<_ChannelNumber>::SetPulse(typename Base::Counter pulse)
     {
         (&_Regs()->CCR1)[_ChannelNumber] = pulse;
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    typename GPTIMER_TEMPLATE_QUALIFIER::Base::Counter GPTIMER_TEMPLATE_QUALIFIER::OutputCompare<_ChannelNumber>::GetPulse()
+    typename GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::Base::Counter GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::OutputCompare<_ChannelNumber>::GetPulse()
     {
         return (&_Regs()->CCR1)[_ChannelNumber];
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::OutputCompare<_ChannelNumber>::SetOutputPolarity(OutputPolarity polarity)
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::OutputCompare<_ChannelNumber>::SetOutputPolarity(OutputPolarity polarity)
     {
         _Regs()->CCER = (_Regs()->CCER & ~((TIM_CCER_CC1E | TIM_CCER_CC1P | TIM_CCER_CC1NP) << (_ChannelNumber * 4))) | (polarity << (_ChannelNumber * 4));
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::OutputCompare<_ChannelNumber>::SetOutputMode(OutputMode mode)
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::OutputCompare<_ChannelNumber>::SetOutputMode(OutputMode mode)
     {
         _Regs()->CCER = (_Regs()->CCER & ~(TIM_CCER_CC1NP << (_ChannelNumber * 4))) | (TIM_CCER_CC1E << (_ChannelNumber * 4));
         Channel::ModeBitField::Set(mode);
-        _Regs()->BDTR |= TIM_BDTR_MOE;
+        _Regs::template SetBits<^^TIM_TypeDef::BDTR, TIM_BDTR_MOE>();
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::PWMGeneration<_ChannelNumber>::SetOutputFastMode(FastMode mode)
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::PWMGeneration<_ChannelNumber>::SetOutputFastMode(FastMode mode)
     {
         _Regs()->CCER = (_Regs()->CCER & ~TIM_CCMR1_OC1FE) | static_cast<uint16_t>(mode);
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::PWMGeneration<_ChannelNumber>::SelectPins(int pinNumber)
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::PWMGeneration<_ChannelNumber>::SelectPins(int pinNumber)
     {
         using Type = typename Pins::DataType;
         Type mask = 1 << pinNumber;
@@ -311,10 +304,10 @@ namespace Zhele::Timers::Private
         Base::SelectPins(pinNumber);
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
     template<unsigned PinNumber>
-    void GPTIMER_TEMPLATE_QUALIFIER::PWMGeneration<_ChannelNumber>::SelectPins()
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::PWMGeneration<_ChannelNumber>::SelectPins()
     {
         using Pin = typename Pins::template Pin<PinNumber>;
         Pin::Port::Enable();
@@ -323,10 +316,10 @@ namespace Zhele::Timers::Private
         Base::template SelectPins<Pin>();
     }
 
-    GPTIMER_TEMPLATE_ARGS
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
     template<unsigned _ChannelNumber>
     template<typename Pin>
-    void GPTIMER_TEMPLATE_QUALIFIER::PWMGeneration<_ChannelNumber>::SelectPins()
+    void GPTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::PWMGeneration<_ChannelNumber>::SelectPins()
     {
         const int index = Pins::template IndexOf<Pin>;
         static_assert(index >= 0);
@@ -336,17 +329,14 @@ namespace Zhele::Timers::Private
         Base::template SelectPins<Pin>();
     }
 
-    #define ADVANCED_TIMER_TEMPLATE_ARGS template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
-    #define ADVANCED_TIMER_TEMPLATE_QUALIFIER AdvancedTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>
-
-    ADVANCED_TIMER_TEMPLATE_ARGS
-    void ADVANCED_TIMER_TEMPLATE_QUALIFIER::SetRepetitionCounter(uint8_t repetitionCounter)
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
+    void AdvancedTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::SetRepetitionCounter(uint8_t repetitionCounter)
     {
         _Regs()->RCR = repetitionCounter;
     }
 
-    ADVANCED_TIMER_TEMPLATE_ARGS
-    uint8_t ADVANCED_TIMER_TEMPLATE_QUALIFIER::GetRepetitionCounter()
+    template<typename _Regs, typename _ClockEnReg, IRQn_Type _IRQNumber, template<unsigned> typename _ChPins>
+    uint8_t AdvancedTimer<_Regs, _ClockEnReg, _IRQNumber, _ChPins>::GetRepetitionCounter()
     {
         return _Regs()->RCR & 0xff;
     }

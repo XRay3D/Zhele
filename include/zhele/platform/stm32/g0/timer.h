@@ -119,17 +119,17 @@ namespace Zhele::Timers
         template<unsigned ChannelNumber> struct Tim14ChPins;
         template<> struct Tim14ChPins<0>{ struct Pins { using io_pins = IO::PinList<Pa4, Pa7, Pb1, Pc12, Pf0>; static constexpr std::array<uint8_t, 5> alt_functions{4, 4, 0, 2, 2}; }; };
         
-        IO_STRUCT_WRAPPER(TIM1, Tim1Regs, TIM_TypeDef);
+        using Tim1Regs = IoStruct<TIM1_BASE, TIM_TypeDef>;
     #if defined (TIM2)
-        IO_STRUCT_WRAPPER(TIM2, Tim2Regs, TIM_TypeDef);
+        using Tim2Regs = IoStruct<TIM2_BASE, TIM_TypeDef>;
     #endif
-        IO_STRUCT_WRAPPER(TIM3, Tim3Regs, TIM_TypeDef);
+        using Tim3Regs = IoStruct<TIM3_BASE, TIM_TypeDef>;
     #if defined (TIM4)
-        IO_STRUCT_WRAPPER(TIM4, Tim4Regs, TIM_TypeDef);
+        using Tim4Regs = IoStruct<TIM4_BASE, TIM_TypeDef>;
     #endif
-        IO_STRUCT_WRAPPER(TIM14, Tim14Regs, TIM_TypeDef);
-        IO_STRUCT_WRAPPER(TIM16, Tim16Regs, TIM_TypeDef);
-        IO_STRUCT_WRAPPER(TIM17, Tim17Regs, TIM_TypeDef);
+        using Tim14Regs = IoStruct<TIM14_BASE, TIM_TypeDef>;
+        using Tim16Regs = IoStruct<TIM16_BASE, TIM_TypeDef>;
+        using Tim17Regs = IoStruct<TIM17_BASE, TIM_TypeDef>;
     }
 
 #if defined (TIM2)

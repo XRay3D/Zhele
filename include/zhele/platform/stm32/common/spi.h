@@ -10,6 +10,9 @@
 #define ZHELE_PLATFORM_STM32_COMMON_SPI_H
 
 #include "ioreg.h"
+
+#include <algorithm>
+#include <span>
 #include <zhele/common/template_utils/enum.h>
 
 #include <zhele/clock.h>
@@ -300,6 +303,15 @@ namespace Zhele
             static void SendAsync(void* transmitBuffer, void* receiveBuffer, size_t bufferSize, TransferCallback callback = nullptr);
 
             /**
+             * @brief Full-duplex async transfer of equally sized buffers (via DMA)
+             */
+            template<typename T>
+            static void SendAsync(std::span<const T> transmitBuffer, std::span<T> receiveBuffer, TransferCallback callback = nullptr)
+            {
+                SendAsync(const_cast<T*>(transmitBuffer.data()), receiveBuffer.data(), std::min(transmitBuffer.size(), receiveBuffer.size()), callback);
+            }
+
+            /**
              * @brief Send data with ignored receive
              * 
              * @param [in] data Data to send
@@ -320,6 +332,15 @@ namespace Zhele
              * 	Nothing
              */
             static void WriteAsync(const void* data, uint16_t size, TransferCallback callback = nullptr);
+
+            /**
+             * @brief Write a buffer async (via DMA); element size must match the configured data size
+             */
+            template<typename T>
+            static void WriteAsync(std::span<const T> data, TransferCallback callback = nullptr)
+            {
+                WriteAsync(data.data(), data.size(), callback);
+            }
 
             /**
              * @brief Send data async (by DMA) with ignored receive
@@ -351,6 +372,15 @@ namespace Zhele
              *  Nothing
              */
             static void ReadAsync(void* receiveBuffer, size_t bufferSize, TransferCallback callback = nullptr);
+
+            /**
+             * @brief Read into a buffer async (via DMA)
+             */
+            template<typename T>
+            static void ReadAsync(std::span<T> receiveBuffer, TransferCallback callback = nullptr)
+            {
+                ReadAsync(receiveBuffer.data(), receiveBuffer.size(), callback);
+            }
          
 
             /**

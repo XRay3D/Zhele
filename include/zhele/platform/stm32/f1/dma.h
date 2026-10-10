@@ -17,15 +17,15 @@ namespace Zhele
 {
     namespace Private
     {
-        IO_STRUCT_WRAPPER(DMA1, Dma1, DMA_TypeDef);
+        using Dma1 = IoStruct<DMA1_BASE, DMA_TypeDef>;
         
-        IO_STRUCT_WRAPPER(DMA1_Channel1, Dma1Channel1, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(DMA1_Channel2, Dma1Channel2, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(DMA1_Channel3, Dma1Channel3, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(DMA1_Channel4, Dma1Channel4, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(DMA1_Channel5, Dma1Channel5, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(DMA1_Channel6, Dma1Channel6, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(DMA1_Channel7, Dma1Channel7, DMA_Channel_TypeDef);	
+        using Dma1Channel1 = IoStruct<DMA1_Channel1_BASE, DMA_Channel_TypeDef>;
+        using Dma1Channel2 = IoStruct<DMA1_Channel2_BASE, DMA_Channel_TypeDef>;
+        using Dma1Channel3 = IoStruct<DMA1_Channel3_BASE, DMA_Channel_TypeDef>;
+        using Dma1Channel4 = IoStruct<DMA1_Channel4_BASE, DMA_Channel_TypeDef>;
+        using Dma1Channel5 = IoStruct<DMA1_Channel5_BASE, DMA_Channel_TypeDef>;
+        using Dma1Channel6 = IoStruct<DMA1_Channel6_BASE, DMA_Channel_TypeDef>;
+        using Dma1Channel7 = IoStruct<DMA1_Channel7_BASE, DMA_Channel_TypeDef>;	
     }
 
     using Dma1 = DmaModule<Private::Dma1, Clock::Dma1Clock, 7>;
@@ -46,13 +46,13 @@ namespace Zhele
 #endif
     namespace Private
     {
-        IO_STRUCT_WRAPPER(DMA2, Dma2, DMA_TypeDef);
+        using Dma2 = IoStruct<DMA2_BASE, DMA_TypeDef>;
         
-        IO_STRUCT_WRAPPER(DMA2_Channel1, Dma2Channel1, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(DMA2_Channel2, Dma2Channel2, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(DMA2_Channel3, Dma2Channel3, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(DMA2_Channel4, Dma2Channel4, DMA_Channel_TypeDef);
-        IO_STRUCT_WRAPPER(DMA2_Channel5, Dma2Channel5, DMA_Channel_TypeDef);	
+        using Dma2Channel1 = IoStruct<DMA2_Channel1_BASE, DMA_Channel_TypeDef>;
+        using Dma2Channel2 = IoStruct<DMA2_Channel2_BASE, DMA_Channel_TypeDef>;
+        using Dma2Channel3 = IoStruct<DMA2_Channel3_BASE, DMA_Channel_TypeDef>;
+        using Dma2Channel4 = IoStruct<DMA2_Channel4_BASE, DMA_Channel_TypeDef>;
+        using Dma2Channel5 = IoStruct<DMA2_Channel5_BASE, DMA_Channel_TypeDef>;	
     }
     using Dma2 = DmaModule<Private::Dma2, Clock::Dma2Clock, 5>;
     using Dma2Channel1 = DmaChannel<Dma2, Private::Dma2Channel1, 1, DMA2_Channel1_IRQn>;

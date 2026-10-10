@@ -21,25 +21,44 @@ namespace Zhele
     using ClockFrequenceT = uint32_t;
     namespace Clock
     {
-        IO_REG_WRAPPER(RCC->CR, RccCrReg, uint32_t);
+        /**
+         * @brief Shift (log2 of the divider) encoded by an AHB prescaler field (HPRE):
+         * 0xxx = /1, 1000 = /2, 1001 = /4, 1010 = /8, 1011 = /16, 1100 = /64, ... 1111 = /512
+         */
+        constexpr uint8_t AhbPrescalerShift(unsigned field)
+        {
+            if (field < 8) return 0;
+            const uint8_t shift = field - 7;
+            return shift < 5 ? shift : shift + 1; // /32 is not encodable
+        }
+
+        /**
+         * @brief Shift encoded by an APB prescaler field (PPRE): 0xx = /1, 100 = /2 ... 111 = /16
+         */
+        constexpr uint8_t ApbPrescalerShift(unsigned field)
+        {
+            return field < 4 ? 0 : field - 3;
+        }
+
+        using RccCrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::CR>;
 #if defined (STM32C0)
-        IO_REG_WRAPPER(RCC->CSR2, RccCsrReg, uint32_t);
-        IO_REG_WRAPPER(RCC->CSR1, RccBdcrReg, uint32_t);
+        using RccCsrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::CSR2>;
+        using RccBdcrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::CSR1>;
 #elif defined (STM32H5)
         // H5 has no RCC_CSR at all: LSI and LSE both live in BDCR
-        IO_REG_WRAPPER(RCC->BDCR, RccCsrReg, uint32_t);
-        IO_REG_WRAPPER(RCC->BDCR, RccBdcrReg, uint32_t);
+        using RccCsrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::BDCR>;
+        using RccBdcrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::BDCR>;
 #else
-        IO_REG_WRAPPER(RCC->CSR, RccCsrReg, uint32_t);
-        IO_REG_WRAPPER(RCC->BDCR, RccBdcrReg, uint32_t);
+        using RccCsrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::CSR>;
+        using RccBdcrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::BDCR>;
 #endif
 
 #if defined (STM32H5)
         // H5 split the old CFGR in two: the system clock mux stayed in CFGR1,
         // the bus prescalers moved to CFGR2
-        IO_REG_WRAPPER(RCC->CFGR1, RccCfgrReg, uint32_t);
+        using RccCfgrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR1>;
 #else
-        IO_REG_WRAPPER(RCC->CFGR, RccCfgrReg, uint32_t);
+        using RccCfgrReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>;
 #endif
 
         /**
@@ -372,7 +391,6 @@ namespace Zhele
              * @returns Hsi multiplier
              */
             static constexpr unsigned GetMultipler();
-
 
             /**
              * @brief Returns final clock frequence

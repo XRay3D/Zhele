@@ -73,7 +73,7 @@ namespace Zhele::Clock
         /**
          * @brief Implements Hsi48 clock source
          */
-        IO_REG_WRAPPER(RCC->CR2, RccCr2Reg, uint32_t);
+        using RccCr2Reg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::CR2>;
         class Hsi48Clock : public ClockBase<RccCr2Reg>
         {
         public:
@@ -98,7 +98,7 @@ namespace Zhele::Clock
         };
     #endif
 
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->CFGR, AhbPrescalerBitField, RCC_CFGR_HPRE);
+    using AhbPrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_HPRE_Msk>;
 
     class AhbClock : public BusClock<SysClock, AhbPrescalerBitField>
     {
@@ -107,23 +107,21 @@ namespace Zhele::Clock
         // AHB prescaler values
         enum Prescaler
         {
-            Div1 = RCC_CFGR_HPRE_DIV1 >> AhbPrescalerBitFieldOffset, ///< No divide (prescaler = 1)
-            Div2 = RCC_CFGR_HPRE_DIV2 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 2
-            Div4 = RCC_CFGR_HPRE_DIV4 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 4
-            Div8 = RCC_CFGR_HPRE_DIV8 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 8
-            Div16 = RCC_CFGR_HPRE_DIV16 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 16
-            Div64 = RCC_CFGR_HPRE_DIV64 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 64
-            Div128 = RCC_CFGR_HPRE_DIV128 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 128
-            Div256 = RCC_CFGR_HPRE_DIV256 >> AhbPrescalerBitFieldOffset, ///< Prescaler = 256
-            Div512 = RCC_CFGR_HPRE_DIV512 >> AhbPrescalerBitFieldOffset ///< Prescaler = 512
+            Div1 = RCC_CFGR_HPRE_DIV1 >> AhbPrescalerBitField::Offset, ///< No divide (prescaler = 1)
+            Div2 = RCC_CFGR_HPRE_DIV2 >> AhbPrescalerBitField::Offset, ///< Prescaler = 2
+            Div4 = RCC_CFGR_HPRE_DIV4 >> AhbPrescalerBitField::Offset, ///< Prescaler = 4
+            Div8 = RCC_CFGR_HPRE_DIV8 >> AhbPrescalerBitField::Offset, ///< Prescaler = 8
+            Div16 = RCC_CFGR_HPRE_DIV16 >> AhbPrescalerBitField::Offset, ///< Prescaler = 16
+            Div64 = RCC_CFGR_HPRE_DIV64 >> AhbPrescalerBitField::Offset, ///< Prescaler = 64
+            Div128 = RCC_CFGR_HPRE_DIV128 >> AhbPrescalerBitField::Offset, ///< Prescaler = 128
+            Div256 = RCC_CFGR_HPRE_DIV256 >> AhbPrescalerBitField::Offset, ///< Prescaler = 256
+            Div512 = RCC_CFGR_HPRE_DIV512 >> AhbPrescalerBitField::Offset ///< Prescaler = 512
         };
 
         static ClockFrequenceT ClockFreq()
         {
-            static constexpr uint8_t clockPrescShift[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
-
             ClockFrequenceT clock = SysClock::ClockFreq();
-            uint8_t shiftBits = clockPrescShift[AhbPrescalerBitField::Get()];
+            uint8_t shiftBits = AhbPrescalerShift(AhbPrescalerBitField::Get());
             clock >>= shiftBits;
             return clock;
         }
@@ -135,7 +133,7 @@ namespace Zhele::Clock
         }
     };
 
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->CFGR, ApbPrescalerBitField, RCC_CFGR_PPRE);
+    using ApbPrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_PPRE_Msk>;
 
     /**
      * @brief Implements APB clock
@@ -149,19 +147,17 @@ namespace Zhele::Clock
          */
         enum Prescaler
         {
-            Div1 = RCC_CFGR_PPRE_DIV1 >> ApbPrescalerBitFieldOffset, ///< No divide (prescaler = 1)
-            Div2 = RCC_CFGR_PPRE_DIV2 >> ApbPrescalerBitFieldOffset, ///< Prescaler = 2
-            Div4 = RCC_CFGR_PPRE_DIV4 >> ApbPrescalerBitFieldOffset, ///< Prescaler = 4
-            Div8 = RCC_CFGR_PPRE_DIV8 >> ApbPrescalerBitFieldOffset, ///< Prescaler = 8
-            Div16 = RCC_CFGR_PPRE_DIV16 >> ApbPrescalerBitFieldOffset, ///< Prescaler = 16
+            Div1 = RCC_CFGR_PPRE_DIV1 >> ApbPrescalerBitField::Offset, ///< No divide (prescaler = 1)
+            Div2 = RCC_CFGR_PPRE_DIV2 >> ApbPrescalerBitField::Offset, ///< Prescaler = 2
+            Div4 = RCC_CFGR_PPRE_DIV4 >> ApbPrescalerBitField::Offset, ///< Prescaler = 4
+            Div8 = RCC_CFGR_PPRE_DIV8 >> ApbPrescalerBitField::Offset, ///< Prescaler = 8
+            Div16 = RCC_CFGR_PPRE_DIV16 >> ApbPrescalerBitField::Offset, ///< Prescaler = 16
         };
 
         static ClockFrequenceT ClockFreq()
         {
-            static constexpr uint8_t clockPrescShift[] = {0, 0, 0, 0, 1, 2, 3, 4};
-
             ClockFrequenceT clock = AhbClock::ClockFreq();
-            uint8_t shiftBits = clockPrescShift[ApbPrescalerBitField::Get()];
+            uint8_t shiftBits = ApbPrescalerShift(ApbPrescalerBitField::Get());
             clock >>= shiftBits;
             return clock;
         }
@@ -175,7 +171,7 @@ namespace Zhele::Clock
     using Apb1Clock = ApbClock;
     using Apb2Clock = ApbClock;
 
-    DECLARE_IO_BITFIELD_WRAPPER(RCC->CFGR, AdcPrescalerBitField, RCC_CFGR_ADCPRE);
+    using AdcPrescalerBitField = MaskedBitField<PeriphReg<RCC_BASE, ^^RCC_TypeDef::CFGR>, RCC_CFGR_ADCPRE_Msk>;
 
     class AdcClockSource : _AdcClockSource
     {
@@ -193,8 +189,8 @@ namespace Zhele::Clock
          */
         enum Prescaler
         {
-            Div2 = RCC_CFGR_ADCPRE_DIV2 >> AdcPrescalerBitFieldOffset, ///< Prescaler = 2
-            Div4 = RCC_CFGR_ADCPRE_DIV4 >> AdcPrescalerBitFieldOffset, ///< Prescaler = 4
+            Div2 = RCC_CFGR_ADCPRE_DIV2 >> AdcPrescalerBitField::Offset, ///< Prescaler = 2
+            Div4 = RCC_CFGR_ADCPRE_DIV4 >> AdcPrescalerBitField::Offset, ///< Prescaler = 4
         };
         
         /**
@@ -241,9 +237,9 @@ namespace Zhele::Clock
         }
     };
     
-    IO_REG_WRAPPER(RCC->AHBENR, AhbClockEnableReg, uint32_t);
-    IO_REG_WRAPPER(RCC->APB1ENR, PeriphClockEnable1, uint32_t);
-    IO_REG_WRAPPER(RCC->APB2ENR, PeriphClockEnable2, uint32_t);
+    using AhbClockEnableReg = PeriphReg<RCC_BASE, ^^RCC_TypeDef::AHBENR>;
+    using PeriphClockEnable1 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB1ENR>;
+    using PeriphClockEnable2 = PeriphReg<RCC_BASE, ^^RCC_TypeDef::APB2ENR>;
 
     using CrcClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_CRCEN, AhbClock>;
     using DmaClock = ClockControl<AhbClockEnableReg, RCC_AHBENR_DMAEN, AhbClock>;

@@ -20,8 +20,8 @@ namespace Zhele
 {
     namespace Private
     {
-        I2C_TEMPLATE_ARGS
-        void I2C_TEMPLATE_QUALIFIER::SelectPins(uint8_t sclPinNumber, uint8_t sdaPinNumber)
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
+        void I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::SelectPins(uint8_t sclPinNumber, uint8_t sdaPinNumber)
         {
             if(sclPinNumber != sdaPinNumber)
                 return;
@@ -45,9 +45,9 @@ namespace Zhele
             }
         }
         
-        I2C_TEMPLATE_ARGS
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
         template<unsigned sclPinNumber, unsigned sdaPinNumber>
-        void I2C_TEMPLATE_QUALIFIER::SelectPins()
+        void I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::SelectPins()
         {
             using SclPin = typename _SclPins::template Pin<sclPinNumber>;
             SclPin::Port::Enable();
@@ -68,9 +68,9 @@ namespace Zhele
             }
         }
         
-        I2C_TEMPLATE_ARGS
+        template<typename _Regs, IRQn_Type _EventIrqNumber, IRQn_Type _ErrorIrqNumber, typename _ClockCtrl, typename _SclPins, typename _SdaPins, typename _DmaTx, typename _DmaRx>
         template<typename SclPin, typename SdaPin>
-        void I2C_TEMPLATE_QUALIFIER::SelectPins()
+        void I2cBase<_Regs, _EventIrqNumber, _ErrorIrqNumber, _ClockCtrl, _SclPins, _SdaPins, _DmaTx, _DmaRx>::SelectPins()
         {
             const int sclPinIndex = _SclPins::template IndexOf<SclPin>;
             const int sdaPinIndex = _SdaPins::template IndexOf<SdaPin>;
@@ -83,12 +83,12 @@ namespace Zhele
 
         using I2C1SclPins = IO::PinList<IO::Pb6, IO::Pb8>;
         using I2C1SdaPins = IO::PinList<IO::Pb7, IO::Pb9>;
-        IO_STRUCT_WRAPPER(I2C1, I2C1Regs, I2C_TypeDef);
+        using I2C1Regs = IoStruct<I2C1_BASE, I2C_TypeDef>;
 
     #if defined (I2C2)
         using I2C2SclPins = IO::PinList<IO::Pb10>;
         using I2C2SdaPins = IO::PinList<IO::Pb11>;
-        IO_STRUCT_WRAPPER(I2C2, I2C2Regs, I2C_TypeDef);
+        using I2C2Regs = IoStruct<I2C2_BASE, I2C_TypeDef>;
         using I2c2 = I2cBase<I2C2Regs, I2C2_EV_IRQn, I2C2_ER_IRQn, Clock::I2c2Clock, I2C2SclPins, I2C2SdaPins, void, void>;
     #endif
     }

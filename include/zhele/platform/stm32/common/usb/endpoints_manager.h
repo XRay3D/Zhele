@@ -136,14 +136,14 @@ namespace Zhele::Usb
     {
         /// Wrappers for EPnR registers
         /// C++ doesn't allows reinterpret_cast in compile-time
-        IO_REG_WRAPPER(USB->EP0R, Ep0Reg, uint16_t);
-        IO_REG_WRAPPER(USB->EP1R, Ep1Reg, uint16_t);
-        IO_REG_WRAPPER(USB->EP2R, Ep2Reg, uint16_t);
-        IO_REG_WRAPPER(USB->EP3R, Ep3Reg, uint16_t);
-        IO_REG_WRAPPER(USB->EP4R, Ep4Reg, uint16_t);
-        IO_REG_WRAPPER(USB->EP5R, Ep5Reg, uint16_t);
-        IO_REG_WRAPPER(USB->EP6R, Ep6Reg, uint16_t);
-        IO_REG_WRAPPER(USB->EP7R, Ep7Reg, uint16_t);
+        using Ep0Reg = PeriphReg<USB_BASE, ^^USB_TypeDef::EP0R>;
+        using Ep1Reg = PeriphReg<USB_BASE, ^^USB_TypeDef::EP1R>;
+        using Ep2Reg = PeriphReg<USB_BASE, ^^USB_TypeDef::EP2R>;
+        using Ep3Reg = PeriphReg<USB_BASE, ^^USB_TypeDef::EP3R>;
+        using Ep4Reg = PeriphReg<USB_BASE, ^^USB_TypeDef::EP4R>;
+        using Ep5Reg = PeriphReg<USB_BASE, ^^USB_TypeDef::EP5R>;
+        using Ep6Reg = PeriphReg<USB_BASE, ^^USB_TypeDef::EP6R>;
+        using Ep7Reg = PeriphReg<USB_BASE, ^^USB_TypeDef::EP7R>;
         
         static constexpr auto _endpointRegs = template_utils::type_list<Ep0Reg, Ep1Reg, Ep2Reg, Ep3Reg, Ep4Reg, Ep5Reg, Ep6Reg, Ep7Reg>{};
         static constexpr auto _endpoints = template_utils::type_list<Endpoints...>{};
@@ -384,17 +384,19 @@ namespace Zhele::Usb
     template<typename... Endpoints>
     class EndpointRegistersManager
     {
-        #define USB_INEP(i)  (USB_OTG_FS_PERIPH_BASE + USB_OTG_IN_ENDPOINT_BASE + (i) * USB_OTG_EP_REG_SIZE)
-        #define USB_OUTEP(i) (USB_OTG_FS_PERIPH_BASE + USB_OTG_OUT_ENDPOINT_BASE + (i) * USB_OTG_EP_REG_SIZE)
+        template<unsigned _Index>
+        using InEpRegs = IoStruct<USB_OTG_FS_PERIPH_BASE + USB_OTG_IN_ENDPOINT_BASE + _Index * USB_OTG_EP_REG_SIZE, USB_OTG_INEndpointTypeDef>;
+        template<unsigned _Index>
+        using OutEpRegs = IoStruct<USB_OTG_FS_PERIPH_BASE + USB_OTG_OUT_ENDPOINT_BASE + _Index * USB_OTG_EP_REG_SIZE, USB_OTG_OUTEndpointTypeDef>;
 
-        IO_STRUCT_WRAPPER(USB_INEP(0), InEp0Reg, USB_OTG_INEndpointTypeDef);
-        IO_STRUCT_WRAPPER(USB_INEP(1), InEp1Reg, USB_OTG_INEndpointTypeDef);
-        IO_STRUCT_WRAPPER(USB_INEP(2), InEp2Reg, USB_OTG_INEndpointTypeDef);
-        IO_STRUCT_WRAPPER(USB_INEP(3), InEp3Reg, USB_OTG_INEndpointTypeDef);
-        IO_STRUCT_WRAPPER(USB_OUTEP(0), OutEp0Reg, USB_OTG_OUTEndpointTypeDef);
-        IO_STRUCT_WRAPPER(USB_OUTEP(1), OutEp1Reg, USB_OTG_OUTEndpointTypeDef);
-        IO_STRUCT_WRAPPER(USB_OUTEP(2), OutEp2Reg, USB_OTG_OUTEndpointTypeDef);
-        IO_STRUCT_WRAPPER(USB_OUTEP(3), OutEp3Reg, USB_OTG_OUTEndpointTypeDef);
+        using InEp0Reg = InEpRegs<0>;
+        using InEp1Reg = InEpRegs<1>;
+        using InEp2Reg = InEpRegs<2>;
+        using InEp3Reg = InEpRegs<3>;
+        using OutEp0Reg = OutEpRegs<0>;
+        using OutEp1Reg = OutEpRegs<1>;
+        using OutEp2Reg = OutEpRegs<2>;
+        using OutEp3Reg = OutEpRegs<3>;
 
         static constexpr auto _endpointInRegs = Zhele::template_utils::type_list<InEp0Reg, InEp1Reg, InEp2Reg, InEp3Reg>{};
         static constexpr auto _endpointOutRegs = Zhele::template_utils::type_list<OutEp0Reg, OutEp1Reg, OutEp2Reg, OutEp3Reg>{};
@@ -442,7 +444,7 @@ namespace Zhele::Usb
     template<typename... Endpoints>
     class EndpointsManager
     {
-        IO_STRUCT_WRAPPER(USB_OTG_FS, OtgFsGlobal, USB_OTG_GlobalTypeDef);
+        using OtgFsGlobal = IoStruct<USB_OTG_FS_PERIPH_BASE, USB_OTG_GlobalTypeDef>;
         /// All endpoints sorted by number
         static constexpr auto _sortedUniqueEndpoints = template_utils::type_list<Endpoints...>{}.remove_duplicates().sort([](auto first, auto second){ return first.Number < second.Number; });
         /// Out or bidirectional endpoints sorted by number

@@ -62,13 +62,14 @@ namespace Zhele::Clock
     template<typename _Reg, unsigned _Mask, typename _ClockSrc>
     void ClockControl<_Reg, _Mask, _ClockSrc>::Enable()
     {
-        _Reg::Or(_Mask);
+        static_assert(std::has_single_bit(_Mask), "Peripheral clock enable is one bit");
+        _Reg::template SetBit<std::countr_zero(_Mask)>();
     }
 
     template<typename _Reg, unsigned _Mask, typename _ClockSrc>
     void ClockControl<_Reg, _Mask, _ClockSrc>::Disable()
     {
-        _Reg::And(~_Mask);
+        _Reg::template ClearBit<std::countr_zero(_Mask)>();
     }
 
     inline bool HseClock::Enable()
@@ -95,7 +96,6 @@ namespace Zhele::Clock
     constexpr unsigned HseClock::GetDivider() { return 1; }
     constexpr unsigned HseClock::GetMultipler() { return 1; }
     constexpr ClockFrequenceT HseClock::ClockFreq() { return SrcClockFreq(); }
-
 
     constexpr ClockFrequenceT HsiClock::SrcClockFreq() { return HSI_VALUE; }
     constexpr unsigned HsiClock::GetMultipler() { return 1; }

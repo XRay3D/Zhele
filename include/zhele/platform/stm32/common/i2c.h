@@ -18,12 +18,8 @@
 #include <zhele/pinlist.h>
 
 #include <functional>
+#include <span>
 
-#if defined(I2C_ISR_BUSY)
-    #define I2C_TYPE_1
-#elif defined(I2C_SR2_BUSY)
-    #define I2C_TYPE_2
-#endif
 
 namespace Zhele
 {
@@ -86,7 +82,7 @@ namespace Zhele
     {
         Error = (0x1UL << 31),
 
-    #if defined(I2C_TYPE_1)
+    #if defined(I2C_ISR_BUSY)
         TxEmpty = I2C_ISR_TXE,
         TxInterrupt = I2C_ISR_TXIS,
         RxNotEmpty = I2C_ISR_RXNE,
@@ -169,7 +165,7 @@ namespace Zhele
 
             struct AsyncTransferData
             {
-            #if defined (I2C_TYPE_1)
+            #if defined (I2C_ISR_BUSY)
                 uint8_t* Buffer;
                 uint16_t Size;
             #endif
@@ -193,10 +189,10 @@ namespace Zhele
              * @par Returns
              * 	Nothing
              */
-        #if defined (I2C_TYPE_1)
+        #if defined (I2C_ISR_BUSY)
             static void Init(uint32_t i2cClockSpeed = 100000U);
         #endif
-        #if defined (I2C_TYPE_2)
+        #if defined (I2C_SR2_BUSY)
             static void Init(uint32_t i2cClockSpeed = 100000U, bool dutyCycle2 = false);
         #endif
             
@@ -226,6 +222,14 @@ namespace Zhele
             static I2cStatus Write(uint16_t devAddr, uint16_t regAddr, const uint8_t *data, uint16_t size, I2cOpts opts = I2cOpts::None);
 
             /**
+             * @brief Write a buffer to a device register (blocking)
+             */
+            static I2cStatus Write(uint16_t devAddr, uint16_t regAddr, std::span<const uint8_t> data, I2cOpts opts = I2cOpts::None)
+            {
+                return Write(devAddr, regAddr, data.data(), data.size(), opts);
+            }
+
+            /**
              * @brief Write data to register async
              * 
              * @param [in] devAddr Device address
@@ -238,6 +242,14 @@ namespace Zhele
              * @returns Status
              */
             static I2cStatus WriteAsync(uint16_t devAddr, uint16_t regAddr, const uint8_t *data, uint16_t size, I2cOpts opts = I2cOpts::None, I2cCallback callback = nullptr);
+
+            /**
+             * @brief Write a buffer to a device register async (via DMA)
+             */
+            static I2cStatus WriteAsync(uint16_t devAddr, uint16_t regAddr, std::span<const uint8_t> data, I2cOpts opts = I2cOpts::None, I2cCallback callback = nullptr)
+            {
+                return WriteAsync(devAddr, regAddr, data.data(), data.size(), opts, callback);
+            }
 
             /**
              * @brief Read 8-bit unsigned
@@ -264,6 +276,14 @@ namespace Zhele
             static I2cStatus Read(uint16_t devAddr, uint16_t regAddr, uint8_t *data, uint16_t size, I2cOpts opts = I2cOpts::None);
 
             /**
+             * @brief Read a device register into a buffer (blocking)
+             */
+            static I2cStatus Read(uint16_t devAddr, uint16_t regAddr, std::span<uint8_t> data, I2cOpts opts = I2cOpts::None)
+            {
+                return Read(devAddr, regAddr, data.data(), data.size(), opts);
+            }
+
+            /**
              * @brief Read some bytes async
              * 
              * @param [in] devAddr Device address
@@ -276,6 +296,14 @@ namespace Zhele
              * @returns Operation status
              */
             static I2cStatus EnableAsyncRead(uint16_t devAddr, uint16_t regAddr, uint8_t *data, uint16_t size, I2cOpts opts = I2cOpts::None, I2cCallback callback = nullptr);
+
+            /**
+             * @brief Read a device register into a buffer async (via DMA)
+             */
+            static I2cStatus EnableAsyncRead(uint16_t devAddr, uint16_t regAddr, std::span<uint8_t> data, I2cOpts opts = I2cOpts::None, I2cCallback callback = nullptr)
+            {
+                return EnableAsyncRead(devAddr, regAddr, data.data(), data.size(), opts, callback);
+            }
 
             /**
              * @brief Write register address
@@ -373,7 +401,7 @@ namespace Zhele
             static void SelectPins();
 
         private:
-            #if defined(I2C_TYPE_1)
+            #if defined(I2C_ISR_BUSY)
             /**
              * @brief Write device address for write operation
              * 
@@ -407,7 +435,7 @@ namespace Zhele
             static void SetTransferSize(uint8_t size, bool isLast = true);
             #endif
 
-            #if defined (I2C_TYPE_2)
+            #if defined (I2C_SR2_BUSY)
             /**
              * @brief Write device address for write operation
              * 

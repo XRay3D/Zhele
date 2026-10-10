@@ -522,7 +522,6 @@ namespace Zhele
                     _Regs()->BSRR = value;
                 }
 
-
                 /**
                  * @brief Template clone of Clear function
                  * 
@@ -752,42 +751,39 @@ namespace Zhele
             };
         }
 
-
-#define MAKE_PORT(REGS, ClkEnReg, className, ID) \
-       namespace Private{\
-            IO_STRUCT_WRAPPER(REGS, className ## Regs, GPIO_TypeDef);\
-        }\
-        using className = Private::PortImplementation<\
-            Private::className ## Regs, \
-            ClkEnReg,\
-            ID>; \
-
         #if defined(GPIOA)
-            MAKE_PORT(GPIOA, Zhele::Clock::PortaClock, Porta, 'A')
+        namespace Private { using PortaRegs = IoStruct<GPIOA_BASE, GPIO_TypeDef>; }
+        using Porta = Private::PortImplementation<Private::PortaRegs, Clock::PortaClock, 'A'>;
         #endif
 
         #if defined(GPIOB)
-            MAKE_PORT(GPIOB, Zhele::Clock::PortbClock, Portb, 'B')
+        namespace Private { using PortbRegs = IoStruct<GPIOB_BASE, GPIO_TypeDef>; }
+        using Portb = Private::PortImplementation<Private::PortbRegs, Clock::PortbClock, 'B'>;
         #endif
 
         #if defined(GPIOC)
-            MAKE_PORT(GPIOC, Zhele::Clock::PortcClock, Portc, 'C')
+        namespace Private { using PortcRegs = IoStruct<GPIOC_BASE, GPIO_TypeDef>; }
+        using Portc = Private::PortImplementation<Private::PortcRegs, Clock::PortcClock, 'C'>;
         #endif
 
         #if defined(GPIOD)
-            MAKE_PORT(GPIOD, Clock::PortdClock, Portd, 'D')
+        namespace Private { using PortdRegs = IoStruct<GPIOD_BASE, GPIO_TypeDef>; }
+        using Portd = Private::PortImplementation<Private::PortdRegs, Clock::PortdClock, 'D'>;
         #endif
 
         #if defined(GPIOE)
-            MAKE_PORT(GPIOE, Clock::PorteClock, Porte, 'E')
+        namespace Private { using PorteRegs = IoStruct<GPIOE_BASE, GPIO_TypeDef>; }
+        using Porte = Private::PortImplementation<Private::PorteRegs, Clock::PorteClock, 'E'>;
         #endif
 
         #if defined(GPIOF)
-            MAKE_PORT(GPIOF, Clock::PortfClock, Portf, 'F')
+        namespace Private { using PortfRegs = IoStruct<GPIOF_BASE, GPIO_TypeDef>; }
+        using Portf = Private::PortImplementation<Private::PortfRegs, Clock::PortfClock, 'F'>;
         #endif
 
         #if defined(GPIOG)
-            MAKE_PORT(GPIOG, Clock::PortgClock, Portg, 'G')
+        namespace Private { using PortgRegs = IoStruct<GPIOG_BASE, GPIO_TypeDef>; }
+        using Portg = Private::PortImplementation<Private::PortgRegs, Clock::PortgClock, 'G'>;
         #endif
     }
 }

@@ -10,6 +10,7 @@
 #define ZHELE_PLATFORM_STM32_COMMON_ADC_H
 
 #include <initializer_list>
+#include <span>
 
 namespace Zhele
 {
@@ -324,7 +325,15 @@ namespace Zhele
              * @retval true Success measurement
              * @retval false Measurement fail
              */
-            static bool StartRegular(const uint8_t* channels, uint8_t channelsCount, uint16_t* dataBuffer, uint16_t scanCount, uint8_t discontinuous = 0);
+            static bool StartRegular(const uint8_t* channels, uint8_t channelsCount, uint16_t* dataBuffer, uint16_t scanCount, uint8_t discontinuous = 0)
+            {
+                return StartRegular(std::span<const uint8_t>(channels, channelsCount), dataBuffer, scanCount, discontinuous);
+            }
+
+            /**
+             * @brief Start regular conversion of a channel sequence (DMA into dataBuffer, scanCount scans)
+             */
+            static bool StartRegular(std::span<const uint8_t> channels, uint16_t* dataBuffer, uint16_t scanCount, uint8_t discontinuous = 0);
             /**
              * @brief Start regular measurement ()
              * 
@@ -337,7 +346,10 @@ namespace Zhele
              * @retval true Success measurement
              * @retval false Measurement fail
              */
-            static bool StartRegular(std::initializer_list<uint8_t> channels, uint16_t* dataBuffer, uint16_t scanCount, uint8_t discontinuous = 0);
+            static bool StartRegular(std::initializer_list<uint8_t> channels, uint16_t* dataBuffer, uint16_t scanCount, uint8_t discontinuous = 0)
+            {
+                return StartRegular(std::span<const uint8_t>(channels.begin(), channels.size()), dataBuffer, scanCount, discontinuous);
+            }
 
             /**
              * @brief Start regular measurement

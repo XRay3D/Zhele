@@ -23,6 +23,9 @@ namespace Zhele::Usb
         bool RemoteWakeup : 1 = false; ///< Remote wakeup support
         bool SelfPowered : 1 = false; ///< Self-powered
         uint8_t Reserved2 : 1; ///< Reserved
+
+        /// Wire form: bit 5 remote wakeup, bit 6 self-powered
+        constexpr uint8_t Byte() const { return (RemoteWakeup ? 1u << 5 : 0u) | (SelfPowered ? 1u << 6 : 0u); }
     };
 
 #pragma pack(push, 1)
@@ -45,19 +48,7 @@ namespace Zhele::Usb
          * 
          * @returns Bytes of descriptor
         */
-        constexpr auto GetBytes()
-        {
-            return std::array<uint8_t, 9> {
-                Length,
-                static_cast<uint8_t>(Type),
-                static_cast<uint8_t>(TotalLength & 0xff), static_cast<uint8_t>((TotalLength >> 8) & 0xff),
-                InterfacesCount,
-                Number,
-                StringIndex,
-                static_cast<uint8_t>(((Attributes.RemoteWakeup ? 1 : 0) << 5) | ((Attributes.SelfPowered ? 1 : 0) << 6)),
-                MaxPower
-            };
-        }
+        constexpr auto GetBytes() const { return DescriptorBytes(*this); }
     };
 #pragma pack(pop)
 

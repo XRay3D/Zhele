@@ -135,12 +135,12 @@ namespace Zhele
             SelectPins<mosiPinIndex, misoPinIndex, clockPinIndex, ssPinIndex>();
         }
 
-        IO_STRUCT_WRAPPER(SPI1, Spi1Regs, SPI_TypeDef);
+        using Spi1Regs = IoStruct<SPI1_BASE, SPI_TypeDef>;
     #if defined (SPI2)
-        IO_STRUCT_WRAPPER(SPI2, Spi2Regs, SPI_TypeDef);
+        using Spi2Regs = IoStruct<SPI2_BASE, SPI_TypeDef>;
     #endif
     #if defined (SPI3)
-        IO_STRUCT_WRAPPER(SPI3, Spi3Regs, SPI_TypeDef);
+        using Spi3Regs = IoStruct<SPI3_BASE, SPI_TypeDef>;
     #endif
 
         using Spi1SsPins = IO::PinList<IO::Pa4, IO::Pa15>;

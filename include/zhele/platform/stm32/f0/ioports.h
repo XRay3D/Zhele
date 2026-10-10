@@ -16,5 +16,4 @@
 
 #include "../common/ioports.h"
 
-
 #endif //! ZHELE_PLATFORM_STM32_F0_IOPORTS_H

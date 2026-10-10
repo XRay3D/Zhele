@@ -121,19 +121,19 @@ namespace Zhele
         using Usart6TxPins = IO::PinList<IO::Pc6>;
         using Usart6RxPins = IO::PinList<IO::Pc7>;
 
-        IO_STRUCT_WRAPPER(USART1, Usart1Regs, USART_TypeDef);
-        IO_STRUCT_WRAPPER(USART2, Usart2Regs, USART_TypeDef);
+        using Usart1Regs = IoStruct<USART1_BASE, USART_TypeDef>;
+        using Usart2Regs = IoStruct<USART2_BASE, USART_TypeDef>;
     #if defined(USART3)
-        IO_STRUCT_WRAPPER(USART3, Usart3Regs, USART_TypeDef);
+        using Usart3Regs = IoStruct<USART3_BASE, USART_TypeDef>;
     #endif
     #if defined(UART4)
-        IO_STRUCT_WRAPPER(UART4, Uart4Regs, USART_TypeDef);
+        using Uart4Regs = IoStruct<UART4_BASE, USART_TypeDef>;
     #endif
     #if defined(UART5)
-        IO_STRUCT_WRAPPER(UART5, Uart5Regs, USART_TypeDef);
+        using Uart5Regs = IoStruct<UART5_BASE, USART_TypeDef>;
     #endif
     #if defined(USART6)
-        IO_STRUCT_WRAPPER(USART6, Usart6Regs, USART_TypeDef);
+        using Usart6Regs = IoStruct<USART6_BASE, USART_TypeDef>;
     #endif
     }
     using Usart1 = Private::Usart<Private::Usart1Regs, USART1_IRQn, Clock::Usart1Clock, Private::Usart1TxPins, Private::Usart1RxPins, Dma2Stream7Channel4, Dma2Stream2Channel4>;

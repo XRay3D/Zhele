@@ -11,17 +11,55 @@
 #define ZHELE_PLATFORM_STM32_COMMON_USB_COMMON_H
 
 #include <stdint.h>
+#include <array>
+#include <cstddef>
 #include <cstring>
+#include <meta>
+#include <type_traits>
+#include <utility>
 
 namespace Zhele::Usb
 {
+    /**
+     * @brief Serialize a packed descriptor struct into its wire bytes (little-endian),
+     * member by member via reflection. A member class type must provide `Byte()`.
+     *
+     * @param descriptor Descriptor struct (packed, no padding)
+     * @returns std::array<uint8_t, sizeof(T)>
+     */
+    template<typename T>
+    constexpr std::array<uint8_t, sizeof(T)> DescriptorBytes(const T& descriptor)
+    {
+        std::array<uint8_t, sizeof(T)> bytes{};
+        std::size_t offset = 0;
+        template for (constexpr std::meta::info member : std::define_static_array(
+            std::meta::nonstatic_data_members_of(^^T, std::meta::access_context::unchecked())))
+        {
+            using Member = typename [:std::meta::type_of(member):];
+            const auto& value = descriptor.[:member:];
+            if constexpr (std::is_enum_v<Member> || std::is_integral_v<Member>)
+            {
+                uint32_t raw;
+                if constexpr (std::is_enum_v<Member>)
+                    raw = static_cast<uint32_t>(std::to_underlying(value));
+                else
+                    raw = static_cast<uint32_t>(value);
+                for (std::size_t i = 0; i < sizeof(Member); ++i)
+                    bytes[offset++] = static_cast<uint8_t>(raw >> (8 * i));
+            }
+            else
+            {
+                bytes[offset++] = value.Byte();
+            }
+        }
+        return bytes;
+    }
+
 /// Thanks ST very much O_o
 #if defined (STM32F1) || defined (STM32F3)
-    #define PMA_ALIGN_MULTIPLIER 2
-    const unsigned PmaAlignMultiplier = 2;
+    inline constexpr unsigned PmaAlignMultiplier = 2;
 #else
-    #define PMA_ALIGN_MULTIPLIER 1
-    const unsigned PmaAlignMultiplier = 1;
+    inline constexpr unsigned PmaAlignMultiplier = 1;
 #endif
 
     inline void CopyFromUsbPma(void* destination, const void* source, unsigned size)
@@ -149,7 +187,7 @@ namespace Zhele::Usb
      * @brief Setup packet
      */
 #pragma pack(push, 1)
-#if PMA_ALIGN_MULTIPLIER == 2
+#if defined (STM32F1) || defined (STM32F3)
     struct SetupPacket
     {
         SetupRequestType RequestType; ///< Request type

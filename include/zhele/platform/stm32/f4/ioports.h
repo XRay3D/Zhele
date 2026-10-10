@@ -15,5 +15,4 @@
 #include "clock.h"
 #include "../common/ioports.h"
 
-
 #endif //! ZHELE_PLATFORM_STM32_F4_IOPORTS_H
