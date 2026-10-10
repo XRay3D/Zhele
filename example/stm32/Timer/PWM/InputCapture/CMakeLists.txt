@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
 set (CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../stm32-cmake/cmake/stm32_gcc.cmake)
-set (CMAKE_CXX_STANDARD 23)
+set (CMAKE_CXX_STANDARD 26)
+add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-freflection>)
 
 project(input_capture CXX C ASM)
 
