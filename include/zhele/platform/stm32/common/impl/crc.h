@@ -76,34 +76,60 @@ namespace Zhele::Private
     #endif
     }
 
+    /// Little-endian word at any alignment (Cortex-M0 faults on unaligned word loads)
+    inline uint32_t LoadWord(const uint8_t* data)
+    {
+        return uint32_t(data[0]) | uint32_t(data[1]) << 8 | uint32_t(data[2]) << 16 | uint32_t(data[3]) << 24;
+    }
+
+    /// The last 1..3 bytes as a little-endian word, without reading past the buffer
+    inline uint32_t LoadTail(const uint8_t* data, unsigned count)
+    {
+        uint32_t word = 0;
+        for (unsigned i = 0; i < count; ++i)
+            word |= uint32_t(data[i]) << (8 * i);
+        return word;
+    }
+
     template<typename _Clock>
     inline uint32_t Crc32<_Clock>::CalculateCrc32(const uint8_t* data, unsigned size)
     {
         Reset();
-        const uint32_t* data_aligned = reinterpret_cast<const uint32_t*>(data);
+        const unsigned words = size / sizeof(uint32_t);
+        const unsigned tail = size % sizeof(uint32_t);
 
 #if defined (CRC_CR_REV_IN) && defined (CRC_CR_REV_OUT)
-        for (int i = 0; i < (size / sizeof(uint32_t)); ++i) {
-            CRC->DR = data_aligned[i];
+        if ((reinterpret_cast<uintptr_t>(data) & 3u) == 0) {
+            const uint32_t* aligned = reinterpret_cast<const uint32_t*>(data);
+            for (unsigned i = 0; i < words; ++i)
+                CRC->DR = aligned[i];
+        } else {
+            for (unsigned i = 0; i < words; ++i)
+                CRC->DR = LoadWord(data + i * sizeof(uint32_t));
         }
 
         uint32_t result = CRC->DR;
-        unsigned bits_remain = (size % sizeof(uint32_t)) * std::numeric_limits<uint8_t>::digits;
-        if (bits_remain) {
+        if (tail) {
+            const unsigned bits_remain = tail * std::numeric_limits<uint8_t>::digits;
             CRC->DR = CRC->DR;
-            CRC->DR = ((data_aligned[size / sizeof(uint32_t)] & (0xFFFFFFFF >> (32 - bits_remain))) ^ result) << (32 - bits_remain);
+            CRC->DR = (LoadTail(data + words * sizeof(uint32_t), tail) ^ result) << (32 - bits_remain);
             result = (result >> bits_remain) ^ CRC->DR;
         }
 #else
-        for (int i = 0; i < (size / sizeof(uint32_t)); ++i) {
-            CRC->DR = __RBIT(data_aligned[i]);
+        if ((reinterpret_cast<uintptr_t>(data) & 3u) == 0) {
+            const uint32_t* aligned = reinterpret_cast<const uint32_t*>(data);
+            for (unsigned i = 0; i < words; ++i)
+                CRC->DR = __RBIT(aligned[i]);
+        } else {
+            for (unsigned i = 0; i < words; ++i)
+                CRC->DR = __RBIT(LoadWord(data + i * sizeof(uint32_t)));
         }
 
         uint32_t result = __RBIT(CRC->DR);
-        unsigned bits_remain = (size % sizeof(uint32_t)) * std::numeric_limits<uint8_t>::digits;
-        if (bits_remain) {
+        if (tail) {
+            const unsigned bits_remain = tail * std::numeric_limits<uint8_t>::digits;
             CRC->DR = CRC->DR;
-            CRC->DR = __RBIT((data_aligned[size / sizeof(uint32_t)] & (0xFFFFFFFF >> (32 - bits_remain))) ^ result) >> (32 - bits_remain);
+            CRC->DR = __RBIT(LoadTail(data + words * sizeof(uint32_t), tail) ^ result) >> (32 - bits_remain);
             result = (result >> bits_remain) ^ __RBIT(CRC->DR);
         }
 #endif
