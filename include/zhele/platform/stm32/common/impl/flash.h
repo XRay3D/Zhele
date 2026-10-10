@@ -53,11 +53,11 @@ namespace Zhele
     #if defined (FLASH_SIZE)
         return FLASH_SIZE;
     #elif defined (FLASH_END)
-        return FLASH_END - FLASH_BASE;
+        return FLASH_END - FLASH_BASE + 1; // *_END is the last byte address
     #elif defined (FLASH_BANK2_END)
-        return FLASH_BANK2_END - FLASH_BASE;
+        return FLASH_BANK2_END - FLASH_BASE + 1;
     #elif defined (FLASH_BANK1_END)
-        return FLASH_BANK1_END - FLASH_BASE;
+        return FLASH_BANK1_END - FLASH_BASE + 1;
     #else
         #error "Cannot determine flash size"
     #endif

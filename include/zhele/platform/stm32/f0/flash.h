@@ -128,7 +128,7 @@ namespace Zhele
         FLASH->CR &= (~FLASH_CR_PG);
         Lock();
 
-        return (FLASH->SR & (FLASH_SR_WRPRTERR | FLASH_SR_PGERR) == 0);
+        return (FLASH->SR & (FLASH_SR_WRPRTERR | FLASH_SR_PGERR)) == 0;
     }
 }
 
